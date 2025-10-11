@@ -44,8 +44,6 @@ def send_mobile(request):
             security.isBan = False
             security.save()
 
-            # TODO: ارسال SMS
-            print(f"📲 کد تأیید برای {mobile}: {code}")
 
             # ذخیره شماره موبایل و next در سشن
             request.session["mobileNumber"] = mobile
@@ -109,11 +107,11 @@ def verify_code(request):
             code = form.cleaned_data['activeCode']
 
             if security.expireCode and security.expireCode < timezone.now():
-                messages.error(request, "⏳ کد منقضی شده است، دوباره تلاش کنید.")
+                messages.error(request, " کد منقضی شده است، دوباره تلاش کنید.")
                 return redirect("account:send_mobile")
 
             if security.activeCode != code:
-                messages.error(request, "❌ کد تأیید اشتباه است.")
+                messages.error(request, " کد تأیید اشتباه است.")
             else:
                 user.is_active = True
                 user.save()
