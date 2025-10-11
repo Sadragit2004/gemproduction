@@ -12,7 +12,7 @@ import utils
 
 import json
 from django.http import JsonResponse
-
+from utils import send_sms
 
 # ======================
 # مرحله 1: ورود شماره موبایل
@@ -38,7 +38,7 @@ def send_mobile(request):
             # تولید کد تأیید
             code = utils.create_random_code(5)
             expire_time = timezone.now() + timedelta(minutes=2)
-
+            send_sms(mobile, code)
             security.activeCode = code
             security.expireCode = expire_time
             security.isBan = False
@@ -72,14 +72,17 @@ def verify_code(request):
             return JsonResponse({'success': False, 'message': 'شماره موبایل یافت نشد'})
         return redirect("account:send_mobile")
 
+
     try:
         user = CustomUser.objects.get(mobileNumber=mobile)
-        security, _ = UserSecurity.objects.get_or_create(user=user)  # تضمین وجود
+        security, _ = UserSecurity.objects.get_or_create(user=user)
     except CustomUser.DoesNotExist:
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({'success': False, 'message': 'کاربری با این شماره موبایل یافت نشد'})
         messages.error(request, "کاربری با این شماره موبایل یافت نشد.")
         return redirect("account:send_mobile")
+
+
 
     if request.method == "POST":
         # ارسال مجدد کد
@@ -92,8 +95,8 @@ def verify_code(request):
             security.isBan = False
             security.save()
 
-            print(f"🔄 کد جدید برای {mobile}: {code}")
 
+            send_sms(mobile, code)
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({'success': True, 'message': 'کد جدید ارسال شد'})
 
@@ -105,16 +108,13 @@ def verify_code(request):
         if form.is_valid():
             code = form.cleaned_data['activeCode']
 
-            # انقضا
             if security.expireCode and security.expireCode < timezone.now():
                 messages.error(request, "⏳ کد منقضی شده است، دوباره تلاش کنید.")
                 return redirect("account:send_mobile")
 
-            # صحت کد
             if security.activeCode != code:
                 messages.error(request, "❌ کد تأیید اشتباه است.")
             else:
-                # فعال‌سازی و ورود
                 user.is_active = True
                 user.save()
 
@@ -124,7 +124,6 @@ def verify_code(request):
 
                 login(request, user)
                 messages.success(request, "✅ ورود موفقیت‌آمیز بود.")
-
                 return redirect(next_url or "main:index")
 
     else:
