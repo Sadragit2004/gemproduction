@@ -1,0 +1,101 @@
+{% extends "main_template.html" %}
+{% load render_partial %}
+
+
+{% block meta1 %}
+<title>مرجع فروش فایل سه بعدی</title>
+  <meta name="description" content="بهترین فروشگاه فایل سه بعدی در ایران">
+  <meta name="keywords" content="{{meta_tags.keyword_list}}">
+  <meta name="robots" content="index, follow">
+
+  <meta property="og:type" content="product">
+  <meta property="og:title" content="{{meta_tags.og_title}}">
+  <meta property="og:description" content="{{meta_tags.description}}">
+  <meta property="og:image" content="{{ media_url }}{{ file.image_name }}">
+  <meta property="og:url" content="{{file.get_absolute_url}}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{meta_tags.og_title}}">
+  <meta name="twitter:description" content="{{meta_tags.description}}">
+  <meta name="twitter:image" content="{{ media_url }}{{ file.image_name }}">
+  <link rel="canonical" href="{{file.get_absolute_url}}">
+
+{% endblock meta1 %}
+
+{% block content %}
+
+
+    <div class="flex min-h-screen flex-col">
+
+      <div
+        class="fixed inset-x-0 top-1/3 mx-auto h-1/3 w-1/4 bg-primary/50 blur-[200px]"
+      ></div>
+
+      <main class="flex-grow bg-background pb-14 pt-36 xs:pt-36">
+      {% render_partial 'main:banner' %}
+
+
+        <!-- Main Banners section Start -->
+        <section class="mb-8">
+          <div class="container relative grid grid-cols-12 gap-x-4 gap-y-2">
+            <div class="col-span-12 lg:col-span-8">
+              <!-- Swiper -->
+              <div class="swiper banner-slider rounded-lg shadow-base">
+                <div class="swiper-wrapper">
+                  {% render_partial 'main:sliders' %}
+
+                </div>
+                <div class="swiper-button-next hidden md:flex"></div>
+                <div class="swiper-button-prev hidden md:flex"></div>
+                <div class="swiper-pagination main-banner-pagination"></div>
+              </div>
+            </div>
+            <div class="col-span-12 hidden xs:block lg:col-span-4">
+              <div
+                class="flex h-full flex-row justify-between gap-x-2 lg:flex-col"
+              >
+              {% render_partial 'main:sliders2' %}
+
+
+
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- Main Banners section End -->
+
+        <!-- Special Products section Start -->
+
+
+ {% render_partial 'file:rich_groups' %}
+
+      {% render_partial 'file:latest_files' %}
+
+
+        <!-- Special Products section End -->
+
+
+
+      {% render_partial 'file:best_selling' %}
+
+         <div id="special-products">
+        {% render_partial 'file:special' %}
+      </div>
+
+     {% render_partial 'blog:show_blog' %}
+
+
+
+      </main>
+
+    </div>
+
+
+
+<script>
+  document.querySelector('[data-dismiss="modal"]').addEventListener('click', function() {
+    document.getElementById('successModal').classList.add('hidden');
+  });
+
+</script>
+
+{% endblock content %}

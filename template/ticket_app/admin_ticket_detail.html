@@ -1,0 +1,837 @@
+<!-- templates/ticket_app/admin_ticket_detail.html -->
+{% extends 'account_template.html' %}
+{% load static %}
+
+
+{% block content %}
+
+<style>
+    :root {
+        --primary-blue: #0066FF;
+        --secondary-blue: #0052CC;
+        --light-blue: #E6F0FF;
+        --dark-blue: #003D99;
+        --gradient-start: #0066FF;
+        --gradient-end: #00B8D4;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    }
+
+    .detail-container {
+        padding: 2rem;
+        direction: rtl;
+    }
+
+    /* Back Button */
+    .back-btn {
+        background: white;
+        border: 2px solid #e2e8f0;
+        padding: 0.6rem 1.5rem;
+        border-radius: 12px;
+        color: #64748b;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .back-btn:hover {
+        background: var(--primary-blue);
+        color: white;
+        border-color: var(--primary-blue);
+        transform: translateX(5px);
+    }
+
+    /* Ticket Header Card */
+    .ticket-header-card {
+        background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(0, 102, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ticket-header-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -10%;
+        width: 400px;
+        height: 400px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        50% { transform: translate(30px, -30px) rotate(180deg); }
+    }
+
+    .ticket-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .ticket-id-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.4rem 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        backdrop-filter: blur(10px);
+        display: inline-block;
+        margin-bottom: 1rem;
+    }
+
+    .status-badges {
+        display: flex;
+        gap: 0.8rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .badge-modern {
+        padding: 0.5rem 1.2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .ticket-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        z-index: 1;
+    }
+
+    .meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .meta-label {
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+
+    .meta-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    /* Messages Section */
+    .messages-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .card-header-custom {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 1.5rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .card-header-custom h6 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .messages-container {
+        padding: 2rem;
+        max-height: 600px;
+        overflow-y: auto;
+        background: #f8fafc;
+    }
+
+    .messages-container::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .messages-container::-webkit-scrollbar-track {
+        background: #e2e8f0;
+        border-radius: 10px;
+    }
+
+    .messages-container::-webkit-scrollbar-thumb {
+        background: var(--primary-blue);
+        border-radius: 10px;
+    }
+
+    /* Message Bubbles */
+    .message-wrapper {
+        margin-bottom: 1.5rem;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-bubble {
+        max-width: 70%;
+        padding: 1.2rem;
+        border-radius: 16px;
+        position: relative;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        word-wrap: break-word;
+    }
+
+    .admin-message-wrapper {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .admin-message {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        color: white;
+        border-bottom-left-radius: 4px;
+    }
+
+    .user-message-wrapper {
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .user-message {
+        background: white;
+        color: #1e293b;
+        border: 2px solid #e2e8f0;
+        border-bottom-right-radius: 4px;
+    }
+
+    .message-author {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.8rem;
+        padding-bottom: 0.8rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        font-weight: 700;
+    }
+
+    .user-message .message-author {
+        border-bottom-color: #e2e8f0;
+    }
+
+    .message-time {
+        font-size: 0.8rem;
+        opacity: 0.7;
+        font-weight: 400;
+    }
+
+    .message-text {
+        line-height: 1.6;
+        white-space: pre-wrap;
+    }
+
+    .message-file {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .user-message .message-file {
+        border-top-color: #e2e8f0;
+    }
+
+    .file-download-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+
+    .file-download-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .user-message .file-download-btn {
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        border-color: var(--primary-blue);
+    }
+
+    .user-message .file-download-btn:hover {
+        background: var(--primary-blue);
+        color: white;
+    }
+
+    /* Reply Form */
+    .reply-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 2rem;
+    }
+
+    .reply-form-container {
+        padding: 2rem;
+    }
+
+    .form-group-modern {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label-modern {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    .form-control-modern {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.9rem;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+        width: 100%;
+        font-size: 0.95rem;
+    }
+
+    .form-control-modern:focus {
+        border-color: var(--primary-blue);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+        outline: none;
+    }
+
+    textarea.form-control-modern {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+        width: 100%;
+    }
+
+    .file-input-wrapper input[type=file] {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+    }
+
+    .file-input-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .file-input-label:hover {
+        background: var(--light-blue);
+        border-color: var(--primary-blue);
+        color: var(--primary-blue);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-modern {
+        padding: 0.8rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .btn-primary-modern {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+    }
+
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(0, 102, 255, 0.4);
+    }
+
+    .btn-secondary-modern {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
+
+    .btn-secondary-modern:hover {
+        background: #e2e8f0;
+    }
+
+    /* Sidebar */
+    .sidebar-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .sidebar-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 1rem 1.5rem;
+        border-bottom: 2px solid #e2e8f0;
+    }
+
+    .sidebar-header h6 {
+        margin: 0;
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .sidebar-body {
+        padding: 1.5rem;
+    }
+
+    .status-select-modern {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.8rem;
+        background: #f8fafc;
+        width: 100%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .status-select-modern:focus {
+        border-color: var(--primary-blue);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+        outline: none;
+    }
+
+    .assignment-alert {
+        background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+        border: 2px solid #10b981;
+        border-radius: 12px;
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        color: #065f46;
+        font-weight: 600;
+    }
+
+    .assignment-icon {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #10b981;
+        font-size: 1.2rem;
+    }
+
+    .btn-assign-modern {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        width: 100%;
+        padding: 0.8rem;
+        border-radius: 12px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-assign-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(16, 185, 129, 0.4);
+    }
+
+    .user-info-item {
+        padding: 0.8rem 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .user-info-item:last-child {
+        border-bottom: none;
+    }
+
+    .user-info-label {
+        font-weight: 600;
+        color: #64748b;
+        font-size: 0.85rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .user-info-value {
+        color: #1e293b;
+        font-size: 0.95rem;
+    }
+
+    .creation-date {
+        background: var(--light-blue);
+        padding: 0.8rem;
+        border-radius: 10px;
+        margin-top: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-blue);
+        font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .detail-container {
+            padding: 1rem;
+        }
+
+        .ticket-header-card {
+            padding: 1.5rem;
+        }
+
+        .ticket-title {
+            font-size: 1.4rem;
+        }
+
+        .message-bubble {
+            max-width: 85%;
+        }
+
+        .ticket-meta {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+    }
+</style>
+
+
+<div class="detail-container">
+    <a href="{% url 'ticket:admin_dashboard' %}" class="back-btn">
+        <i class="fas fa-arrow-right"></i>
+        بازگشت به لیست تیکت‌ها
+    </a>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Ticket Header -->
+            <div class="ticket-header-card">
+                <div class="ticket-id-badge">
+                    <i class="fas fa-hashtag ms-1"></i>
+                    {{ ticket.ticket_id }}
+                </div>
+
+                <h1 class="ticket-title">{{ ticket.subject }}</h1>
+
+                <div class="status-badges">
+                    <span class="badge-modern" style="background: {{ ticket.priority.color }};">
+                        <i class="fas fa-flag"></i>
+                        {{ ticket.priority.name }}
+                    </span>
+                    <span class="badge-modern" style="background: {{ ticket.status.color }};">
+                        <i class="fas fa-circle"></i>
+                        {{ ticket.status.name }}
+                    </span>
+                </div>
+
+                <div class="ticket-meta">
+                    <div class="meta-item">
+                        <div class="meta-label">
+                            <i class="fas fa-user ms-1"></i>
+                            کاربر
+                        </div>
+                        <div class="meta-value">{{ ticket.user.name }} {{ ticket.user.family }}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">
+                            <i class="fas fa-mobile-alt ms-1"></i>
+                            شماره تماس
+                        </div>
+                        <div class="meta-value">{{ ticket.user.mobileNumber }}</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">
+                            <i class="fas fa-building ms-1"></i>
+                            دپارتمان
+                        </div>
+                        <div class="meta-value">{{ ticket.department.name|default:"—" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages History -->
+            <div class="messages-card">
+                <div class="card-header-custom">
+                    <h6>
+                        <i class="fas fa-comments"></i>
+                        تاریخچه مکاتبات
+                    </h6>
+                </div>
+                <div class="messages-container">
+                    {% for message in messages %}
+                    <div class="message-wrapper {% if message.is_admin_reply %}admin-message-wrapper{% else %}user-message-wrapper{% endif %}">
+                        <div class="message-bubble {% if message.is_admin_reply %}admin-message{% else %}user-message{% endif %}">
+                            <div class="message-author">
+                                {% if message.is_admin_reply %}
+                                <i class="fas fa-user-shield"></i>
+                                <span>شما (پشتیبان)</span>
+                                {% else %}
+                                <i class="fas fa-user"></i>
+                                <span>{{ ticket.user.name }}</span>
+                                {% endif %}
+                                <span class="message-time">{{ message.created_at|date:"H:i - Y/m/d" }}</span>
+                            </div>
+                            <div class="message-text">{{ message.message|linebreaks }}</div>
+                            {% if message.file %}
+                            <div class="message-file">
+                                <a href="{{ message.file.url }}" class="file-download-btn" download>
+                                    <i class="fas fa-download"></i>
+                                    دانلود فایل پیوست
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Reply Form -->
+            {% if not ticket.status.is_closed %}
+            <div class="reply-card">
+                <div class="card-header-custom">
+                    <h6>
+                        <i class="fas fa-reply"></i>
+                        ارسال پاسخ
+                    </h6>
+                </div>
+                <div class="reply-form-container">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group-modern">
+                            <label class="form-label-modern">متن پاسخ</label>
+                            <textarea name="{{ form.message.name }}" class="form-control-modern" placeholder="پاسخ خود را بنویسید..." required></textarea>
+                        </div>
+                        <div class="form-group-modern">
+                            <label class="form-label-modern">
+                                <i class="fas fa-paperclip ms-1"></i>
+                                فایل پیوست (اختیاری)
+                            </label>
+                            <div class="file-input-wrapper">
+                                {{ form.file }}
+                                <label class="file-input-label">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>انتخاب فایل</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-modern btn-primary-modern">
+                                <i class="fas fa-paper-plane"></i>
+                                ارسال پاسخ
+                            </button>
+                            <a href="{% url 'ticket:admin_dashboard' %}" class="btn-modern btn-secondary-modern">
+                                <i class="fas fa-times"></i>
+                                انصراف
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Change Status -->
+            <div class="sidebar-card">
+                <div class="sidebar-header">
+                    <h6>
+                        <i class="fas fa-exchange-alt"></i>
+                        تغییر وضعیت
+                    </h6>
+                </div>
+                <div class="sidebar-body">
+                    <form method="post" action="{% url 'ticket:change_ticket_status' ticket.ticket_id %}">
+                        {% csrf_token %}
+                        <select name="status_id" class="status-select-modern" onchange="this.form.submit()">
+                            {% for status in statuses %}
+                            <option value="{{ status.id }}" {% if status.id == ticket.status.id %}selected{% endif %}>
+                                {{ status.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Assignment -->
+            <div class="sidebar-card">
+                <div class="sidebar-header">
+                    <h6>
+                        <i class="fas fa-user-cog"></i>
+                        مدیریت انتساب
+                    </h6>
+                </div>
+                <div class="sidebar-body">
+                    {% if ticket.assignments.exists %}
+                    <div class="assignment-alert">
+                        <div class="assignment-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div>
+                            <div>محول شده به:</div>
+                            {% for assignment in ticket.assignments.all %}
+                            <strong>{{ assignment.admin_user.name }}</strong>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <form method="post" action="{% url 'ticket:assign_ticket' ticket.ticket_id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-assign-modern">
+                            <i class="fas fa-user-plus"></i>
+                            انتساب به من
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- User Info -->
+            <div class="sidebar-card">
+                <div class="sidebar-header">
+                    <h6>
+                        <i class="fas fa-id-card"></i>
+                        اطلاعات کاربر
+                    </h6>
+                </div>
+                <div class="sidebar-body">
+                    <div class="user-info-item">
+                        <div class="user-info-label">نام و نام خانوادگی</div>
+                        <div class="user-info-value">{{ ticket.user.name }} {{ ticket.user.family }}</div>
+                    </div>
+                    <div class="user-info-item">
+                        <div class="user-info-label">شماره موبایل</div>
+                        <div class="user-info-value">{{ ticket.user.mobileNumber }}</div>
+                    </div>
+                    {% if ticket.user.email %}
+                    <div class="user-info-item">
+                        <div class="user-info-label">ایمیل</div>
+                        <div class="user-info-value">{{ ticket.user.email }}</div>
+                    </div>
+                    {% endif %}
+                    <div class="creation-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>ایجاد: {{ ticket.created_at|date:"Y/m/d - H:i" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto scroll to last message
+    const messagesContainer = document.querySelector('.messages-container');
+    if (messagesContainer) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // File input label update
+    const fileInput = document.querySelector('input[type="file"]');
+    const fileLabel = document.querySelector('.file-input-label span');
+
+    if (fileInput && fileLabel) {
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                fileLabel.textContent = this.files[0].name;
+            } else {
+                fileLabel.textContent = 'انتخاب فایل';
+            }
+        });
+    }
+
+    // Smooth animation for new messages
+    const messages = document.querySelectorAll('.message-wrapper');
+    messages.forEach((message, index) => {
+        message.style.animationDelay = `${index * 0.1}s`;
+    });
+});
+</script>
+
+
+{% endblock %}
+

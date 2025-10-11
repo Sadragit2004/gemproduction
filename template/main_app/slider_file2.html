@@ -1,0 +1,13 @@
+{% for slide in sliders|slice:":2" %}
+
+<div>
+    <a arget='_blank' rel="noopener noreferrer" href="#">
+      <img
+        alt="{{slide.alt_slide}}"
+        class="rounded-lg shadow-base"
+        src="{{media_url}}{{slide.image_name}}"
+      />
+    </a>
+  </div>
+
+{% endfor %}

@@ -1,0 +1,14 @@
+{% for slide in sliders %}
+
+<div class="swiper-slide">
+    <a arget='_blank' rel="noopener noreferrer" href="#">
+      <img
+       alt="{{slide.alt_slide}}"
+        class="max-h-[450px]"
+        src="{{media_url}}{{slide.image_name}}"
+      />
+    </a>
+  </div>
+
+
+{% endfor %}

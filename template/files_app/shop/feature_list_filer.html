@@ -1,0 +1,43 @@
+{% for key, values in feature_dict.items %}
+    {% if values %}
+        <li class="relative" data-accordion-item>
+            <div class="w-full text-right cursor-pointer" data-accordion-button>
+                <div class="flex items-center justify-between gap-2 text-sm md:text-base">
+                    <div class="font-14">فیلتر بر اساس {{ key }}</div>
+                    <div class="min-w-fit">
+                        <svg data-accordion-chevron class="h-5 w-5 duration-300">
+                            <use xlink:href="#chevron-left"></use>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div class="relative max-h-0 overflow-hidden transition-all duration-300" data-accordion-content>
+                <div class="mt-4 max-h-60 overflow-y-auto pl-1">
+                    <ul class="space-y-2 rounded-lg">
+                        {% for item in values %}
+                            <li>
+                                <div class="flex w-full items-center gap-x-2 pr-4">
+                                    <input
+                                        id="item_{{ item.id }}"
+                                        type="checkbox"
+                                        value="{{ item.id }}"
+                                        name="feature"
+                                        {% if item.id|stringformat:"s" in selected_features %}checked{% endif %}
+                                        onchange="this.form.submit()"
+                                        class="h-4 w-4 cursor-pointer rounded-xl bg-background dark:border-gray-600 dark:bg-zinc-700"
+                                    />
+                                    <label for="item_{{ item.id }}" class="flex w-full cursor-pointer items-center justify-between py-2 pl-4 font-medium text-text/90">
+                                        <span>{{ item.value }}</span>
+                                        {% if item.color_code %}
+                                            <span class="h-4 w-4 rounded-full ring-2 ring-gray-200 dark:ring-zinc-700" style="background: {{ item.color_code }}"></span>
+                                        {% endif %}
+                                    </label>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </li>
+    {% endif %}
+{% endfor %}

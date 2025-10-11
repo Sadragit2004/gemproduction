@@ -1,0 +1,58 @@
+<script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "{{ blog.subject }}",
+    "alternativeHeadline": "{{ blog.name_blog }}",
+    "image": "{{ media_url }}{{ blog.image_name.url }}",
+    "author": [
+      {% for author in blog.Auther_blog.all %}
+      {
+        "@type": "Person",
+        "name": "{{ author.Author_name }}",
+        "url": "{{ request.build_absolute_uri }}"
+      }{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ],
+    "publisher": {
+      "@type": "Organization",
+      "name": "کتابوو",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "{{ request.build_absolute_uri }}/media/images/logo.svg"
+      }
+    },
+    "datePublished": "{{ blog.register_data|date:'Y-m-d' }}",
+    "dateModified": "{{ blog.update_data|date:'Y-m-d' }}",
+    "description": "{{ blog.description|truncatewords:30 }}",
+    "mainEntityOfPage": {
+      "@type": "WebPage",
+      "@id": "{{ request.build_absolute_uri }}"
+    },
+    "keywords": "{{ blog.key_words }}",
+    "articleSection": "{{ blog.grop_blog.group_name }}",
+    "wordCount": "{{ blog.description|length }}",
+    "timeRequired": "PT{{ blog.time_read|default:'5' }}M",
+    "interactionStatistic": {
+      "@type": "InteractionCounter",
+      "interactionType": "http://schema.org/LikeAction",
+      "userInteractionCount": "{{ blog.view }}"
+    },
+    "inLanguage": "fa",
+    "url": "{{ request.build_absolute_uri }}",
+    "isAccessibleForFree": "true",
+    "speakable": {
+      "@type": "SpeakableSpecification",
+      "xpath": [
+        "/html/head/title",
+        "/html/head/meta[@name='description']/@content"
+      ]
+    },
+    "potentialAction": {
+      "@type": "ReadAction",
+      "target": [
+        "{{ request.build_absolute_uri }}"
+      ]
+    }
+  }
+  </script>

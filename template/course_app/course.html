@@ -1,0 +1,127 @@
+{% extends "course_template.html" %}
+
+
+
+{% block meta1 %}
+
+<title>مرجع فروش فایل سه بعدی</title>
+  <meta name="description" content="بهترین فروشگاه فایل سه بعدی در ایران">
+  <meta name="keywords" content="{{meta_tags.keyword_list}}">
+  <meta name="robots" content="index, follow">
+
+  <meta property="og:type" content="product">
+  <meta property="og:title" content="{{meta_tags.og_title}}">
+  <meta property="og:description" content="{{meta_tags.description}}">
+  <meta property="og:image" content="{{ media_url }}{{ file.image_name }}">
+  <meta property="og:url" content="{{file.get_absolute_url}}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{meta_tags.og_title}}">
+  <meta name="twitter:description" content="{{meta_tags.description}}">
+  <meta name="twitter:image" content="{{ media_url }}{{ file.image_name }}">
+  <link rel="canonical" href="{{file.get_absolute_url}}">
+
+{% endblock meta1 %}
+
+
+{% block content %}
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css">
+
+
+    <!-- هدر بهبود یافته -->
+
+
+    <!-- محتوای اصلی -->
+    <main class="container">
+        <!-- بنر تبلیغاتی -->
+        <section class="banner">
+            <div class="banner-content">
+                <h1>یادگیری را شروع کنید، آینده خود را بسازید</h1>
+                <p>با دوره‌های تخصصی ما، مهارت‌های جدید بیاموزید و در مسیر شغلی خود پیشرفت کنید</p>
+                <button class="btn">مشاهده دوره‌ها</button>
+            </div>
+        </section>
+
+       {% load humanize %} <section class="courses-section">
+    <div class="section-header">
+        <h2 class="section-title">محبوب‌ترین دوره‌ها</h2>
+        <a href="#" class="view-all">مشاهده همه <i class="fas fa-arrow-left"></i></a>
+    </div>
+    <div class="swiper popular-courses">
+        <div class="swiper-wrapper">
+
+            {% for course in popular_courses %}
+            <div class="swiper-slide">
+                <div class="course-card">
+                    <img src="{% if course.image %}{{ course.image.url }}{% else %}https://via.placeholder.com/300x160/1a73e8/ffffff?text=Course+Image{% endif %}" alt="{{ course.courseName }}" class="course-image">
+                    <div class="course-content">
+                        <div class="instructor">
+                            <img src="{% if course.instructor.instructorProfile.image %}{{ course.instructor.instructorProfile.image.url }}{% else %}https://via.placeholder.com/30/4285f4/ffffff?text=P{% endif %}" alt="{{ course.instructor.get_full_name|default:course.instructor.name }}" class="instructor-img">
+                            <span class="instructor-name">{{ course.instructor.get_full_name|default:course.instructor.name }}</span>
+                        </div>
+                       <a href="{% url 'course:detail' course.slug %}"> <h3 class="course-title">{{ course.courseName }}</h3></a>
+                        <div class="course-meta">
+                            <span class="duration"><i class="far fa-clock"></i> {{ course.totalHoursHuman }}</span>
+                            <span class="rating">
+                                <span class="stars">
+                                    <i class="fas fa-star"></i>
+                                </span>
+                                {{ course.averageRating|floatformat:1 }}
+                            </span>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="course-price">{{ course.totalPrice|intcomma }} تومان</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+        <div class="swiper-pagination"></div>
+    </div>
+</section>
+
+<section class="courses-section">
+    <div class="section-header">
+        <h2 class="section-title">جدیدترین دوره‌ها</h2>
+        <a href="#" class="view-all">مشاهده همه <i class="fas fa-arrow-left"></i></a>
+    </div>
+    <div class="swiper new-courses">
+        <div class="swiper-wrapper">
+
+            {% for course in newest_courses %}
+            <div class="swiper-slide">
+                <div class="course-card">
+                    <img src="{% if course.image %}{{ course.image.url }}{% else %}https://via.placeholder.com/300x160/4285f4/ffffff?text=Course+Image{% endif %}" alt="{{ course.courseName }}" class="course-image">
+                    <div class="course-content">
+                        <div class="instructor">
+                            <img src="{% if course.instructor.instructorProfile.image %}{{ course.instructor.instructorProfile.image.url }}{% else %}https://via.placeholder.com/30/1a73e8/ffffff?text=P{% endif %}" alt="{{ course.instructor.get_full_name|default:course.instructor.name }}" class="instructor-img">
+                            <span class="instructor-name">{{ course.instructor.get_full_name|default:course.instructor.name }}</span>
+                        </div>
+                        <a href="{% url 'course:detail' slug=course.slug %}"><h3 class="course-title">{{ course.courseName }}</h3></a>
+                        <div class="course-meta">
+                            <span class="duration"><i class="far fa-clock"></i> {{ course.totalHoursHuman }}</span>
+                            <span class="rating">
+                                <span class="stars">
+                                    <i class="fas fa-star"></i>
+                                </span>
+                                {{ course.averageRating|floatformat:1 }}
+                            </span>
+                        </div>
+                        <div class="divider"></div>
+                        <div class="course-price">{{ course.totalPrice|intcomma }} تومان</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+        </div>
+        <div class="swiper-pagination"></div>
+    </div>
+</section>
+    </main>
+
+
+
+{% endblock content %}

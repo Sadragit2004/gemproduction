@@ -1,0 +1,69 @@
+{% load humanize %}
+{% load render_partial %}
+
+<div
+  aria-labelledby="user-basket-drawer-navigation-label"
+  class="fixed left-0 top-0 z-40 h-full w-80 -translate-x-full bg-muted transition-transform duration-300"
+  id="user-basket-drawer-navigation"
+  tabindex="-1"
+>
+  <div class="flex items-center justify-between gap-x-4 border-b p-4 pb-5">
+    <button
+      aria-controls="user-account-drawer-navigation"
+      class="inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-text/90"
+      data-drawer-hide="user-basket-drawer-navigation"
+      type="button"
+    >
+      <svg class="h-5 w-5">
+        <use xlink:href="#close" />
+      </svg>
+      <span class="sr-only">Close menu</span>
+    </button>
+    <a href="">
+      <div style='font-size: 15px;' class="text-lg text-text/90">
+        مشاهده سبد خرید
+      </div>
+    </a>
+  </div>
+
+  <div class="h-full pb-[150px]">
+    <ul class="main-scroll h-full space-y-2 divide-y overflow-y-auto p-4">
+      <div id='mobile_list_cart'>
+        <!-- اینجا توسط JavaScript پر میشود -->
+      </div>
+    </ul>
+  </div>
+
+  <!-- Footer -->
+  <div class="sticky bottom-0 left-0 right-0 flex items-center justify-between border-t p-4 px-6 py-4">
+    <div class="flex flex-col items-center gap-y-1">
+      <div class="text-sm text-text/60">مبلغ قابل پرداخت</div>
+      <div class="text-text/90">
+        <span class="font-bold">0</span>
+        <span class="text-sm">تومان</span>
+      </div>
+    </div>
+    <a class="btn-primary w-32 py-3 text-sm" href="">
+      مشاهده سبد خرید
+    </a>
+  </div>
+</div>
+
+<script>
+  // وقتی دراور موبایل باز میشه
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileDrawer = document.getElementById('user-basket-drawer-navigation');
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.attributeName === 'class') {
+        if (!mobileDrawer.classList.contains('-translate-x-full')) {
+          // دراور باز شده، سبد خرید موبایل رو به روز کن
+          loadMobileCartItems();
+        }
+      }
+    });
+  });
+
+  observer.observe(mobileDrawer, { attributes: true });
+});
+</script>

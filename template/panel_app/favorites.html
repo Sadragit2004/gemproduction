@@ -1,0 +1,202 @@
+{% extends "dp_template.html" %}
+{% load static %}
+{% load humanize %}
+
+
+{% block content %}
+<div class="flex min-h-screen flex-col">
+  <main class="flex-grow bg-background pb-14 pt-36 xs:pt-36">
+    <div class="container">
+      <div class="grid grid-cols-12 gap-4">
+        <!-- sidebar -->
+        {% include "panel_app/partials/side_bar.html" %}
+
+
+        <!-- content -->
+        <div class="col-span-12 lg:col-span-9">
+          <div class="rounded-lg bg-muted p-5 shadow-base">
+            <div class="mb-16 flex flex-col items-center justify-between gap-y-8 xs:flex-row">
+              <!-- Title -->
+              <h1 class="relative w-fit text-xl font-medium">
+                علاقه‌مندی های شما
+                <span class="absolute right-0 top-10 h-[3px] w-full rounded-full bg-primary"></span>
+              </h1>
+
+              {% if favorits|length > 0 %}
+              <button onclick="deleteAllFavorites()" class="btn-red w-full px-4 py-2 xs:w-fit">
+                حذف همه
+              </button>
+              {% endif %}
+            </div>
+
+            <div class="mb-8 grid grid-cols-2 gap-1 gap-y-2 xs:gap-4 sm:grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <!-- Product Favorite Card -->
+              {% for fv in favorits %}
+              <div class="border-gradient group relative rounded-base border p-px before:absolute before:-inset-px before:h-[calc(100%+2px)] before:w-[calc(100%+2px)] before:rounded-base">
+                <div class="relative rounded-xl bg-muted p-2 shadow-base md:p-5">
+                  <!-- image -->
+                  <div class="mb-2 md:mb-5" draggable="false">
+                    <a href="{{ fv.file.get_absolute_url }}">
+                      {% if fv.file.image %}
+                        <img alt="{{ fv.file.title }} - image" class="mx-auto w-32 rounded-lg md:w-auto" src="{{ fv.file.image.url }}" />
+                      {% else %}
+                        <img alt="{{ fv.file.title }} - image" class="mx-auto w-32 rounded-lg md:w-auto" src="{% static 'images/default-product.jpg' %}" />
+                      {% endif %}
+                    </a>
+                  </div>
+                  <!-- title -->
+                  <div class="mb-2">
+                    <a class="line-clamp-2 h-10 text-sm md:h-12 md:text-base" href="{{ fv.file.get_absolute_url }}">
+                      {{ fv.file.title }}
+                    </a>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <div class="text-sm font-medium text-primary xs:text-base">
+                      موجود
+                    </div>
+                    <button onclick="deleteFavorite({{ fv.id }})" type="button" class="flex h-10 w-10 items-center justify-center rounded-full bg-background text-red-500 transition-all duration-200 hover:bg-warning hover:text-gray-100 dark:text-red-400 hover:dark:bg-red-400 hover:dark:text-black">
+                      <svg class="h-6 w-6">
+                        <use xlink:href="#trash" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+            {% if favorits|length == 0 %}
+            <div class="flex justify-center">
+              <div class="flex flex-col items-center justify-center gap-y-4 text-text/60">
+                <svg class="h-20 w-20">
+                  <use xlink:href="#heart-off" />
+                </svg>
+                <p class="md:text-xl">
+                  علاقه‌مندی های اخیر شما خالی میباشد
+                </p>
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Pagination -->
+            {% if favorits.paginator.num_pages > 1 %}
+            <div class="flex items-center justify-center gap-x-4 md:justify-end">
+              <!-- Previous page-->
+              {% if favorits.has_previous %}
+              <a class="pagination-button flex items-center justify-center" href="?page={{ favorits.previous_page_number }}">
+                <svg class="h-6 w-6">
+                  <use xlink:href="#chevron-left"></use>
+                </svg>
+              </a>
+              {% endif %}
+
+              <!-- Pages -->
+              <div class="flex items-center gap-x-2">
+                {% for num in favorits.paginator.page_range %}
+                  {% if favorits.number == num %}
+                    <span class="pagination-button pagination-button-active">{{ num }}</span>
+                  {% elif num > favorits.number|add:-2 and num < favorits.number|add:2 %}
+                    <a class="pagination-button" href="?page={{ num }}">{{ num }}</a>
+                  {% elif num == 1 or num == favorits.paginator.num_pages %}
+                    <a class="pagination-button" href="?page={{ num }}">{{ num }}</a>
+                  {% elif num == favorits.number|add:-3 or num == favorits.number|add:3 %}
+                    <p class="text-sm text-text/60">...</p>
+                  {% endif %}
+                {% endfor %}
+              </div>
+
+              <!-- Next page-->
+              {% if favorits.has_next %}
+              <a class="flex h-8 w-8 items-center justify-center rounded-full bg-muted transition-all duration-200 hover:bg-primary hover:text-white hover:dark:bg-emerald-600" href="?page={{ favorits.next_page_number }}">
+                <svg class="h-6 w-6">
+                  <use xlink:href="#chevron-right"></use>
+                </svg>
+              </a>
+              {% endif %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Mobile Profile Menu Drawer -->
+ {% include "panel_app/partials/side_bar_mobile.html" %}
+
+<script>
+function deleteFavorite(favoriteId) {
+    if (confirm('آیا از حذف این آیتم از علاقه‌مندی‌ها مطمئن هستید؟')) {
+        fetch(`/panel/favorites/delete/${favoriteId}/`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // حذف آیتم از صفحه بدون ریلود
+                const element = document.querySelector(`[onclick="deleteFavorite(${favoriteId})"]`).closest('.border-gradient');
+                element.remove();
+
+                // بررسی اگر آیتمی باقی نمانده است
+                if (document.querySelectorAll('.border-gradient').length === 0) {
+                    location.reload(); // ریلود صفحه برای نمایش پیام خالی بودن
+                }
+            } else {
+                alert('خطا در حذف آیتم: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('خطا در حذف آیتم');
+        });
+    }
+}
+
+function deleteAllFavorites() {
+    if (confirm('آیا از حذف تمام علاقه‌مندی‌ها مطمئن هستید؟')) {
+        fetch('/panel/favorites/delete-all/', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                location.reload(); // ریلود صفحه برای نمایش پیام خالی بودن
+            } else {
+                alert('خطا در حذف علاقه‌مندی‌ها: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('خطا در حذف علاقه‌مندی‌ها');
+        });
+    }
+}
+</script>
+
+<!-- SVG Icons (اگر در صفحه موجود نیستند) -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="trash" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M9,3V4H4V6H5V19A2,2 0 0,0 7,21H17A2,2 0 0,0 19,19V6H20V4H15V3H9M7,6H17V19H7V6M9,8V17H11V8H9M13,8V17H15V8H13Z" />
+  </symbol>
+  <symbol id="heart-off" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M1,4.27L2.28,3L20,20.72L18.73,22L15.18,18.44L13.45,20.03L12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,7.55 2.23,6.67 2.63,5.9L1,4.27M7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,11.07 20.42,13.32 17.79,15.97L5.27,3.5C5.95,3.19 6.7,3 7.5,3Z" />
+  </symbol>
+  <symbol id="chevron-left" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" />
+  </symbol>
+  <symbol id="chevron-right" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z" />
+  </symbol>
+</svg>
+{% endblock %}

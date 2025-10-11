@@ -1,0 +1,643 @@
+<!-- templates/ticket_app/create_ticket.html -->
+{% extends 'account_template.html' %}
+{% load static %}
+
+
+
+{% block content %}
+
+<style>
+    :root {
+        --primary-blue: #0066FF;
+        --secondary-blue: #0052CC;
+        --light-blue: #E6F0FF;
+        --dark-blue: #003D99;
+        --gradient-start: #0066FF;
+        --gradient-end: #00B8D4;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    }
+
+    .create-ticket-container {
+        padding: 2rem;
+        direction: rtl;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    /* Back Navigation */
+    .back-navigation {
+        margin-bottom: 1.5rem;
+    }
+
+    .back-btn {
+        background: white;
+        border: 2px solid #e2e8f0;
+        padding: 0.6rem 1.5rem;
+        border-radius: 12px;
+        color: #64748b;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .back-btn:hover {
+        background: var(--primary-blue);
+        color: white;
+        border-color: var(--primary-blue);
+        transform: translateX(5px);
+    }
+
+    /* Page Header */
+    .page-header-create {
+        background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+        border-radius: 20px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 10px 40px rgba(0, 102, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .page-header-create::before {
+        content: '';
+        position: absolute;
+        top: -40%;
+        right: -5%;
+        width: 350px;
+        height: 350px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 8s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translate(0, 0) rotate(0deg); }
+        50% { transform: translate(30px, -30px) rotate(180deg); }
+    }
+
+    .header-content-create {
+        position: relative;
+        z-index: 1;
+    }
+
+    .page-title-create {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.8rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .page-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    /* Form Card */
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-body {
+        padding: 2.5rem;
+    }
+
+    /* Form Steps Indicator */
+    .form-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 3rem;
+        position: relative;
+    }
+
+    .form-steps::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        right: 10%;
+        left: 10%;
+        height: 3px;
+        background: #e2e8f0;
+        z-index: 0;
+    }
+
+    .step-item {
+        flex: 1;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .step-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.8rem;
+        font-weight: 700;
+        color: #94a3b8;
+        transition: all 0.3s ease;
+    }
+
+    .step-item.active .step-circle {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        border-color: var(--primary-blue);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+    }
+
+    .step-item.completed .step-circle {
+        background: #10b981;
+        border-color: #10b981;
+        color: white;
+    }
+
+    .step-label {
+        font-size: 0.85rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .step-item.active .step-label {
+        color: var(--primary-blue);
+    }
+
+    /* Form Groups */
+    .form-row-custom {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-group-modern {
+        margin-bottom: 2rem;
+    }
+
+    .form-label-modern {
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .label-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        background: var(--light-blue);
+        color: var(--primary-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+    }
+
+    .form-select-modern,
+    .form-input-modern,
+    .form-textarea-modern {
+        border: 2px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 1rem 1.2rem;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+        width: 100%;
+        font-size: 0.95rem;
+        color: #1e293b;
+    }
+
+    .form-select-modern:focus,
+    .form-input-modern:focus,
+    .form-textarea-modern:focus {
+        border-color: var(--primary-blue);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+        outline: none;
+    }
+
+    .form-textarea-modern {
+        min-height: 180px;
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    .char-counter {
+        text-align: left;
+        color: #64748b;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+    }
+
+    /* Helper Text */
+    .helper-text {
+        background: var(--light-blue);
+        border-right: 4px solid var(--primary-blue);
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .helper-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: white;
+        color: var(--primary-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .helper-content h6 {
+        font-weight: 700;
+        color: var(--dark-blue);
+        margin-bottom: 0.5rem;
+    }
+
+    .helper-content p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        padding-top: 2rem;
+        border-top: 2px solid #e2e8f0;
+    }
+
+    .btn-modern {
+        padding: 1rem 2.5rem;
+        border-radius: 14px;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        font-size: 1rem;
+        text-decoration: none;
+    }
+
+    .btn-cancel {
+        background: #f1f5f9;
+        color: #64748b;
+        border: 2px solid #e2e8f0;
+    }
+
+    .btn-cancel:hover {
+        background: #e2e8f0;
+        color: #475569;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
+        flex: 1;
+        justify-content: center;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 25px rgba(0, 102, 255, 0.4);
+    }
+
+    .btn-submit:active {
+        transform: translateY(-1px);
+    }
+
+    /* Loading State */
+    .btn-submit.loading {
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .btn-submit.loading i {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .create-ticket-container {
+            padding: 1rem;
+        }
+
+        .page-header-create {
+            padding: 1.5rem;
+        }
+
+        .page-title-create {
+            font-size: 1.5rem;
+        }
+
+        .form-body {
+            padding: 1.5rem;
+        }
+
+        .form-row-custom {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .form-steps {
+            margin-bottom: 2rem;
+        }
+
+        .step-circle {
+            width: 35px;
+            height: 35px;
+            font-size: 0.9rem;
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .btn-modern {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* Animation */
+    .form-card {
+        animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="create-ticket-container">
+    <!-- Back Navigation -->
+    <div class="back-navigation">
+        <a href="{% url 'ticket:ticket_list' %}" class="back-btn">
+            <i class="fas fa-arrow-right"></i>
+            بازگشت به لیست تیکت‌ها
+        </a>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header-create">
+        <div class="header-content-create">
+            <h1 class="page-title-create">
+                <i class="fas fa-plus-circle"></i>
+                ایجاد تیکت جدید
+            </h1>
+            <p class="page-subtitle">
+                درخواست یا مشکل خود را برای ما ارسال کنید
+            </p>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="form-card">
+        <div class="form-body">
+            <!-- Steps Indicator -->
+            <div class="form-steps">
+                <div class="step-item active">
+                    <div class="step-circle">1</div>
+                    <div class="step-label">اطلاعات پایه</div>
+                </div>
+                <div class="step-item active">
+                    <div class="step-circle">2</div>
+                    <div class="step-label">شرح درخواست</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-circle">3</div>
+                    <div class="step-label">ارسال</div>
+                </div>
+            </div>
+
+            <!-- Helper Info -->
+            <div class="helper-text">
+                <div class="helper-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="helper-content">
+                    <h6>راهنمای ایجاد تیکت</h6>
+                    <p>لطفاً دپارتمان مناسب و اولویت درخواست خود را انتخاب کنید. سپس موضوع و شرح کامل مشکل یا درخواست خود را به طور دقیق بنویسید تا بتوانیم بهترین پاسخ را در کوتاه‌ترین زمان ارائه دهیم.</p>
+                </div>
+            </div>
+
+            <!-- Form -->
+            <form method="post" id="createTicketForm">
+                {% csrf_token %}
+
+                <!-- Row 1: Department & Priority -->
+                <div class="form-row-custom">
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">
+                            <span class="label-icon">
+                                <i class="fas fa-building"></i>
+                            </span>
+                            دپارتمان
+                        </label>
+                        {{ form.department }}
+                    </div>
+                    <div class="form-group-modern">
+                        <label class="form-label-modern">
+                            <span class="label-icon">
+                                <i class="fas fa-flag"></i>
+                            </span>
+                            اولویت
+                        </label>
+                        {{ form.priority }}
+                    </div>
+                </div>
+
+                <!-- Subject -->
+                <div class="form-group-modern">
+                    <label class="form-label-modern">
+                        <span class="label-icon">
+                            <i class="fas fa-heading"></i>
+                        </span>
+                        موضوع تیکت
+                    </label>
+                    {{ form.subject }}
+                </div>
+
+                <!-- Message -->
+                <div class="form-group-modern">
+                    <label class="form-label-modern">
+                        <span class="label-icon">
+                            <i class="fas fa-align-right"></i>
+                        </span>
+                        شرح کامل درخواست
+                    </label>
+                    <textarea name="initial_message" class="form-textarea-modern" id="messageTextarea"
+                              placeholder="لطفاً شرح کامل و دقیق مشکل یا درخواست خود را بنویسید..." required></textarea>
+                    <div class="char-counter">
+                        <span id="charCount">0</span> کاراکتر
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <a href="{% url 'ticket:ticket_list' %}" class="btn-modern btn-cancel">
+                        <i class="fas fa-times"></i>
+                        انصراف
+                    </a>
+                    <button type="submit" class="btn-modern btn-submit" id="submitBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        ارسال تیکت
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add modern class to Django form fields
+    const selects = document.querySelectorAll('select');
+    const inputs = document.querySelectorAll('input[type="text"]');
+
+    selects.forEach(select => {
+        select.classList.add('form-select-modern');
+    });
+
+    inputs.forEach(input => {
+        input.classList.add('form-input-modern');
+    });
+
+    // Character counter
+    const textarea = document.getElementById('messageTextarea');
+    const charCount = document.getElementById('charCount');
+
+    if (textarea && charCount) {
+        textarea.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = count;
+
+            // Change color based on length
+            if (count > 500) {
+                charCount.style.color = '#10b981';
+            } else if (count > 200) {
+                charCount.style.color = '#f59e0b';
+            } else {
+                charCount.style.color = '#64748b';
+            }
+        });
+    }
+
+    // Form submission
+    const form = document.getElementById('createTicketForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            // Add loading state
+            submitBtn.classList.add('loading');
+            submitBtn.innerHTML = '<i class="fas fa-spinner"></i> در حال ارسال...';
+            submitBtn.disabled = true;
+
+            // Update steps
+            const steps = document.querySelectorAll('.step-item');
+            steps.forEach((step, index) => {
+                if (index < 2) {
+                    step.classList.add('completed');
+                    step.classList.remove('active');
+                } else {
+                    step.classList.add('active');
+                }
+            });
+        });
+    }
+
+    // Real-time validation
+    const subjectInput = form.querySelector('input[name="subject"]');
+
+    if (subjectInput) {
+        subjectInput.addEventListener('blur', function() {
+            if (this.value.length < 5) {
+                this.style.borderColor = '#ef4444';
+            } else {
+                this.style.borderColor = '#10b981';
+            }
+        });
+
+        subjectInput.addEventListener('focus', function() {
+            this.style.borderColor = 'var(--primary-blue)';
+        });
+    }
+
+    // Textarea auto-resize
+    if (textarea) {
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    }
+
+    // Animate on scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    const formGroups = document.querySelectorAll('.form-group-modern');
+    formGroups.forEach((group, index) => {
+        group.style.opacity = '0';
+        group.style.transform = 'translateY(20px)';
+        group.style.transition = `all 0.5s ease ${index * 0.1}s`;
+        observer.observe(group);
+    });
+});
+</script>
+
+
+{% endblock %}
+

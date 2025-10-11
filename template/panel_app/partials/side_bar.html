@@ -1,0 +1,82 @@
+{% comment %}
+  File: your_app/templates/UserPanel_app/side_bar.html (or similar path)
+{% endcomment %}
+
+<div class="col-span-12 lg:col-span-3">
+  <div class="sticky top-32 hidden w-full overflow-hidden rounded-lg bg-muted shadow-base lg:block">
+    <div dir="ltr" class="max-h-[calc(90vh_-_100px)] overflow-y-auto p-4 xl:p-6">
+      <div dir="rtl">
+        <div class="mb-2 flex items-center justify-between border-b pb-6 dark:border-white/10">
+          <div class="flex items-center gap-x-4">
+            <div>
+              <img src="{{media_url}}images/user.png" class="h-12 w-12 rounded-full" alt="ایکون کاربر" />
+            </div>
+            <div class="flex flex-col">
+              <div class="line-clamp-1">{{ user.get_full_name|default:user.mobileNumber }}</div>
+            </div>
+          </div>
+          <a href="">
+            <svg class="h-6 w-6 text-primary"><use xlink:href="#edit" /></svg>
+          </a>
+        </div>
+
+        <ul class="space-y-1">
+          <li>
+            <a href=""
+               class="profile-menu flex items-center justify-between rounded-lg px-2 py-4 xl:px-4 {% if request.resolver_match.view_name == 'panel:dashboard' %}profile-menu-active{% endif %}">
+              <div class="flex items-center gap-x-4">
+                <svg class="h-6 w-6"><use xlink:href="#home" /></svg>
+                <div>پیشخوان</div>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'panel:order-list' %}"
+               class="profile-menu flex items-center justify-between rounded-lg px-2 py-4 xl:px-4 {% if request.resolver_match.view_name == 'panel:order-list' %}profile-menu-active{% endif %}">
+              <div class="flex items-center gap-x-4">
+                <svg class="h-6 w-6"><use xlink:href="#order" /></svg>
+                <div>سفارش ها</div>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'panel:favorites_list' %}"
+               class="profile-menu flex items-center justify-between rounded-lg px-2 py-4 xl:px-4 {% if request.resolver_match.view_name == 'panel:favorites' %}profile-menu-active{% endif %}">
+              <div class="flex items-center gap-x-4">
+                <svg class="h-6 w-6"><use xlink:href="#heart" /></svg>
+                <div>علاقه‌مندی ها</div>
+              </div>
+            </a>
+          </li>
+
+
+     
+
+          {% if user.is_superuser %}
+          <li>
+            <a href="/admin/"
+               class="profile-menu flex items-center justify-between rounded-lg px-2 py-4 xl:px-4">
+              <div class="flex items-center gap-x-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pc-display-horizontal" viewBox="0 0 16 16">
+                  <path d="M1.5 0A1.5 1.5 0 0 0 0 1.5v7A1.5 1.5 0 0 0 1.5 10H6v1H1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5v-1h4.5A1.5 1.5 0 0 0 16 8.5v-7A1.5 1.5 0 0 0 14.5 0zm0 1h13a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-7a.5.5 0 0 1 .5-.5M12 12.5a.5.5 0 1 1 1 0 .5.5 0 0 1-1 0m2 0a.5.5 0 1 1 1 0 .5.5 0 0 1-1 0M1.5 12h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1 0-1M1 14.25a.25.25 0 0 1 .25-.25h5.5a.25.25 0 1 1 0 .5h-5.5a.25.25 0 0 1-.25-.25"/>
+                </svg>
+                <div>پنل ادمین</div>
+              </div>
+            </a>
+          </li>
+          {% endif %}
+
+          <li>
+            <a class="flex items-center justify-between rounded-lg p-4 text-red-500 hover:bg-warning/10 dark:text-red-400 dark:hover:bg-red-400/10"
+               href="{% url 'account:logout' %}"> {# Assuming you have a 'logout' url name #}
+              <div class="flex items-center gap-x-2">
+                <svg class="h-6 w-6"><use xlink:href="#exit"></use></svg>
+                <span> خروج </span>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  </div>

@@ -1,0 +1,697 @@
+{% load render_partial %}
+{% load humanize %}
+<style>
+.input-with-icon {
+  background-image: url('{{media_url}}images/logoo.png');
+  background-repeat: no-repeat;
+  background-position: left 8px center;
+  background-size: 60px;
+  padding-left: 36px;
+}
+
+#desktopHeaderSearchResult, #mobileHeaderSearchResult {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 1000;
+}
+
+#desktopHeaderSearchResult a, #mobileHeaderSearchResult a {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+#desktopHeaderSearchResult a:last-child, #mobileHeaderSearchResult a:last-child {
+  border-bottom: none;
+}
+
+.dark #desktopHeaderSearchResult a,
+.dark #mobileHeaderSearchResult a {
+  border-bottom: 1px solid #374151;
+}
+
+.search-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  transition: background-color 0.2s;
+}
+
+.search-suggestion-item:hover {
+  background-color: #f3f4f6;
+}
+
+.dark .search-suggestion-item:hover {
+  background-color: #374151;
+}
+
+.search-suggestion-image {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.search-suggestion-placeholder {
+  width: 40px;
+  height: 40px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark .search-suggestion-placeholder {
+  background-color: #4b5563;
+}
+
+.search-suggestion-content {
+  flex: 1;
+}
+
+.search-suggestion-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.dark .search-suggestion-title {
+  color: #f3f4f6;
+}
+
+.search-suggestion-type {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dark .search-suggestion-type {
+  color: #9ca3af;
+}
+</style>
+
+<header>
+  <!-- Header -->
+  <div class="fixed left-0 right-0 top-0 z-30 bg-muted">
+    <!-- Header Desktop -->
+    <div>
+      <div class="hidden md:block">
+        <!-- Top Section -->
+        <div class="container relative z-30 flex max-w-[1680px] items-center justify-between gap-x-4 bg-muted py-4">
+          <!-- logo -->
+          <div>
+            <a href="{% url 'main:index' %}">
+              <img style='width: 220px;' src="/media/images/others/gem.png" alt="لوگو سایت">
+            </a>
+          </div>
+
+          <!-- Search Form -->
+          <form action="">
+            <div class="relative max-w-xl flex-1" id="desktopHeaderSearchBase">
+              <div id="desktopHeaderSearchWrapper" class="flex items-center justify-between rounded-lg border-b-transparent bg-background px-2 dark:border-white/10 dark:border-b-transparent">
+                <div>
+                  <svg class="h-6 w-6">
+                    <use xlink:href="#search" />
+                  </svg>
+                </div>
+                <label class="sr-only">desktop header search</label>
+                <input
+                  id="desktopHeaderSearch"
+                  class="flex grow rounded-lg border-none bg-background px-2 py-3 text-text/90 outline-none placeholder:text-sm placeholder:text-text/60 focus:ring-0"
+                  placeholder="جستجو کنید ..."
+                  type="text"
+                  name='q'
+                />
+              </div>
+
+              <!-- Search Suggestions for Desktop -->
+              <div id="desktopHeaderSearchResult" class="absolute inset-x-0 top-full hidden w-full overflow-hidden rounded-b-lg border border-t-transparent bg-muted dark:border-white/10 dark:border-t-transparent">
+                <div id="desktopHeaderSearchResultWrapper" class="max-h-[450px] overflow-y-auto"></div>
+              </div>
+            </div>
+          </form>
+
+          <!-- Cart, Theme, Account -->
+          <div class="flex gap-x-4 items-center">
+            <!-- حساب کاربری -->
+            {% if user.is_authenticated %}
+            <div class="relative">
+              <button class="flex items-center justify-center" data-dropdown-toggle="dropdownAccountDesktop" id="dropdownDefaultButton" type="button">
+                <svg class="h-6 w-6">
+                  <use xlink:href="#user" />
+                </svg>
+              </button>
+
+              <div class="absolute right-0 z-10 hidden w-60 rounded-lg border-t-2 border-t-primary bg-muted shadow-lg" id="dropdownAccountDesktop">
+                <ul class="space-y-1 p-2">
+                  <li>
+                    <a class="flex items-center gap-x-4 rounded-lg p-4 hover:text-primary dark:hover:text-emerald-400" href="{% url 'panel:panel' %}">
+                      <img alt="profile" class="h-8 w-8 rounded-full" src="{{media_url}}images/user.png" />
+                      {% if user.name %}
+                      <span class="line-clamp-1">{{ user.name }}</span>
+                      {% else %}
+                      <span class="line-clamp-1">{{ user.mobile_number }}</span>
+                      {% endif %}
+                    </a>
+                  </li>
+                  <li>
+                    <a class="flex items-center gap-x-2 rounded-lg p-4 hover:text-primary dark:hover:text-emerald-400" rel='nofollow' href="{% url 'panel:order-list' %}">
+                      <svg class="h-6 w-6">
+                        <use xlink:href="#order" />
+                      </svg>
+                      <span>سفارش‌ها</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a class="flex items-center gap-x-2 rounded-lg p-4 hover:text-primary dark:hover:text-emerald-400" href="{% url 'panel:favorites_list' %}">
+                      <svg class="h-6 w-6">
+                        <use xlink:href="#heart" />
+                      </svg>
+                      <span>علاقه‌مندی‌ها</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href='{% url "ticket:create_ticket" %}' class="flex items-center gap-x-2 rounded-lg p-4 hover:text-primary dark:hover:text-emerald-400" href="{% url 'panel:favorites_list' %}">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-headset" viewBox="0 0 16 16">
+  <path d="M8 1a5 5 0 0 0-5 5v1h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a6 6 0 1 1 12 0v6a2.5 2.5 0 0 1-2.5 2.5H9.366a1 1 0 0 1-.866.5h-1a1 1 0 1 1 0-2h1a1 1 0 0 1 .866.5H11.5A1.5 1.5 0 0 0 13 12h-1a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1h1V6a5 5 0 0 0-5-5"/>
+</svg>
+                      <span>تیکت پشتیبانی</span>
+                    </a>
+                  </li>
+
+                  <li>
+                    <div class="my-2 h-px w-full bg-border"></div>
+                  </li>
+                  <li>
+                    <a class="flex items-center gap-x-2 rounded-lg p-4 text-red-500 hover:bg-warning/10 dark:text-red-400 dark:hover:bg-red-400/10" href="{% url 'account:logout' %}">
+                      <svg class="h-6 w-6">
+                        <use xlink:href="#exit" />
+                      </svg>
+                      <span>خروج</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            {% else %}
+            <a style='margin:20px;' href="{% url 'account:send_mobile' %}">
+              <div class="flex h-8 cursor-pointer items-center justify-center rounded-lg border px-4 text-sm font-medium transition duration-200 hover:bg-primary hover:text-white dark:hover:bg-primary">
+                ورود / ثبت‌نام
+              </div>
+            </a>
+            {% endif %}
+
+            <!-- سبد خرید -->
+            <div style='margin:20px;'>
+              <button class="relative flex items-center justify-center" data-dropdown-toggle="dropdownBasketDesktop" type="button">
+                <svg class="h-6 w-6">
+                  <use xlink:href="#cart" />
+                </svg>
+                <span id="count_product" class="absolute -right-2.5 -top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary-btn text-sm font-bold text-white">0</span>
+              </button>
+              {% include "order_app/cart/show_shop_cart.html" %}
+            </div>
+
+            <div class="cursor-pointer" id="toggleThemeDesktop">
+              <div class="dark:hidden">
+                <svg class="h-6 w-6">
+                  <use xlink:href="#moon" />
+                </svg>
+              </div>
+              <div class="hidden dark:block">
+                <svg class="h-6 w-6">
+                  <use xlink:href="#sun" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="absolute left-0 right-0 top-full z-20 bg-muted shadow-sm transition-transform duration-300" data-onscrollclass="-translate-y-full">
+          <nav id="header-desktop-navbar" class="container relative flex max-w-[1680px] items-center gap-x-2">
+            <ul class="group z-10" id="desktopMegamenuWrapper">
+              <div class="relative flex cursor-pointer items-center gap-x-2 pb-2">
+                <div>
+                  <svg class="h-5 w-5">
+                    <use xlink:href="#menu"></use>
+                  </svg>
+                </div>
+                <div>دسته‌ بندی‌ ها</div>
+              </div>
+
+              {% render_partial 'file:product_group_view' %}
+
+            </ul>
+
+
+            <ul>
+              <a class="group" href="{% url 'main:about' %}">
+                <div class="p-2 pt-0">چرا جم ویژن ایران</div>
+              </a>
+            </ul>
+
+            <ul style="position: relative; display: inline-block;">
+              <a style="color:#db8f04; position: relative; display: inline-block;" class="group" href=" "></a>
+            </ul>
+
+            <ul class="group relative z-10" id="header-desktop-indicator">
+              <div class="flex cursor-pointer items-center gap-x-2 p-2 pt-0">
+                سایر
+                <span class="text-primary">...</span>
+              </div>
+
+              <div class="absolute right-0 top-full hidden w-44 overflow-hidden rounded-b-lg bg-muted group-hover:block">
+                <ul class="space-y-1 p-2">
+                  <li>
+                    <a class="hover:dark: flex rounded-lg px-4 py-3 hover:text-primary" href="{% url 'main:call' %}">تماس با ما</a>
+                  </li>
+
+                  <li>
+                    <a class="hover:dark: flex rounded-lg px-4 py-3 hover:text-primary" href="{% url 'main:faq' %}">سوالات متداول</a>
+                  </li>
+                </ul>
+              </div>
+            </ul>
+
+            <div id="header-desktop-navbar-indicator" class="absolute bottom-0 h-[0.15625rem] z-0 rounded-2xl end-0 transition-all duration-[350ms] w-0"></div>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Header -->
+    <div>
+      <div class="md:hidden">
+        <!-- Top Section -->
+        <div class="container relative z-30 flex h-16 items-center justify-between gap-x-4 bg-muted">
+          <!-- menu -->
+          <button aria-controls="mobile-menu-drawer-navigation" class="cursor-pointer" data-drawer-show="mobile-menu-drawer-navigation" data-drawer-target="mobile-menu-drawer-navigation" type="button">
+            <svg class="h-6 w-6">
+              <use xlink:href="#menu" />
+            </svg>
+          </button>
+
+          <div class="flex gap-x-4">
+            {% if user.is_authenticated %}
+            <div style='margin-left:40px;'>
+              <a href="{% url 'main:index' %}">
+                <img style='width: 100px;' alt="لوگو" class="h-6 w-full rounded-lg xs:h-10" src="/media/images/others/gem.png" />
+              </a>
+            </div>
+            {% endif %}
+
+            <!-- Account -->
+            <div class="flex items-center justify-between">
+              {% if user.is_authenticated %}
+              <button style='margin-left:10px;' aria-controls="user-account-drawer-navigation" class="cursor-pointer" data-drawer-show="user-account-drawer-navigation" data-drawer-target="user-account-drawer-navigation" type="button">
+                <svg class="h-6 w-6">
+                  <use xlink:href="#user" />
+                </svg>
+              </button>
+              {% else %}
+              <a style='margin-left:80px;' href="{% url 'account:send_mobile' %}">
+                <div class="flex h-8 cursor-pointer items-center justify-center rounded-lg border px-4 text-xs font-medium transition-colors duration-200 hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white xs:text-sm">
+                  ورود \ ثبت نام
+                </div>
+              </a>
+              {% endif %}
+
+              <button aria-controls="user-basket-drawer-navigation" class="relative" data-drawer-show="user-basket-drawer-navigation" data-drawer-target="user-basket-drawer-navigation" type="button">
+                <span class="cursor-pointer">
+                  <svg class="h-6 w-6">
+                    <use xlink:href="#cart" />
+                  </svg>
+                </span>
+                <span id='count_product2' class="absolute -right-2.5 -top-2.5 flex h-5 w-5 cursor-pointer items-center justify-center rounded-full bg-primary-btn text-sm font-bold text-white">0</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Section -->
+          <div class="absolute left-0 right-0 top-full z-20 bg-muted pb-4 transition-transform duration-300" id="mobile-header-bottom">
+            <div class="container">
+              <div class="relative" id="mobileHeaderSearchBase">
+                <form action="">
+                  <div id="mobileHeaderSearchWrapper" class="flex items-center justify-between rounded-lg border-b-transparent bg-background px-2 dark:border-white/10 dark:border-b-transparent">
+                    <div>
+                      <svg class="h-6 w-6" id="searchIcon" style="cursor:pointer;">
+                        <use xlink:href="#search" />
+                      </svg>
+                    </div>
+                    <label class="sr-only">Mobile header search</label>
+                    <input
+                      id="mobileHeaderSearch"
+                      class="flex grow rounded-lg border-none bg-background px-2 py-3 outline-none placeholder:text-sm placeholder:text-text/60 focus:ring-0 input-with-icon"
+                      placeholder="جستجو در ..."
+                      type="text"
+                      name="q"
+                    />
+                  </div>
+                </form>
+
+                <!-- Search Suggestions for Mobile -->
+                <div id="mobileHeaderSearchResult" class="absolute inset-x-0 top-full hidden w-full overflow-hidden rounded-b-lg border border-t-transparent bg-muted dark:border-white/10 dark:border-t-transparent">
+                  <div id="mobileHeaderSearchResultWrapper" class="max-h-[450px] overflow-y-auto"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fixed inset-0 z-20 hidden bg-black/40 backdrop-blur-md /40" id="header-overlay"></div>
+</header>
+
+<!-- Mobile Menu Drawer -->
+<div aria-labelledby="mobile-menu-drawer-navigation" class="fixed right-0 top-0 z-40 h-full w-80 translate-x-full overflow-y-auto bg-muted p-4 transition-transform duration-300" id="mobile-menu-drawer-navigation" tabindex="-1">
+  <div class="mb-6 flex items-center justify-between gap-x-4 border-b pb-5">
+    <!-- Logo -->
+    <div>
+      <a href="{% url 'main:index' %}">
+        <img alt="لوگو در حالت موبایل" class="h-10 w-full rounded-lg" src="/media/images/others/gem.png" />
+      </a>
+
+    </div>
+
+    <!-- Close Button -->
+    <button aria-controls="mobile-menu-drawer-navigation" class=" " data-drawer-hide="mobile-menu-drawer-navigation" type="button">
+      <svg class="h-5 w-5">
+        <use xlink:href="#close" />
+      </svg>
+      <span class="sr-only">Close menu</span>
+    </button>
+  </div>
+
+  <!-- Mobile Toggle Theme -->
+  <div class="mb-4">
+    <div class="flex cursor-pointer items-center gap-x-2 rounded-lg px-4 py-3 text-primary" id="toggleThemeMobile">
+      <div>
+        <div class="dark:hidden">
+          <svg class="h-6 w-6">
+            <use xlink:href="#moon" />
+          </svg>
+        </div>
+        <div class="hidden dark:block">
+          <svg class="h-6 w-6">
+            <use xlink:href="#sun" />
+          </svg>
+        </div>
+      </div>
+      <div class="flex items-center justify-between" id="themeText"></div>
+    </div>
+  </div>
+
+  <div class="overflow-y-auto">
+    <ul class="space-y-4">
+
+      <li>
+        <a class="flex items-center justify-between rounded-lg px-4 py-3 hover:text-primary" href="{% url 'main:index' %}">
+          <span class="flex items-center gap-x-2">
+            <svg class="h-6 w-6">
+              <use xlink:href="#home" />
+            </svg>
+            <span> صفحه اصلی </span>
+          </span>
+        </a>
+      </li>
+
+
+      <li>
+        <a class="flex items-center justify-between rounded-lg px-4 py-3 hover:text-primary" href="{% url 'main:about' %}">
+          <span class="flex items-center gap-x-2">
+            <svg class="h-6 w-6">
+              <use xlink:href="#why-us" />
+            </svg>
+            <span> چرا جم ویژن ایران </span>
+          </span>
+        </a>
+      </li>
+
+
+      <li>
+        <a class="flex items-center justify-between rounded-lg px-4 py-3 hover:text-primary" href="{% url 'main:call' %}">
+          <span class="flex items-center gap-x-2">
+            <svg class="h-6 w-6">
+              <use xlink:href="#contact" />
+            </svg>
+            <span> تماس با ما </span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a class="flex items-center justify-between rounded-lg px-4 py-3 hover:text-primary" href="{% url 'main:faq' %}">
+          <span class="flex items-center gap-x-2">
+            <svg class="h-6 w-6">
+              <use xlink:href="#question" />
+            </svg>
+            <span> سوالات متداول </span>
+          </span>
+        </a>
+      </li>
+
+      <!-- Shop -->
+      <li>
+        <div class="flex items-center">
+          <div class="h-px w-full flex-grow rounded-full bg-border"></div>
+          <div class="p-2 text-text/80">
+            <span class="flex items-center gap-x-2">
+              <svg class="h-6 w-6">
+                <use xlink:href="#order" />
+              </svg>
+            </span>
+          </div>
+          <div class="h-px w-full flex-grow rounded-full bg-border"></div>
+        </div>
+      </li>
+
+      <!-- Categories -->
+      {% comment %} {% render_partial 'product:product_group_view_mobile' %} {% endcomment %}
+    </ul>
+  </div>
+</div>
+
+<!-- Mobile User Account Drawer -->
+{% if user.is_authenticated == True %}
+<div aria-labelledby="user-account-drawer-navigation-label" class="main-scroll fixed left-0 top-0 z-40 h-full w-80 -translate-x-full overflow-y-auto bg-muted p-4 pb-20 transition-transform duration-300" id="user-account-drawer-navigation" tabindex="-1">
+  <div class="mb-6 flex items-center justify-between gap-x-4 border-b pb-5">
+    <!-- Close Button -->
+    <button aria-controls="user-account-drawer-navigation" class=" " data-drawer-hide="user-account-drawer-navigation" type="button">
+      <svg class="h-5 w-5">
+        <use xlink:href="#close" />
+      </svg>
+      <span class="sr-only">Close menu</span>
+    </button>
+    <div class="text-lg">حساب کاربری</div>
+  </div>
+  <div class="overflow-y-auto">
+    <ul class="space-y-4">
+      <li>
+        <a class="flex items-center justify-between rounded-lg px-4 py-3 hover:text-primary" href="{% url 'panel:panel' %}">
+          <span class="flex items-center gap-x-4">
+            <span class="min-w-fit">
+              <img alt="ایکون کاربر سایت" class="h-10 w-10 rounded-full" src="{{media_url}}images/user.png" />
+            </span>
+            {% if user.name %}
+            <span class="line-clamp-1">{{user.name}} {{user.family}}</span>
+            {% else %}
+            {{user.mobile_number}}
+            {% endif %}
+          </span>
+          <span>
+            <svg class="h-6 w-6">
+              <use xlink:href="#chevron-left" />
+            </svg>
+          </span>
+        </a>
+      </li>
+
+      <li>
+        <a class="flex items-center justify-between rounded-lg px-4 py-3 hover:text-primary" href="{% url 'panel:order-list' %}">
+          <span class="flex items-center gap-x-2">
+            <svg class="h-6 w-6">
+              <use xlink:href="#order" />
+            </svg>
+            <span> سفارش ها </span>
+          </span>
+          <span class="relative flex h-5 w-5">
+            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></span>
+            <span class="relative inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary-btn text-sm text-white">2</span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a class="flex items-center justify-between rounded-lg px-4 py-3 hover:text-primary" href="{% url 'panel:favorites_list' %}">
+          <span class="flex items-center gap-x-2">
+            <svg class="h-6 w-6">
+              <use xlink:href="#heart" />
+            </svg>
+            <span> علاقه‌مندی ها </span>
+          </span>
+        </a>
+      </li>
+      <li>
+        <a class="flex items-center justify-between rounded-lg px-4 py-3 text-red-500 hover:bg-warning/10 dark:text-red-400 hover:dark:bg-red-400/10" href="{% url 'account:logout' %}">
+          <div class="flex items-center gap-x-2">
+            <svg class="h-6 w-6">
+              <use xlink:href="#exit" />
+            </svg>
+            <span> خروج </span>
+          </div>
+        </a>
+        </li>
+    </ul>
+  </div>
+</div>
+{% endif %}
+
+{% include "order_app/cart/mobile_cart.html" %}
+
+<!-- SVG Icons -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="file" viewBox="0 0 16 16">
+    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/>
+  </symbol>
+  <symbol id="folder" viewBox="0 0 16 16">
+    <path d="M.54 3.87.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181l-.637 7A2 2 0 0 1 13.174 14H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31zM2.19 4a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91h10.348a1 1 0 0 0 .995-.91l.637-7A1 1 0 0 0 13.81 4H2.19zm4.69-1.707A1 1 0 0 0 6.172 2H2.5a1 1 0 0 0-1 .981l.006.139C1.72 3.042 1.95 3 2.19 3h5.396l-.707-.707z"/>
+  </symbol>
+</svg>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // تابع برای ایجاد تأخیر در درخواست
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    // تابع برای دریافت پیشنهادات
+    function fetchSuggestions(searchTerm, searchType) {
+        if (!searchTerm || searchTerm.length < 2) {
+            hideResults(searchType);
+            return;
+        }
+
+        fetch(`/search/search-suggestions/?q=${encodeURIComponent(searchTerm)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                displayResults(data.suggestions, searchType);
+            })
+            .catch(error => {
+                console.error('Error fetching suggestions:', error);
+                hideResults(searchType);
+            });
+    }
+
+    // تابع برای نمایش نتایج
+    function displayResults(suggestions, searchType) {
+        const resultsContainer = document.getElementById(`${searchType}HeaderSearchResult`);
+        const resultsWrapper = document.getElementById(`${searchType}HeaderSearchResultWrapper`);
+
+        if (!suggestions || suggestions.length === 0) {
+            hideResults(searchType);
+            return;
+        }
+
+        let html = '';
+
+        suggestions.forEach(item => {
+            html += `
+                <a href="${item.url}" class="search-suggestion-item">
+                    ${item.image ?
+                        `<img src="${item.image}" alt="${item.title}" class="search-suggestion-image">` :
+                        `<div class="search-suggestion-placeholder">
+                            <svg class="w-6 h-6 text-gray-400"><use xlink:href="#${item.type === 'file' ? 'file' : 'folder'}"></use></svg>
+                         </div>`
+                    }
+                    <div class="search-suggestion-content">
+                        <div class="search-suggestion-title">${item.title}</div>
+                        <div class="search-suggestion-type">${item.type === 'file' ? 'فایل' : 'دسته‌بندی'}</div>
+                    </div>
+                </a>
+            `;
+        });
+
+        if (resultsWrapper) {
+            resultsWrapper.innerHTML = html;
+        } else {
+            resultsContainer.innerHTML = html;
+        }
+
+        resultsContainer.classList.remove('hidden');
+    }
+
+    // تابع برای مخفی کردن نتایج
+    function hideResults(searchType) {
+        const resultsContainer = document.getElementById(`${searchType}HeaderSearchResult`);
+        if (resultsContainer) {
+            resultsContainer.classList.add('hidden');
+        }
+    }
+
+    // تنظیمات برای جستجوی دسکتاپ
+    const desktopSearch = document.getElementById('desktopHeaderSearch');
+    if (desktopSearch) {
+        const debouncedDesktopSearch = debounce(function(e) {
+            fetchSuggestions(e.target.value, 'desktop');
+        }, 300);
+
+        desktopSearch.addEventListener('input', function(e) {
+            debouncedDesktopSearch(e);
+        });
+
+        desktopSearch.addEventListener('focus', function(e) {
+            if (e.target.value && e.target.value.length >= 2) {
+                fetchSuggestions(e.target.value, 'desktop');
+            }
+        });
+
+        // مخفی کردن نتایج هنگام کلیک خارج
+        document.addEventListener('click', function(e) {
+            const searchBase = document.getElementById('desktopHeaderSearchBase');
+            if (searchBase && !searchBase.contains(e.target)) {
+                hideResults('desktop');
+            }
+        });
+    }
+
+    // تنظیمات برای جستجوی موبایل
+    const mobileSearch = document.getElementById('mobileHeaderSearch');
+    if (mobileSearch) {
+        const debouncedMobileSearch = debounce(function(e) {
+            fetchSuggestions(e.target.value, 'mobile');
+        }, 300);
+
+        mobileSearch.addEventListener('input', function(e) {
+            debouncedMobileSearch(e);
+        });
+
+        mobileSearch.addEventListener('focus', function(e) {
+            if (e.target.value && e.target.value.length >= 2) {
+                fetchSuggestions(e.target.value, 'mobile');
+            }
+        });
+
+        // مخفی کردن نتایج هنگام کلیک خارج
+        document.addEventListener('click', function(e) {
+            const searchBase = document.getElementById('mobileHeaderSearchBase');
+            if (searchBase && !searchBase.contains(e.target)) {
+                hideResults('mobile');
+            }
+        });
+    }
+});
+</script>

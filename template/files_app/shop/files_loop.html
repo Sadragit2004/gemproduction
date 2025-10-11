@@ -1,0 +1,79 @@
+{% load humanize %}
+
+{% for file in files %}
+<div
+  class="border-gradient group relative rounded-base p-px before:absolute before:-inset-px before:h-[calc(100%+2px)] before:w-[calc(100%+2px)] before:rounded-base"
+>
+  <div
+    class="relative rounded-xl bg-muted p-2 shadow-base md:p-5"
+  >
+    <div class="mb-2 md:mb-5" draggable="false">
+      <a href="{% url 'file:file_detail' slug=file.slug %}">
+        <img
+          alt="{{file.title}}"
+          class="mx-auto w-32 rounded-lg md:w-auto"
+          src="{{media_url}}{{file.image}}"
+        />
+      </a>
+    </div>
+    <div class="mb-1">
+      <a
+        class="line-clamp-2 h-10 text-sm md:h-12 md:text-base"
+        href="{% url 'file:file_detail' slug=file.slug %}"
+      >
+        {{file.title}}
+      </a>
+    </div>
+    <div class="flex flex-col">
+      {% if file.price > file.get_price_by_discount %}
+      <div class="h-5 text-left">
+        <del
+          class="text-sm text-text/60 decoration-warning md:text-base"
+        >
+          {{file.price|intcomma}}
+        </del>
+      </div>
+      {% else %}
+      <div class="h-5"></div>
+      {% endif %}
+
+      <div class="flex items-center justify-between">
+        <div>
+          {% if file.price > file.get_price_by_discount %}
+            <p
+              class="w-9 rounded-full bg-warning py-px text-center text-sm text-white"
+            >
+              {{file.get_discount_percentage}}%
+            </p>
+          {% endif %}
+        </div>
+
+   <a onclick="addToCart({{ file.id }}); showSuccessModal('cartSuccessModal', 'cartSuccessSound');"
+   aria-label="اضافه کردن {{file.title}} به سبد خرید">
+  <span class="cursor-pointer">
+    <svg class="h-6 w-6">
+      <use xlink:href="#cart" />
+    </svg>
+  </span>
+</a>
+
+        <div
+          class="text-sm font-bold text-primary md:text-base"
+        >
+          {% if file.price > file.get_price_by_discount %}
+            {{file.get_price_by_discount|intcomma}}
+            <span class="text-xs font-light md:text-sm"
+              >تومان</span
+            >
+          {% else %}
+            {{file.price|intcomma}}
+            <span class="text-xs font-light md:text-sm"
+              >تومان</span
+            >
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}

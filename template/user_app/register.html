@@ -1,0 +1,70 @@
+{% extends "account_template.html" %}
+
+
+
+
+{% block content %}
+
+    <div class="flex min-h-screen items-center justify-center bg-background">
+      <div class="container">
+        <div
+          class="mx-auto max-w-[450px] rounded-xl bg-muted p-5 shadow-base md:p-10"
+        >
+          <!-- Logo -->
+          <a href="{% url 'main:index' %}">
+            <img
+            style='width: 80px;'
+              src="{{media_url}}images/ketaboo.svg"
+              class="mx-auto mb-10 w-40"
+              alt="لوگو سایت کتابوو"
+            />
+          </a>
+          <h1 class="mb-10 text-center text-lg">ورود | ثبت نام</h1>
+          <div class="mb-4 space-y-4">
+
+            <form action="" method='post'>
+              {% csrf_token %}
+            <label
+              for="username"
+              class="relative block rounded-lg border shadow-base"
+            >
+              {{form.mobileNumber}}
+
+              <span
+                class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/90 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm"
+              >
+                شماره موبایل
+              </span>
+            </label>
+            <br>
+
+
+
+            {% if form.errors %}
+
+            <p class="h-5 text-sm text-red-500 dark:text-red-400">
+              {{form.errors}}
+             </p>
+
+            {% endif %}
+
+          </div>
+          <div class="mb-5">
+            <button id='secrit' class="btn-primary w-full py-3">ورود</button>
+          </div>
+          <p class="text-center text-sm text-text/90">
+            با ورود به فروشگاه,
+
+            را می‌پذیرم
+          </p>
+        </div>
+      </div>
+    </div>
+
+</form>
+
+
+
+
+
+{% endblock content %}

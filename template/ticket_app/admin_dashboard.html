@@ -1,0 +1,611 @@
+<!-- templates/ticket_app/admin_dashboard.html -->
+{% extends 'account_template.html' %}
+{% load static %}
+
+
+{% block content %}
+
+
+<style>
+    :root {
+        --primary-blue: #0066FF;
+        --secondary-blue: #0052CC;
+        --light-blue: #E6F0FF;
+        --dark-blue: #003D99;
+        --gradient-start: #0066FF;
+        --gradient-end: #00B8D4;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    }
+
+    .dashboard-container {
+        padding: 2rem;
+        direction: rtl;
+    }
+
+    /* Header Styles */
+    .dashboard-header {
+        background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        color: white;
+        box-shadow: 0 10px 40px rgba(0, 102, 255, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -5%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    .header-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+        position: relative;
+        z-index: 1;
+    }
+
+    .refresh-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: 0.6rem 1.2rem;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+
+    .refresh-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(180deg);
+    }
+
+    /* Stats Cards */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid transparent;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 102, 255, 0.2);
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--gradient-start), var(--gradient-end));
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--light-blue) 0%, #ffffff 100%);
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-blue);
+        margin: 0;
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #64748b;
+        margin-top: 0.5rem;
+        font-weight: 500;
+    }
+
+    /* Filter Section */
+    .filter-section {
+        background: white;
+        border-radius: 20px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .filter-input, .filter-select {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+    }
+
+    .filter-input:focus, .filter-select:focus {
+        border-color: var(--primary-blue);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+        outline: none;
+    }
+
+    /* Table Styles */
+    .tickets-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .tickets-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .tickets-table thead {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        color: white;
+    }
+
+    .tickets-table th {
+        padding: 1.2rem 1rem;
+        font-weight: 600;
+        text-align: right;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+    }
+
+    .tickets-table tbody tr {
+        border-bottom: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+    }
+
+    .tickets-table tbody tr:hover {
+        background: var(--light-blue);
+        transform: scale(1.01);
+    }
+
+    .tickets-table tbody tr.unread-row {
+        background: #fff8e6;
+        border-right: 4px solid #fbbf24;
+    }
+
+    .tickets-table td {
+        padding: 1.2rem 1rem;
+        vertical-align: middle;
+    }
+
+    /* Badges */
+    .badge-custom {
+        padding: 0.4rem 0.9rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        letter-spacing: 0.3px;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .badge-new {
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        color: white;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    /* Action Buttons */
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 10px;
+        border: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        font-size: 0.85rem;
+    }
+
+    .btn-view {
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        color: white;
+        margin-left: 0.5rem;
+    }
+
+    .btn-view:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 102, 255, 0.4);
+    }
+
+    .btn-assign {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .btn-assign:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-assigned {
+        background: #d1fae5;
+        color: #065f46;
+        cursor: default;
+    }
+
+    /* Ticket ID */
+    .ticket-id {
+        font-weight: 700;
+        color: var(--primary-blue);
+        font-size: 1rem;
+    }
+
+    /* User Info */
+    .user-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.2rem;
+    }
+
+    .user-mobile {
+        font-size: 0.85rem;
+        color: #64748b;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: var(--light-blue);
+        margin-bottom: 1.5rem;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    .empty-title {
+        font-size: 1.3rem;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    /* Time Badge */
+    .time-badge {
+        background: #f1f5f9;
+        color: #475569;
+        padding: 0.3rem 0.7rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .stats-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .dashboard-header {
+            padding: 1.5rem;
+        }
+
+        .header-title {
+            font-size: 1.4rem;
+        }
+    }
+</style>
+
+
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="header-title">
+                <i class="fas fa-ticket-alt ms-2"></i>
+                مدیریت تیکت‌ها
+            </h1>
+            <button class="refresh-btn" onclick="location.reload()">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon" style="color: var(--primary-blue);">
+                <i class="fas fa-ticket-alt"></i>
+            </div>
+            <h2 class="stat-number">{{ stats.total_tickets }}</h2>
+            <p class="stat-label">کل تیکت‌ها</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="color: #ef4444;">
+                <i class="fas fa-folder-open"></i>
+            </div>
+            <h2 class="stat-number" style="color: #ef4444;">{{ stats.open_tickets }}</h2>
+            <p class="stat-label">باز</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="color: #f59e0b;">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <h2 class="stat-number" style="color: #f59e0b;">{{ stats.unread_tickets }}</h2>
+            <p class="stat-label">خوانده نشده</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="color: #10b981;">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <h2 class="stat-number" style="color: #10b981;">{{ stats.assigned_to_me }}</h2>
+            <p class="stat-label">محول به من</p>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="color: #6366f1;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 class="stat-number" style="color: #6366f1;">{{ stats.closed_tickets }}</h2>
+            <p class="stat-label">بسته شده</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+        <div class="row g-3">
+            <div class="col-md-3">
+                <input type="text" class="form-control filter-input" placeholder="🔍 جستجو در تیکت‌ها...">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select filter-select">
+                    <option>همه وضعیت‌ها</option>
+                    <option>باز</option>
+                    <option>بسته</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select filter-select">
+                    <option>همه اولویت‌ها</option>
+                    <option>بالا</option>
+                    <option>متوسط</option>
+                    <option>پایین</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select filter-select">
+                    <option>همه دپارتمان‌ها</option>
+                    {% for dept in departments %}
+                    <option>{{ dept.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tickets Table -->
+    <div class="tickets-card">
+        {% if tickets %}
+        <div class="table-container">
+            <table class="tickets-table">
+                <thead>
+                    <tr>
+                        <th>شماره تیکت</th>
+                        <th>کاربر</th>
+                        <th>موضوع</th>
+                        <th>دپارتمان</th>
+                        <th>اولویت</th>
+                        <th>وضعیت</th>
+                        <th>آخرین بروزرسانی</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr class="{% if not ticket.is_read_admin %}unread-row{% endif %}">
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="ticket-id">{{ ticket.ticket_id }}</span>
+                                {% if not ticket.is_read_admin %}
+                                <span class="badge-custom badge-new">جدید</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="user-info">
+                                <span class="user-name">{{ ticket.user.name }} {{ ticket.user.family }}</span>
+                                <span class="user-mobile">{{ ticket.user.mobileNumber }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <strong>{{ ticket.subject }}</strong>
+                        </td>
+                        <td>
+                            <span class="badge-custom" style="background: #e0e7ff; color: #4338ca;">
+                                {{ ticket.department.name|default:"—" }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge-custom" style="background: {{ ticket.priority.color }}; color: white;">
+                                {{ ticket.priority.name }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge-custom" style="background: {{ ticket.status.color }}; color: white;">
+                                {{ ticket.status.name }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="time-badge">
+                                <i class="far fa-clock ms-1"></i>
+                                {{ ticket.updated_at|timesince }} پیش
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'ticket:admin_ticket_detail' ticket.ticket_id %}"
+                                   class="action-btn btn-view">
+                                    <i class="fas fa-eye ms-1"></i>
+                                    مشاهده
+                                </a>
+                                {% if not ticket.assignments.exists %}
+                                <button class="action-btn btn-assign assign-btn"
+                                        data-ticket-id="{{ ticket.ticket_id }}">
+                                    <i class="fas fa-user-plus ms-1"></i>
+                                    انتساب
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-inbox"></i>
+            </div>
+            <h3 class="empty-title">هیچ تیکتی یافت نشد</h3>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Assign ticket functionality
+    document.querySelectorAll('.assign-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const ticketId = this.getAttribute('data-ticket-id');
+            const button = this;
+
+            // Add loading state
+            button.innerHTML = '<i class="fas fa-spinner fa-spin ms-1"></i> در حال انتساب...';
+            button.disabled = true;
+
+            fetch(`/ticket/admin/${ticketId}/assign/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.innerHTML = '<i class="fas fa-check ms-1"></i> محول شد';
+                    button.classList.remove('btn-assign');
+                    button.classList.add('btn-assigned');
+
+                    // Show success notification
+                    showNotification('تیکت با موفقیت محول شد', 'success');
+                } else {
+                    button.innerHTML = '<i class="fas fa-user-plus ms-1"></i> انتساب';
+                    button.disabled = false;
+                    showNotification('خطا در انتساب تیکت', 'error');
+                }
+            })
+            .catch(error => {
+                button.innerHTML = '<i class="fas fa-user-plus ms-1"></i> انتساب';
+                button.disabled = false;
+                showNotification('خطا در ارتباط با سرور', 'error');
+            });
+        });
+    });
+
+    // Simple notification function
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: ${type === 'success' ? 'linear-gradient(135deg, #10b981, #059669)' : 'linear-gradient(135deg, #ef4444, #dc2626)'};
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            z-index: 9999;
+            font-weight: 600;
+            animation: slideIn 0.3s ease;
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+
+    // Add animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(-50%) translateY(0); opacity: 1; }
+            to { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
+
+
+{% endblock %}
+

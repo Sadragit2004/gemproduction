@@ -1,0 +1,17 @@
+<section class="mb-8">
+    <div class="container relative">
+      <div class="flex w-full flex-col justify-between gap-4 md:flex-row">
+
+        {% for slider in sliders %}
+        <a  rel="noopener noreferrer" target='_blank' href="{{slider.link}}">
+            <img
+              alt="{{slider.alt_slide}}"
+              class="rounded-base"
+              src="{{media_url}}{{slider.image_name}}"
+            />
+          </a>
+        {% endfor %}
+
+      </div>
+    </div>
+  </section>

@@ -1,0 +1,227 @@
+<!-- templates/tickets/admin/ticket_list.html -->
+{% extends 'account_template.html' %}
+{% load static %}
+
+{% block title %}مدیریت تیکت‌ها{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">مدیریت تیکت‌های پشتیبانی</h4>
+                </div>
+                <div class="card-body">
+                    <!-- آمار -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 class="mb-0">{{ stats.total }}</h4>
+                                            <p class="mb-0">کل تیکت‌ها</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-ticket-alt fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 class="mb-0">{{ stats.open }}</h4>
+                                            <p class="mb-0">باز</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-envelope-open fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 class="mb-0">{{ stats.unread }}</h4>
+                                            <p class="mb-0">خوانده نشده</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-bell fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="card bg-info text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 class="mb-0">{{ stats.assigned_to_me }}</h4>
+                                            <p class="mb-0">محول شده به من</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-user-check fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-secondary text-white">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h4 class="mb-0">{{ stats.closed }}</h4>
+                                            <p class="mb-0">بسته شده</p>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-envelope fa-2x"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- فیلترها -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <form method="get" class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label">وضعیت</label>
+                                    {{ form.status }}
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">دپارتمان</label>
+                                    {{ form.department }}
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary me-2">
+                                        <i class="fas fa-filter me-2"></i>اعمال فیلتر
+                                    </button>
+                                    <a href="{% url 'admin_ticket_list' %}" class="btn btn-outline-secondary">
+                                        حذف فیلتر
+                                    </a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- لیست تیکت‌ها -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>شماره تیکت</th>
+                                    <th>کاربر</th>
+                                    <th>موضوع</th>
+                                    <th>دپارتمان</th>
+                                    <th>اولویت</th>
+                                    <th>وضعیت</th>
+                                    <th>آخرین بروزرسانی</th>
+                                    <th>عملیات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ticket in tickets %}
+                                <tr class="{% if not ticket.is_read_admin %}table-warning{% endif %}
+                                           {% if ticket.assignments.exists %}table-info{% endif %}">
+                                    <td>
+                                        <strong>{{ ticket.ticket_id }}</strong>
+                                        {% if not ticket.is_read_admin %}
+                                        <span class="badge bg-warning ms-1">جدید</span>
+                                        {% endif %}
+                                        {% if ticket.assignments.exists %}
+                                        <span class="badge bg-info ms-1">محول شده</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ ticket.user.name }} {{ ticket.user.family }}
+                                        <br>
+                                        <small class="text-muted">{{ ticket.user.mobileNumber }}</small>
+                                    </td>
+                                    <td>{{ ticket.subject }}</td>
+                                    <td>
+                                        <span class="badge bg-info">{{ ticket.department.name|default:"-" }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge" style="background-color: {{ ticket.priority.color }}">
+                                            {{ ticket.priority.name }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge" style="background-color: {{ ticket.status.color }}">
+                                            {{ ticket.status.name }}
+                                        </span>
+                                    </td>
+                                    <td>{{ ticket.updated_at|timesince }} پیش</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="{% url 'ticket:admin_ticket_detail' ticket.ticket_id %}"
+                                               class="btn btn-outline-primary">
+                                                مشاهده
+                                            </a>
+                                            {% if not ticket.assignments.exists %}
+                                            <button class="btn btn-outline-success assign-btn"
+                                                    data-ticket-id="{{ ticket.ticket_id }}">
+                                                انتساب به من
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                                        <p>هیچ تیکتی یافت نشد</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+$(document).ready(function() {
+    $('.assign-btn').click(function() {
+        const ticketId = $(this).data('ticket-id');
+        const button = $(this);
+
+        $.post(`/ticket/admin/tickets/${ticketId}/assign/`)
+            .done(function(response) {
+                if (response.success) {
+                    button.html('<i class="fas fa-check me-1"></i>محول شد');
+                    button.removeClass('btn-outline-success').addClass('btn-success');
+                    button.prop('disabled', true);
+
+                    // بروزرسانی ردیف
+                    button.closest('tr').addClass('table-info');
+                }
+            })
+            .fail(function() {
+                alert('خطا در انتساب تیکت');
+            });
+    });
+});
+</script>
+
+{% endblock %}
+
+
+

@@ -1,0 +1,339 @@
+
+    <style>
+        /* تنظیمات کلی و فونت */
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap');
+
+
+        .open-drawer-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            padding: 12px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            z-index: 99; /* زیر پس‌زمینه کشو */
+        }
+
+        /* 1. پس‌زمینه تیره (Backdrop) */
+        .drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 35; /* پایین‌تر از خود کشو */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+
+        .drawer-backdrop.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* 2. خود کشو (Drawer) */
+        #profile-menu-drawer-navigation {
+            /* موقعیت و ابعاد */
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 40; /* بالاتر از پس‌زمینه */
+
+            /* استایل ظاهری */
+            background-color: #ffffff; /* معادل bg-muted */
+            border-top-left-radius: 24px; /* rounded-t-3xl */
+            border-top-right-radius: 24px;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+
+            /* انیمیشن و حالت اولیه */
+            transform: translateY(100%); /* در ابتدا کاملا بیرون از صفحه است */
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* حالت باز شده کشو */
+        #profile-menu-drawer-navigation.is-open {
+            transform: translateY(0);
+        }
+
+        /* استایل‌های داخلی کشو (ترجمه شده از Tailwind) */
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem; /* gap-x-4 */
+            border-bottom: 1px solid #e5e7eb; /* border-b */
+            padding: 1rem; /* p-4 */
+            padding-bottom: 1.25rem; /* pb-5 */
+        }
+
+        .drawer-title {
+            font-size: 1.125rem; /* text-lg */
+            color: rgba(23, 23, 23, 0.9); /* text-text/90 */
+            margin: 0;
+        }
+
+        .close-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.375rem; /* p-1.5 */
+            background-color: transparent;
+            border: none;
+            border-radius: 0.5rem; /* rounded-lg */
+            cursor: pointer;
+            color: rgba(23, 23, 23, 0.9);
+        }
+        .close-btn:hover {
+            background-color: #f3f4f6; /* hover:bg-zinc-100 */
+        }
+
+        .drawer-body {
+            padding: 1rem; /* p-4 */
+        }
+
+        .menu-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem; /* space-y-1 */
+        }
+
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0.5rem; /* px-2 py-4 */
+            border-radius: 0.5rem; /* rounded-lg */
+            text-decoration: none;
+            color: #171717;
+            transition: background-color 0.2s;
+        }
+        .profile-menu:hover {
+            background-color: #f3f4f6;
+        }
+
+        .profile-menu-active {
+            background-color: #e0e7ff; /* یک رنگ برای حالت فعال */
+            color: #4338ca;
+        }
+
+        .menu-item-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem; /* gap-x-4 */
+        }
+
+        .icon {
+            width: 1.5rem; /* h-6 w-6 */
+            height: 1.5rem;
+        }
+
+        .notification-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            background-color: #007bff; /* bg-primary */
+            color: white;
+            font-size: 0.875rem; /* text-sm */
+            font-weight: bold;
+        }
+
+        .logout-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem; /* p-4 */
+            border-radius: 0.5rem;
+            color: #ef4444; /* text-red-500 */
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .logout-link:hover {
+            background-color: rgba(252, 165, 165, 0.1); /* hover:bg-warning/10 */
+        }
+        .logout-content {
+             display: flex;
+            align-items: center;
+            gap: 0.5rem; /* gap-x-2 */
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+    </style>
+</head>
+<body>
+
+    <button class="open-drawer-btn" id="open-drawer-button">
+      باز کردن منوی کاربری
+    </button>
+
+    <div class="drawer-backdrop" id="drawer-backdrop"></div>
+
+    <div
+        id="profile-menu-drawer-navigation"
+        class="fixed bottom-0 left-0 right-0 z-40 w-full translate-y-full rounded-t-3xl bg-muted transition-transform duration-300"
+        tabindex="-1"
+        aria-labelledby="drawer-navigation-label"
+    >
+        <div class="drawer-header">
+            <h5 id="drawer-navigation-label" class="drawer-title">منوی پنل کاربری</h5>
+            <button
+                type="button"
+                id="close-drawer-button"
+                class="close-btn"
+            >
+                <svg class="icon">
+                    <use xlink:href="#close" />
+                </svg>
+                <span class="sr-only">Close menu</span>
+            </button>
+        </div>
+        <div class="drawer-body">
+            <ul class="menu-list">
+                <li>
+                    <a href="#" class="profile-menu profile-menu-active">
+                        <div class="menu-item-content">
+                            <svg class="icon"><use xlink:href="#home" /></svg>
+                            <div>پیشخوان</div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="profile-menu">
+                        <div class="menu-item-content">
+                            <svg class="icon"><use xlink:href="#order" /></svg>
+                            <div>سفارش ها</div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="profile-menu">
+                        <div class="menu-item-content">
+                            <svg class="icon"><use xlink:href="#heart" /></svg>
+                            <div>علاقه‌مندی ها</div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="profile-menu">
+                        <div class="menu-item-content">
+                            <svg class="icon"><use xlink:href="#recent" /></svg>
+                            <div>بازدید های اخیر</div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="profile-menu">
+                        <div class="menu-item-content">
+                            <svg class="icon"><use xlink:href="#notification" /></svg>
+                            <div>پیام ها</div>
+                        </div>
+                        <div class="notification-badge">3</div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="profile-menu">
+                        <div class="menu-item-content">
+                            <svg class="icon"><use xlink:href="#address" /></svg>
+                            <div>آدرس ها</div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="profile-menu">
+                        <div class="menu-item-content">
+                            <svg class="icon"><use xlink:href="#user-setting" /></svg>
+                            <div>اطلاعات حساب کاربری</div>
+                        </div>
+                    </a>
+                </li>
+                <li>
+                    <a class="logout-link" href="#">
+                        <div class="logout-content">
+                            <svg class="icon"><use xlink:href="#exit"></use></svg>
+                            <span>خروج</span>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="close" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/>
+        </symbol>
+        <symbol id="home" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5z"/>
+        </symbol>
+        <symbol id="order" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M17 7H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2m0 2v2H7V9h10M7 5h10a2 2 0 0 1 2 2v.5h-1.5V9h-9v-.5H5V7a2 2 0 0 1 2-2m4 10h2v-2h-2v2Z"/>
+        </symbol>
+        <symbol id="heart" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </symbol>
+        <symbol id="recent" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89l.07.14L9 12H6a7 7 0 0 1 7-7a7 7 0 0 1 7 7a7 7 0 0 1-7 7v2a9 9 0 0 0 9-9a9 9 0 0 0-9-9m-1 5v5l4.25 2.52l.75-1.23l-3.5-2.08V8Z"/>
+        </symbol>
+        <symbol id="notification" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M21 19v1H3v-1l2-2v-6c0-3.1 2.03-5.83 5-6.71V4a2 2 0 0 1 2-2a2 2 0 0 1 2 2v.29c2.97.88 5 3.61 5 6.71v6l2 2m-7 2a2 2 0 0 1-2-2h4a2 2 0 0 1-2 2Z"/>
+        </symbol>
+        <symbol id="address" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7m0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5"/>
+        </symbol>
+        <symbol id="user-setting" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12 4a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/>
+        </symbol>
+        <symbol id="exit" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M16 17v-3H9v-4h7V7l4 5l-4 5M5 5h7V3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h7v-2H5V5z"/>
+        </symbol>
+    </svg>
+
+    <script>
+        // گرفتن عناصر مورد نیاز از DOM
+        const drawer = document.getElementById('profile-menu-drawer-navigation');
+        const openButton = document.getElementById('open-drawer-button');
+        const closeButton = document.getElementById('close-drawer-button');
+        const backdrop = document.getElementById('drawer-backdrop');
+
+        // تابع برای باز کردن کشو
+        function openDrawer() {
+            drawer.classList.add('is-open');
+            backdrop.classList.add('is-visible');
+        }
+
+        // تابع برای بستن کشو
+        function closeDrawer() {
+            drawer.classList.remove('is-open');
+            backdrop.classList.remove('is-visible');
+        }
+
+        // اضافه کردن Event Listener به دکمه‌ها و پس‌زمینه
+        openButton.addEventListener('click', openDrawer);
+        closeButton.addEventListener('click', closeDrawer);
+        backdrop.addEventListener('click', closeDrawer);
+
+    </script>

@@ -1,0 +1,108 @@
+
+{% load humanize %}
+
+
+{% if baskets|length  > 0 %}
+
+<section class="mb-8">
+  <div class="container relative">
+    <!-- Section Content -->
+    <div
+
+
+    style='background:hsl(var(--primary-btn));'
+      class="flex gap-x-4 rounded-lg bg-gradient-to-l from-rose-500 to-red-500 px-1 py-3 shadow-base"
+    >
+      <div
+        class="swiper product-slider-wrapped grow rounded-base p-px"
+      >
+        <div class="swiper-wrapper">
+          <div class="swiper-slide">
+            <div class="flex h-full items-center justify-center">
+              <div
+                class="flex flex-col items-center justify-center space-y-4 text-white"
+              >
+                <svg class="h-10 w-10 stroke-2 md:h-12 md:w-12">
+                  <use xlink:href="#special-sale" />
+                </svg>
+                <div
+                  class="flex flex-col items-center justify-center space-y-2 text-lg font-semibold md:text-xl xl:text-2xl"
+                >
+                  <p>پیشنهادات</p>
+                  <p>شگفت</p>
+                  <p>انگیز</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% for basket in baskets %}
+          <div class="swiper-slide">
+              <div class="bg-muted p-2 shadow-base md:p-5">
+                <!-- image -->
+                <div class="mb-2 md:mb-5" draggable="false">
+                  <a href="{{basket.files.get_absolute_url}}" class="relative" title="مشاهده {{basket.files.title}}">
+                    <img
+                      alt="تصویر محصول {{basket.files.title}}"
+                      class="mx-auto w-32 rounded-lg md:w-auto"
+                      src="{{media_url}}{{basket.files.image}}"
+                      loading="lazy"
+                    />
+                    <div class="absolute right-0 top-0">
+                      <p
+                        class="w-9 rounded-full bg-warning py-px text-center text-sm text-white"
+                      >
+                        {{basket.files.get_discount_percentage}}%
+                      </p>
+                    </div>
+                  </a>
+                </div>
+                <!-- title -->
+                <div class="mb-2">
+                  <a
+                    class="line-clamp-2 h-10 text-sm md:h-12 md:text-base"
+                    href="{{basket.files.get_absolute_url}}" title="{{basket.files.title}}"
+                  >
+                    {{basket.files.title}}
+                  </a>
+                </div>
+                <!-- Prices -->
+                <div class="flex flex-col">
+                  <!-- Old price -->
+                  {% if basket.files.price > basket.files.get_price_by_discount %}
+                  <div class="h-5 text-left">
+                    <del
+                      class="text-sm text-text/60 decoration-warning md:text-base"
+                    >
+                     {{basket.files.price}}
+                    </del>
+                  </div>
+                  {% endif %}
+                  <div class="flex items-center justify-between">
+                    <div>
+                      {% if basket.files.price > basket.files.get_price_by_discount %}
+                      {% endif %}
+                    </div>
+                    <!-- New price -->
+                    <div class="text-sm font-bold text-primary md:text-base">
+                      {% if basket.files.price > basket.files.get_price_by_discount %}
+                      {{basket.files.get_price_by_discount|intcomma}}
+                      <span class="text-xs font-light md:text-sm">تومان</span>
+                      {% else %}
+                      {{basket.files.price|intcomma}}
+                      <span class="text-xs font-light md:text-sm">تومان</span>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}

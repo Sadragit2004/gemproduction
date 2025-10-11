@@ -1,0 +1,143 @@
+{% load static %}
+<div class="course-card card h-100 shadow-sm">
+    <!-- تصویر دوره -->
+    <div class="course-image-wrapper position-relative">
+        {% if course_data.instructor.instructorProfile.image %}
+            <img src="{{ course_data.instructor.instructorProfile.image.url }}"
+                 class="card-img-top"
+                 alt="{{ course_data.courseName }}"
+                 style="height: 200px; object-fit: cover;">
+        {% else %}
+            <img src="{% static 'images/default-course.jpg' %}"
+                 class="card-img-top"
+                 alt="{{ course_data.courseName }}"
+                 style="height: 200px; object-fit: cover;">
+        {% endif %}
+
+        <!-- سطح دوره -->
+        <span class="position-absolute top-0 start-0 m-2 badge
+                    {% if course_data.totalHoursDecimal < 10 %}bg-success
+                    {% elif course_data.totalHoursDecimal < 20 %}bg-warning
+                    {% else %}bg-danger{% endif %}">
+            {% if course_data.totalHoursDecimal < 10 %}مقدماتی
+            {% elif course_data.totalHoursDecimal < 20 %}متوسط
+            {% else %}پیشرفته{% endif %}
+        </span>
+    </div>
+
+    <div class="card-body d-flex flex-column">
+        <!-- نام دوره -->
+        <h5 class="card-title course-title">
+            <a href="{% url 'course:detail' course_data.slug %}" class="text-decoration-none text-dark">
+                {{ course_data.courseName|truncatewords:8 }}
+            </a>
+        </h5>
+
+        <!-- اطلاعات استاد -->
+        <div class="instructor-info mb-2">
+            <div class="d-flex align-items-center">
+                {% if course_data.instructor.instructorProfile.image %}
+                <img src="{{ course_data.instructor.instructorProfile.image.url }}"
+                     alt="{{ course_data.instructor.get_full_name|default:course_data.instructor.name }}"
+                     class="rounded-circle me-2"
+                     width="30" height="30" style="object-fit: cover;">
+                {% else %}
+                <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center me-2"
+                     style="width: 30px; height: 30px;">
+                    <small class="text-white">{{ course_data.instructor.name|first|upper }}</small>
+                </div>
+                {% endif %}
+                <small class="text-muted">
+                    {{ course_data.instructor.get_full_name|default:course_data.instructor.name }}
+                </small>
+            </div>
+        </div>
+
+        <!-- امتیاز و تعداد کامنت -->
+        <div class="course-meta d-flex justify-content-between align-items-center mb-2">
+            <div class="rating">
+                {% with avg_rating=course_data.averageRating %}
+                <div class="stars">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= avg_rating %}
+                            <i class="fas fa-star text-warning"></i>
+                        {% else %}
+                            <i class="far fa-star text-warning"></i>
+                        {% endif %}
+                    {% endfor %}
+                    <small class="text-muted ms-1">{{ avg_rating|default:"0.0" }}</small>
+                </div>
+                {% endwith %}
+            </div>
+            <div class="comments">
+                <small class="text-muted">
+                    <i class="far fa-comment me-1"></i>
+                    {{ course_data.comments.count }}
+                </small>
+            </div>
+        </div>
+
+        <!-- مدت زمان و تعداد دانشجو -->
+        <div class="course-stats d-flex justify-content-between align-items-center mb-3">
+            <small class="text-muted">
+                <i class="far fa-clock me-1"></i>
+                {{ course_data.totalHoursHuman }}
+            </small>
+            <small class="text-muted">
+                <i class="fas fa-users me-1"></i>
+                {{ course_data.studentCount }} دانشجو
+            </small>
+        </div>
+
+        <!-- قیمت دوره -->
+        <div class="course-price mt-auto">
+            <div class="d-flex justify-content-between align-items-center">
+                {% if course_data.totalPrice > 0 %}
+                    <span class="h5 mb-0 text-primary">{{ course_data.totalPrice|floatformat:0 }} تومان</span>
+                {% else %}
+                    <span class="h5 mb-0 text-success">رایگان</span>
+                {% endif %}
+
+                <a href="{% url 'course:course_detail' course_data.slug %}" class="btn btn-sm btn-outline-primary">
+                    مشاهده دوره
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.course-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #e9ecef;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.course-title {
+    height: 3rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.course-image-wrapper {
+    overflow: hidden;
+}
+
+.course-image-wrapper img {
+    transition: transform 0.3s ease;
+}
+
+.course-card:hover .course-image-wrapper img {
+    transform: scale(1.05);
+}
+
+.stars {
+    font-size: 0.9rem;
+}
+</style>

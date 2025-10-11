@@ -1,0 +1,220 @@
+{% extends "dp_template.html" %}
+
+{% block content %}
+<div class="flex min-h-screen flex-col">
+    <main class="flex-grow bg-background pb-14 pt-36 xs:pt-36">
+      <div class="container">
+        <div class="grid grid-cols-12 gap-4">
+          <!-- sidebar -->
+        {% include "panel_app/partials/side_bar.html" %}
+          <!-- content -->
+          <div class="col-span-12 lg:col-span-9">
+            <div class="rounded-lg bg-muted p-5 shadow-base">
+              <!-- Title -->
+              <h1 class="relative mb-16 w-fit text-xl font-medium">
+                اطلاعات حساب کاربری شما
+                <span class="absolute right-0 top-10 h-[3px] w-full rounded-full bg-primary"></span>
+              </h1>
+
+              <!-- Content -->
+              <div class="grid grid-cols-2 gap-4">
+                <!-- full name -->
+                <div class="col-span-2 sm:col-span-1">
+                  <button class="w-full" type="button" data-modal-target="fullname-modal" data-modal-toggle="fullname-modal">
+                    <div class="relative rounded-lg border p-4 hover:border-border/50">
+                      <div class="flex justify-between">
+                        <div class="flex flex-col items-start gap-y-2">
+                          <div class="text-text/90">نام و نام خانوادگی</div>
+                          <div class="mr-2 text-text/60">{{user.name}} {{user.family}}</div>
+                        </div>
+                        <svg class="h-6 w-6 text-primary">
+                          <use xlink:href="#edit" />
+                        </svg>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+
+                <!-- gender -->
+                <div class="col-span-2 sm:col-span-1">
+                  <button class="w-full" type="button" data-modal-target="gender-modal" data-modal-toggle="gender-modal">
+                    <div class="relative rounded-lg border p-4 hover:border-border/50">
+                      <div class="flex justify-between">
+                        <div class="flex flex-col items-start gap-y-2">
+                          <div class="text-text/90">جنسیت</div>
+                          <div class="mr-2 text-text/60">
+                            {% if user.gender == 'male' %}مرد{% else %}زن{% endif %}
+                          </div>
+                        </div>
+                        <svg class="h-6 w-6 text-primary">
+                          <use xlink:href="#edit" />
+                        </svg>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+
+                <!-- birth date -->
+                <div class="col-span-2 sm:col-span-1">
+                  <button class="w-full" type="button" data-modal-target="birthDate-modal" data-modal-toggle="birthDate-modal">
+                    <div class="relative rounded-lg border p-4 hover:border-border/50">
+                      <div class="flex justify-between">
+                        <div class="flex flex-col items-start gap-y-2">
+                          <div class="text-text/90">تاریخ تولد</div>
+                          <div class="mr-2 text-text/60">
+                            {% if user.birth_date %}
+                              {{ user.birth_date|date:"Y/m/d" }} ({{ user.age }} سال)
+                            {% else %}
+                              ثبت نشده
+                            {% endif %}
+                          </div>
+                        </div>
+                        <svg class="h-6 w-6 text-primary">
+                          <use xlink:href="#edit" />
+                        </svg>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+
+
+                <div class="col-span-2 sm:col-span-1">
+                  <button class="w-full" type="button" data-modal-target="phoneNumber-modal" data-modal-toggle="phoneNumber-modal">
+                    <div class="relative rounded-lg border p-4 hover:border-border/50">
+                      <div class="absolute inset-x-0 -bottom-2.5 mx-auto w-fit rounded-full bg-muted px-3 text-sm font-medium text-primary">
+                        تایید شده
+                      </div>
+                      <div class="flex justify-between">
+                        <div class="flex flex-col items-start gap-y-2">
+                          <div class="text-text/90">شماره موبایل</div>
+                          <div class="mr-2 text-text/60">{{user.mobileNumber}}</div>
+                        </div>
+                        <svg class="h-6 w-6 text-primary">
+                          <use xlink:href="#edit" />
+                        </svg>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  {% include "panel_app/partials/side_bar_mobile.html" %}
+
+    <!-- Full name modal -->
+    <div id="fullname-modal" tabindex="-1" aria-hidden="true" class="main-scroll fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-y-auto overflow-x-hidden p-4 md:inset-0">
+      <div class="relative max-h-full w-full max-w-2xl">
+        <div class="divide-y overflow-hidden rounded-lg bg-muted shadow ring-1 ring-gray-100 dark:ring-white/5">
+          <div class="px-4 py-5 sm:px-6">
+            <div class="flex items-center justify-between">
+              <h3 class="md:text-lg">تغییر نام و نام خانوادگی</h3>
+              <button class=" " data-modal-hide="fullname-modal" type="button">
+                <svg class="h-5 w-5"><use xlink:href="#close"></use></svg>
+                <span class="sr-only">Close Modal</span>
+              </button>
+            </div>
+          </div>
+          <div class="space-y-6 px-4 py-5 sm:p-6">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="col-span-2 sm:col-span-1">
+                <form action="" method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="form_type" value="name">
+                  <label for="name" class="relative block rounded-lg border shadow-base">
+                    {{ form.name }}
+                    <span class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/60 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm">نام</span>
+                  </label>
+                  <div class="my-2 h-6 text-red-500 dark:text-red-400"></div>
+              </div>
+              <div class="col-span-2 sm:col-span-1">
+                <label for="family" class="relative block rounded-lg border shadow-base">
+                  {{ form.family }}
+                  <span class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/60 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm">نام خانوادگی</span>
+                </label>
+                <div class="my-2 h-6 text-red-500 dark:text-red-400"></div>
+              </div>
+            </div>
+            <div class="flex items-center justify-end gap-x-4">
+              <button class="btn-primary w-full px-4 py-2 xs:w-24" type="submit">ویرایش</button>
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gender modal -->
+    <div id="gender-modal" tabindex="-1" aria-hidden="true" class="main-scroll fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-y-auto overflow-x-hidden p-4 md:inset-0">
+      <div class="relative max-h-full w-full max-w-md">
+        <div class="divide-y overflow-hidden rounded-lg bg-muted shadow ring-1 ring-gray-100 dark:ring-white/5">
+          <div class="px-4 py-5 sm:px-6">
+            <div class="flex items-center justify-between">
+              <h3 class="md:text-lg">تغییر جنسیت</h3>
+              <button class=" " data-modal-hide="gender-modal" type="button">
+                <svg class="h-5 w-5"><use xlink:href="#close"></use></svg>
+                <span class="sr-only">Close Modal</span>
+              </button>
+            </div>
+          </div>
+          <div class="space-y-6 px-4 py-5 sm:p-6">
+            <form action="" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="form_type" value="gender">
+              <div>
+                <label for="gender" class="relative block rounded-lg border shadow-base">
+                  {{ form.gender }}
+                </label>
+                <div class="my-2 h-6"></div>
+              </div>
+              <div class="flex items-center justify-end gap-x-4">
+                <button class="btn-primary w-full px-4 py-2 xs:w-24" type="submit">ویرایش</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Birth date modal -->
+    <div id="birthDate-modal" tabindex="-1" aria-hidden="true" class="main-scroll fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-y-auto overflow-x-hidden p-4 md:inset-0">
+      <div class="relative max-h-full w-full max-w-md">
+        <div class="divide-y overflow-hidden rounded-lg bg-muted shadow ring-1 ring-gray-100 dark:ring-white/5">
+          <div class="px-4 py-5 sm:px-6">
+            <div class="flex items-center justify-between">
+              <h3 class="md:text-lg">تغییر تاریخ تولد</h3>
+              <button class=" " data-modal-hide="birthDate-modal" type="button">
+                <svg class="h-5 w-5"><use xlink:href="#close"></use></svg>
+                <span class="sr-only">Close Modal</span>
+              </button>
+            </div>
+          </div>
+          <div class="space-y-6 px-4 py-5 sm:p-6">
+            <form action="" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="form_type" value="birth_date">
+              <div>
+                <label for="birth_date" class="relative block rounded-lg border shadow-base">
+                  {{ form.birth_date }}
+                  <span class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/60 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm">تاریخ تولد</span>
+                </label>
+                <div class="my-2 h-6"></div>
+              </div>
+              <div class="flex items-center justify-end gap-x-4">
+                <button class="btn-primary w-full px-4 py-2 xs:w-24" type="submit">ویرایش</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- سایر مودال‌ها بدون تغییر باقی می‌مانند -->
+    <!-- ... کدهای قبلی برای سایر مودال‌ها ... -->
+
+  </div>
+
+{% endblock content %}

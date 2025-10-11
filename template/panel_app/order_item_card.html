@@ -1,0 +1,55 @@
+{% load humanize %}
+
+<div class="rounded-lg border shadow-base">
+  <a href="{% url 'panel:order-detail' order_id=order.id %}"> <div class="p-4">
+      <div class="flex items-center justify-between pb-6">
+        <div class="flex items-center gap-x-2 text-primary">
+          {% autoescape off %}{{ order.status_info.svg_stutus }}{% endautoescape %}
+          <p class="font-medium md:text-lg">{{ order.status_info.title_status }}</p>
+        </div>
+        <svg class="h-6 w-6"><use xlink:href="#chevron-left" /></svg>
+      </div>
+      <div class="flex flex-col gap-6 pb-6 xl:flex-row xl:justify-between xl:gap-16">
+        <div class="flex flex-col gap-4 md:flex-row">
+          <div class="flex items-center justify-between gap-x-2 md:justify-start">
+            <div class="text-sm text-text/60 md:text-base">شماره سفارش</div>
+            <div class="text-sm text-text/90 md:text-base">#{{ order.id }}</div>
+          </div>
+          <div class="flex items-center justify-between gap-x-2 md:justify-start">
+            <div class="text-sm text-text/60 md:text-base">مبلغ کل</div>
+            <div class="text-primary">
+              <span class="font-bold md:text-lg">{{ order.get_order_total_price|intcomma }}</span>
+              <span class="text-sm md:text-base">ریال</span>
+            </div>
+          </div>
+          <div class="flex items-center justify-between gap-x-2 md:justify-start">
+            <div class="text-sm text-text/60 md:text-base">تاریخ</div>
+            <div class="text-sm text-text/90 md:text-base">{{ order.get_jalali_createAt }}</div>
+          </div>
+        </div>
+        <div class="flex flex-grow flex-col gap-y-4">
+          <div class="relative h-2 w-full rounded-full bg-background dark:bg-zinc-800">
+            <span class="absolute inset-y-0 right-0 rounded-full bg-primary" style="width: {{ order.status_info.percent_develop }}%"></span>
+          </div>
+          <div class="flex items-center justify-between text-sm text-primary md:text-base">
+            <span>{{ order.get_jalali_createAt }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </a>
+  {% if order.orders_details.all %}
+  <div class="swiper orders-product-swiper border-t p-4">
+    <div class="swiper-wrapper">
+      {% for detail in order.orders_details.all %}
+      <div class="swiper-slide">
+        <a class="flex items-center gap-x-2 rounded-lg border p-2" href="{{ detail.files.get_absolute_url }}">
+          <img alt="{{ detail.files.title }}" class="h-20 w-20 object-cover" src="{{ detail.files.image.url }}" />
+          <p class="line-clamp-2 text-sm">{{ detail.files.title }}</p>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>

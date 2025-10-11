@@ -1,0 +1,110 @@
+{% extends "dp_template.html" %}
+{% load humanize %}
+
+{% block content %}
+<div class="flex min-h-screen flex-col">
+  <main class="flex-grow bg-background pb-14 pt-36 xs:pt-36">
+    <div class="container">
+      <div class="grid grid-cols-12 gap-4">
+        {% include "panel_app/partials/side_bar.html" %}
+
+        <div class="col-span-12 lg:col-span-9">
+          <div class="rounded-lg bg-muted p-5 shadow-base">
+            <h1 class="relative mb-16 w-fit text-xl font-medium">
+              سفارشات شما
+              <span class="absolute right-0 top-10 h-[3px] w-full rounded-full bg-primary"></span>
+            </h1>
+
+            <div class="mb-8">
+              <h3 class="mb-8 flex items-center gap-x-4 text-lg text-text/90">
+                <span class="h-2 w-2 rounded-full bg-primary"></span>
+                سفارشات فعلی
+              </h3>
+              <div class="space-y-4">
+                {% for order in top_current_orders %}
+                  {% include "panel_app/order_item_card.html" with order=order %}
+                {% empty %}
+                  <div class="flex justify-center rounded-lg border p-8 shadow-base">
+                    <div class="flex flex-col items-center justify-center gap-y-4 text-text/60">
+                      <svg class="h-20 w-20"><use xlink:href="#order-off" /></svg>
+                      <p class="md:text-xl">لیست سفارش های فعلی شما خالی میباشد.</p>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="mb-8">
+              <h2 class="mb-8 flex items-center gap-x-4 text-lg text-text/90">
+                <span class="h-2 w-2 rounded-full bg-primary"></span>
+                تاریخچه سفارشات
+              </h2>
+
+              <div class="mb-8">
+                <ul class="-mb-px flex justify-between gap-x-2 overflow-x-auto text-center text-sm font-medium scrollbar-thumb-transparent xs:justify-start xs:gap-x-4 xs:text-base" data-tabs-toggle="#ordersFilterTab" role="tablist">
+                  <li role="presentation">
+                    <button class="flex items-center gap-x-2 whitespace-nowrap rounded-t-lg border-b-2 border-transparent px-2 pb-2 hover:text-text/90" data-tabs-target="#filter-current" type="button" role="tab" aria-controls="filter-current" aria-selected="true">
+                      فعلی
+                      <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-base text-white">{{ current_orders_tab|length }}</span>
+                    </button>
+                  </li>
+                  <li role="presentation">
+                    <button class="flex items-center gap-x-2 whitespace-nowrap rounded-t-lg border-b-2 border-transparent px-2 pb-2 hover:text-text/90" data-tabs-target="#filter-delivered" type="button" role="tab" aria-controls="filter-delivered" aria-selected="false">
+                      تحویل شده
+                      <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-base text-white">{{ delivered_orders_tab|length }}</span>
+                    </button>
+                  </li>
+                  <li role="presentation">
+                    <button class="flex items-center gap-x-2 whitespace-nowrap rounded-t-lg border-b-2 border-transparent px-2 pb-2 hover:text-text/90" data-tabs-target="#filter-canceled" type="button" role="tab" aria-controls="filter-canceled" aria-selected="false">
+                      لغو شده
+                      <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-base text-white">{{ cancelled_orders_tab|length }}</span>
+                    </button>
+                  </li>
+                  <li role="presentation">
+                    <button class="flex items-center gap-x-2 whitespace-nowrap rounded-t-lg border-b-2 border-transparent px-2 pb-2 hover:text-text/90" data-tabs-target="#filter-returned" type="button" role="tab" aria-controls="filter-returned" aria-selected="false">
+                      مرجوع شده
+                      <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-base text-white">{{ refunded_orders_tab|length }}</span>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+              <div id="ordersFilterTab">
+                <div class="hidden space-y-4" id="filter-current" role="tabpanel" aria-labelledby="filter-current-tab">
+                  {% for order in current_orders_tab %}
+                    {% include "panel_app/order_item_card.html" with order=order %}
+                  {% empty %}
+                    <p class="text-center text-text/70">هیچ سفارش فعالی یافت نشد.</p>
+                  {% endfor %}
+                </div>
+                <div class="hidden space-y-4" id="filter-delivered" role="tabpanel" aria-labelledby="filter-delivered-tab">
+                  {% for order in delivered_orders_tab %}
+                    {% include "panel_app/order_item_card.html" with order=order %}
+                  {% empty %}
+                    <p class="text-center text-text/70">هیچ سفارش تحویل شده‌ای یافت نشد.</p>
+                  {% endfor %}
+                </div>
+                <div class="hidden space-y-4" id="filter-canceled" role="tabpanel" aria-labelledby="filter-canceled-tab">
+                  {% for order in cancelled_orders_tab %}
+                    {% include "panel_app/order_item_card.html" with order=order %}
+                  {% empty %}
+                    <p class="text-center text-text/70">هیچ سفارش لغو شده‌ای یافت نشد.</p>
+                  {% endfor %}
+                </div>
+                <div class="hidden space-y-4" id="filter-returned" role="tabpanel" aria-labelledby="filter-returned-tab">
+                  {% for order in refunded_orders_tab %}
+                    {% include "panel_app/order_item_card.html" with order=order %}
+                  {% empty %}
+                    <p class="text-center text-text/70">هیچ سفارش مرجوع شده‌ای یافت نشد.</p>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  {% include "panel_app/partials/side_bar_mobile.html" %}
+</div>
+{% endblock content %}

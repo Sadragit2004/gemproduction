@@ -1,0 +1,26 @@
+{% load humanize %}
+
+<form method="get" action="">
+  <div>
+    <input
+      type="range"
+      max="{{ result_price.max }}"
+      min="{{ result_price.min }}"
+      name="price"
+      value="{{ selected_price }}"
+      oninput="showVal2(this.value)"
+      onchange="this.form.submit()">
+    <br>
+
+    <span style="color:orange; font-weight:bold;">
+      <span id="sel_price">{{ selected_price|intcomma }}</span> تومان
+    </span>
+  </div>
+</form>
+
+<script>
+  function showVal2(x) {
+    x = x.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",");
+    document.getElementById("sel_price").textContent = x;
+  }
+</script>

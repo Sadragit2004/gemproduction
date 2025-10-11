@@ -1,0 +1,481 @@
+{% extends "main_template.html" %}
+
+
+
+
+{% block content %}
+<div class="flex min-h-screen flex-col">
+
+<main class="flex-grow bg-background pb-14 pt-36 xs:pt-36">
+    <div class="container relative">
+      <!-- Mobile Options Section -->
+      <div class="mb-6 flex items-center justify-center gap-x-4 md:hidden">
+        <!-- Filter -->
+        <button
+          aria-controls="shop-filter-drawer-navigation"
+          class="flex w-full items-center gap-x-4 rounded-lg bg-muted px-4 py-3 text-sm xs:text-base"
+          data-drawer-show="shop-filter-drawer-navigation"
+          data-drawer-placement="bottom"
+          data-drawer-target="shop-filter-drawer-navigation"
+          type="button"
+        >
+          <svg class="h-6 w-6">
+            <use xlink:href="#filter" />
+          </svg>
+          <div>فیلتر</div>
+        </button>
+        <!-- Sort -->
+        <button
+          aria-controls="shop-sort-drawer-navigation"
+          class="flex w-full items-center gap-x-4 rounded-lg bg-muted px-4 py-3 text-sm xs:text-base"
+          data-drawer-show="shop-sort-drawer-navigation"
+          data-drawer-placement="bottom"
+          data-drawer-target="shop-sort-drawer-navigation"
+          type="button"
+        >
+          <svg class="h-6 w-6">
+            <use xlink:href="#sort" />
+          </svg>
+          <div>مرتب سازی</div>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-12 grid-rows-[60px_min(500px,_1fr)] gap-4">
+        <!-- Desktop Filter Section -->
+        <div class="col-span-4 row-span-2 hidden md:block lg:col-span-3">
+          <div
+            class="sticky top-32 mb-4 overflow-hidden rounded-lg bg-muted shadow-base"
+          >
+            <div
+              dir="ltr"
+              class="flex max-h-[calc(95vh_-_100px)] flex-col overflow-y-auto overflow-x-hidden px-4 py-3"
+            >
+              <div dir="rtl">
+                <!-- Title -->
+                <div class="mb-6 flex items-center justify-between">
+                  <h3 class="xl:text-lg">فیلتر ها</h3>
+                  <button class="btn-primary-nobg py-2 text-sm">
+                    حذف همه
+                  </button>
+                </div>
+                <ul class="space-y-6">
+                  <!-- Search -->
+                  <form action="">
+                  <li>
+                    <label class="sr-only">Blog search</label>
+                    <input
+                      class="w-full rounded-lg border-none bg-background px-2 py-3 text-text/90 outline-none placeholder:text-sm placeholder:text-text/60 focus:ring-0 placeholder:"
+                      placeholder="دنبال چه مقاله ای میگردی؟"
+                      type="text"
+                      name='qb'
+                    />
+                  </li>
+
+                </form>
+
+                  <!-- Categories -->
+                  <div class="mb-8 rounded-lg bg-white px-2 py-3 shadow-base xl:px-4" x-data="{ expanded: false }">
+                    <p class="mb-4 text-center text-sm font-medium xl:text-base">دسته‌بندی‌ها</p>
+
+                    <!-- لیست دسته‌بندی‌ها -->
+                    <ul class="space-y-4">
+                      {% for category in categories %}
+                        <!-- فقط اولین دسته‌بندی به‌طور کامل نمایش داده می‌شود -->
+                        <li x-show="expanded || {{ forloop.first }}" class="overflow-hidden transition-all duration-200" x-data="{ open: false }">
+                          <a href="#" @click.prevent="open = !open" class="group py-2 block">
+                            <div class="flex items-center justify-between">
+                              <p class="flex items-center gap-x-2 text-sm text-gray-700 transition-all duration-200 group-hover:text-gray-900 xl:text-base">
+                                <svg class="h-4 w-4 transform transition-transform" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                                {{ category.group_name }}
+                              </p>
+                              <div class="w-6 rounded-lg bg-primary py-px text-center text-sm font-medium text-white dark:bg-emerald-600">
+                                {{ category.group_of_blog.count }}
+                              </div>
+                            </div>
+                          </a>
+
+                          <!-- مقالات زیر دسته‌بندی -->
+                          <div x-show="open" x-transition class="mt-2 pl-8 text-sm text-gray-600">
+                            {% if category.group_of_blog.all %}
+                              <ul class="space-y-2">
+                                {% for blog in category.group_of_blog.all %}
+                                  <li>
+                                    <a href="{{ blog.get_absolute_url }}" class="hover:text-primary">
+                                      {{ blog.name_blog }}
+                                    </a>
+                                  </li>
+                                {% endfor %}
+                              </ul>
+                            {% else %}
+                              <p>هیچ مقاله‌ای موجود نیست.</p>
+                            {% endif %}
+                          </div>
+                        </li>
+                      {% endfor %}
+                    </ul>
+
+                    <!-- دکمه‌ی "نمایش بیشتر" -->
+                    <div class="text-center mt-4">
+                      <button @click="expanded = !expanded" class="text-sm text-primary hover:underline">
+                        <span x-show="!expanded">نمایش بیشتر</span>
+                        <span x-show="expanded">نمایش کمتر</span>
+                      </button>
+                    </div>
+                  </div>
+
+
+                  <!-- Hot -->
+                  <li>
+                    <label
+                      class="flex cursor-pointer items-center justify-between py-3"
+                      for="onlyHotDesktop"
+                    >
+                      <div class=" ">داغ‌ ترین ها</div>
+                      <div
+                        class="relative inline-flex cursor-pointer items-center"
+                      >
+                        <input
+                          class="peer sr-only"
+                          id="onlyHotDesktop"
+                          type="checkbox"
+                        />
+
+                        <div
+                          class="peer h-6 w-11 rounded-full bg-background after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-muted after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-focus:ring-emerald-500 dark:bg-zinc-800 after: peer-checked: peer-focus:dark:ring-emerald-400"
+                        ></div>
+                      </div>
+                    </label>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-span-12 space-y-4 md:col-span-8 lg:col-span-9">
+          <!-- Desktop Sort Section -->
+          <div class="hidden md:block">
+            <div class="flex h-14 items-center gap-x-2 rounded-lg bg-muted px-2 text-text/90 shadow-base lg:px-4">
+              <!-- Title -->
+              <div class="flex items-center gap-x-2 text-sm lg:text-base">
+                <svg class="h-6 w-6">
+                  <use xlink:href="#sort" />
+                </svg>
+                <p>مرتب سازی بر اساس</p> |
+              </div>
+              <!-- Sort Buttons -->
+              <form method="GET" action="">
+                <label for="sort-newest">جدید ترین</label>
+                <input
+                  type="radio"
+                  value="1"
+                  name="sort"
+                  id="sort-newest"
+                  class="sort-button-active rounded-lg px-1 py-2 text-sm hover:bg-background lg:px-4"
+                  {% if request.GET.sort == "1" %} checked {% endif %}
+                > |
+                <label for="sort-popular">پربازدید ترین</label>
+                <input
+                  type="radio"
+                  value="2"
+                  name="sort"
+                  id="sort-popular"
+                  class="sort-button-active rounded-lg px-1 py-2 text-sm hover:bg-background lg:px-4"
+                  {% if request.GET.sort == "2" %} checked {% endif %}
+                >
+                <button
+                  type="submit"
+                  class="sort-button-active rounded-lg px-1 py-2 text-sm hover:bg-background lg:px-4"
+                >
+                  اعمال فیلتر
+                </button>
+              </form>
+
+
+            </div>
+          </div>
+
+          <!-- Blogs Grid -->
+          <div
+            class="grid grid-cols-2 gap-px gap-y-2 xs:gap-4 md:grid-cols-2 lg:grid-cols-3"
+          >
+            <!-- Blog Card -->
+
+            {% for blog in blogs %}
+            <div
+              class="border-gradient group relative rounded-base p-px before:absolute before:-inset-px before:h-[calc(100%+2px)] before:w-[calc(100%+2px)] before:rounded-base"
+            >
+              <div>
+                <!-- Descriptive anchor text wrapping the blog title -->
+                <a href="{{ blog.get_absolute_url }}" aria-label="{{ blog.subject }}">
+                  <div class="relative rounded-xl bg-muted p-2 shadow-base">
+                    <!-- image with lazy loading for performance optimization -->
+                    <div class="mb-2 md:mb-5" draggable="false">
+                      <img
+                        alt="{{ blog.subject }}"
+                        class="mx-auto w-auto rounded-lg rounded-bl-3xl"
+                        src="{{ media_url }}{{ blog.image_name }}"
+                        loading="lazy"
+                      />
+                    </div>
+                    <!-- title optimized with a heading tag -->
+                    <div class="mb-2">
+                      <h2 class="line-clamp-2 h-12 text-sm md:text-base">
+                        {{ blog.subject }}
+                      </h2>
+                    </div>
+                    <!-- Date -->
+                    <div class="flex justify-end">
+                      <p class="text-xs text-primary xs:text-sm">
+                        {{ blog.get_jalali_register_date }}
+                      </p>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+
+            <!-- Blog Card -->
+
+
+          <!-- Pagination -->
+          <div class="flex items-center justify-center gap-x-4 md:justify-end">
+            <!-- صفحه قبلی -->
+            {% if page_obj.has_previous %}
+            <a class="pagination-button flex items-center justify-center" href="?page={{ page_obj.previous_page_number }}">
+              <svg class="h-6 w-6">
+                <use xlink:href="#chevron-right"></use>
+              </svg>
+            </a>
+            {% endif %}
+
+            <!-- صفحات -->
+            <div class="flex items-center gap-x-2">
+              {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <a class="pagination-button pagination-button-active" href="?page={{ num }}">{{ num }}</a>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a class="pagination-button" href="?page={{ num }}">{{ num }}</a>
+                {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                <a class="pagination-button" href="?page={{ num }}">{{ num }}</a>
+                {% elif num == page_obj.number|add:'-3' or num == page_obj.number|add:'3' %}
+                <p class="text-sm text-text/60">...</p>
+                {% endif %}
+              {% endfor %}
+            </div>
+
+            <!-- صفحه بعدی -->
+            {% if page_obj.has_next %}
+            <a class="flex h-8 w-8 items-center justify-center rounded-full bg-muted transition-all duration-200 hover:bg-primary hover:text-white hover:dark:bg-emerald-600" href="?page={{ page_obj.next_page_number }}">
+              <svg class="h-6 w-6">
+                <use xlink:href="#chevron-left"></use>
+              </svg>
+            </a>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+</main>
+
+
+<div
+        aria-labelledby="shop-filter-drawer-navigation-label"
+        class="fixed bottom-0 left-0 right-0 z-40 h-full w-full translate-y-full bg-muted transition-transform duration-300"
+        id="shop-filter-drawer-navigation"
+        tabindex="-1"
+      >
+        <div
+          class="flex items-center justify-between gap-x-4 border-b p-4 pb-5"
+        >
+          <h5 class="text-lg text-text/90">فیلتر بلاگ</h5>
+          <button
+            aria-controls="user-account-drawer-navigation"
+            class="inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-text/90 hover:bg-zinc-100 hover:text-gray-900 dark:hover:bg-black dark:hover:text-white"
+            data-drawer-hide="shop-filter-drawer-navigation"
+            type="button"
+          >
+            <svg class="h-5 w-5">
+              <use xlink:href="#close" />
+            </svg>
+
+            <span class="sr-only">Close menu</span>
+          </button>
+        </div>
+
+        <div class="h-full pb-[150px]">
+          <ul class="h-full space-y-6 overflow-y-auto p-4">
+            <!-- Search -->
+            <li>
+              <label class="sr-only">Blog search</label>
+              <input
+                class="w-full rounded-lg border-none bg-background px-2 py-3 text-text/90 outline-none placeholder:text-sm placeholder:text-text/60 focus:ring-0 placeholder:"
+                placeholder="جستجو در بین نتایج ..."
+                type="text"
+              />
+            </li>
+
+            <!-- Categories -->
+            <div class="mb-8 rounded-lg bg-white px-2 py-3 shadow-base xl:px-4">
+              <p class="mb-4 text-center text-sm font-medium xl:text-base">دسته‌بندی ها</p>
+              <ul class="space-y-4">
+                {% for category in categories %}
+                  <li x-data="{ open: false }">
+                    <a href="#" @click.prevent="open = !open" class="group py-2">
+                      <div class="flex items-center justify-between">
+                        <p class="flex items-center gap-x-2 text-sm text-gray-700 transition-all duration-200 group-hover:text-gray-900 xl:text-base">
+                          <svg class="h-4 w-4 transform transition-transform" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                          </svg>
+                          {{ category.group_name }}
+                        </p>
+                        <div class="w-6 rounded-lg bg-primary py-px text-center text-sm font-medium text-white dark:bg-emerald-600">
+                          {{ category.group_of_blog.count }}
+                        </div>
+                      </div>
+                    </a>
+                    <div x-show="open" x-transition class="mt-2 pl-8 text-sm text-gray-600">
+                      {% if category.group_of_blog.all %}
+                        <ul class="space-y-2">
+                          {% for blog in category.group_of_blog.all %}
+                            <li>
+                              <a href="{{ blog.get_absolute_url }}" class="hover:text-primary">
+                                {{ blog.name_blog }}
+                              </a>
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      {% else %}
+                        <p>هیچ مقاله‌ای موجود نیست.</p>
+                      {% endif %}
+                    </div>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+
+            <li>
+              <label
+                class="flex cursor-pointer items-center justify-between py-3"
+                for="onlyHotMobile"
+              >
+                <div class=" ">داغ ترین ها</div>
+                <div class="relative inline-flex cursor-pointer items-center">
+                  <input
+                    class="peer sr-only"
+                    id="onlyHotMobile"
+                    type="checkbox"
+                  />
+
+                  <div
+                    class="peer h-6 w-11 rounded-full bg-background after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-muted after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-focus:ring-emerald-500 dark:bg-zinc-800 after: peer-checked: peer-focus:dark:ring-emerald-400"
+                  ></div>
+                </div>
+              </label>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Footer -->
+
+        <div
+          class="sticky bottom-0 left-0 right-0 flex items-center justify-between border-t bg-muted p-4 px-6 py-4"
+        >
+          <button class="btn-primary w-full py-3 text-sm" type="button">
+            مشاهده 200 محصول
+          </button>
+        </div>
+      </div>
+      <!-- Mobile Sort Drawer -->
+      <div
+        aria-labelledby="shop-sort-drawer-navigation-label"
+        class="fixed bottom-0 left-0 right-0 z-40 h-auto w-full translate-y-full rounded-t-3xl bg-muted transition-transform duration-300"
+        id="shop-sort-drawer-navigation"
+        tabindex="-1"
+      >
+        <div
+          class="flex items-center justify-between gap-x-4 border-b p-4 pb-5"
+        >
+          <h5 class="text-lg text-text/90">مرتب سازی بر اساس</h5>
+          <button
+            aria-controls="user-account-drawer-navigation"
+            class="inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-text/90 hover:bg-zinc-100 hover:text-gray-900 dark:hover:bg-black dark:hover:text-white"
+            data-drawer-hide="shop-sort-drawer-navigation"
+            type="button"
+          >
+            <svg class="h-5 w-5">
+              <use xlink:href="#close" />
+            </svg>
+
+            <span class="sr-only">Close menu</span>
+          </button>
+        </div>
+
+        <div class="main-scroll h-full space-y-2 divide-y overflow-y-auto p-4">
+          <fieldset class="flex flex-col space-y-2">
+            <legend class="sr-only">Sort</legend>
+
+            <form action="">
+            <div>
+              <input
+                class="peer hidden"
+                id="sort-new"
+                name="sort"
+                type="radio"
+                value="1"
+              />
+
+              <label
+                class="relative block w-full cursor-pointer rounded-lg border p-4 shadow-base peer-checked:border-emerald-500 peer-checked:dark:border-emerald-400"
+                for="sort-new"
+              >
+                <p class="text-center text-text/90">جدید ترین</p>
+              </label>
+            </div>
+            <div>
+              <input
+                class="peer hidden"
+                id="sort-sale"
+                name="sort"
+                type="radio"
+                value="2"
+              />
+
+              <label
+                class="sort-button-active rounded-lg px-1 py-2 text-sm hover:bg-background lg:px-4"
+                for="sort-sale"
+              >
+                <p class="text-center text-text/90">پربازدید ترین</p>
+              </label>
+
+              <button
+              type="submit"
+              class="sort-button-active rounded-lg px-1 py-2 text-sm hover:bg-background lg:px-4"
+            >
+              اعمال فیلتر
+            </button>
+
+            </form>
+            </div>
+          </fieldset>
+
+  </div>
+
+<script>
+  document.querySelectorAll("details").forEach((el) => {
+    el.addEventListener("toggle", (event) => {
+      const open = event.target.open;
+      if (open) {
+        console.log("آکاردیون باز شد");
+      } else {
+        console.log("آکاردیون بسته شد");
+      }
+    });
+  });
+
+</script>
+{% endblock content %}

@@ -1,0 +1,699 @@
+<!-- صفحه اصلی سبد خرید (shop_cart.html) -->
+{% extends "main_template.html" %}
+{% load humanize %}
+
+{% block content %}
+<div class="flex min-h-screen flex-col">
+    <main class="flex-grow bg-background pb-14 pt-36 xs:pt-36">
+        <div class="container pb-14">
+            <div class="grid grid-cols-12 gap-2 lg:gap-6">
+                <!-- breadCrumb -->
+                <div class="col-span-12 rounded-lg bg-muted">
+                    <ol class="grid grid-cols-3 overflow-hidden rounded-lg">
+                        <li class="flex flex-col items-center justify-center gap-2 bg-primary/10 p-4 text-xs text-primary /10 sm:text-sm md:text-base">
+                            <svg class="h-6 w-6 md:h-8 md:w-8">
+                                <use xlink:href="#cart" />
+                            </svg>
+                            <p class="leading-none">سبد خرید</p>
+                        </li>
+                        <li class="flex flex-col items-center justify-center gap-2 p-4 text-xs text-primary opacity-50 sm:text-sm md:text-base">
+                            <svg class="h-6 w-6 md:h-8 md:w-8">
+                                <use xlink:href="#delivery-truck" />
+                            </svg>
+                            <p class="leading-none">شیوه ارسال</p>
+                        </li>
+                        <li class="flex flex-col items-center justify-center gap-2 p-4 text-xs text-primary opacity-50 sm:text-sm md:text-base">
+                            <svg class="h-6 w-6 md:h-8 md:w-8">
+                                <use xlink:href="#credit" />
+                            </svg>
+                            <p class="leading-none">پرداخت</p>
+                        </li>
+                    </ol>
+                </div>
+
+                <!-- Cart List -->
+                <div class="col-span-12 md:col-span-8">
+                    <div class="rounded-lg bg-muted p-4">
+                        <!-- Heading -->
+                        <div class="flex items-center justify-between gap-x-2 pb-4">
+                            <h1 class="flex items-center gap-x-4 text-sm xs:text-base md:text-lg">
+                                سبد خرید
+                                <span class="text-sm text-text/60" id="cart-count"> ( {{count}} کالا ) </span>
+                            </h1>
+                        </div>
+
+                        {% if count > 0 %}
+                        <ul class="divide-y" id="cart-items-container">
+                            <!-- Cart Item-->
+                            {% for item in shop_cart %}
+                            <li class="cart-item transition-all duration-300 ease-in-out" id="cart-item-{{item.file.id}}">
+                                <div class="py-4 sm:py-6">
+                                    <div class="grid grid-cols-2 items-center justify-start gap-2 xs:grid-cols-3 xs:gap-6 sm:grid-cols-4 xl:grid-cols-6">
+                                        <!-- Image -->
+                                        <div class="relative row-span-2 min-w-fit xs:mx-auto">
+                                            <a href="{{item.file.get_absolute_url}}">
+                                                <img alt="{{item.file.title}} - image" class="w-25 rounded-lg sm:w-28" src="{{media_url}}{{item.file.image}}" />
+                                            </a>
+                                            <button class="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-background" type="button" onclick='removeFromCartMainPage({{item.file.id}})'>
+                                                <svg class="h-6 w-6 text-red-600 dark:text-red-500">
+                                                    <use xlink:href="#close"></use>
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        <!-- Detail -->
+                                        <div class="row-span-2 space-y-4 xs:col-span-2 sm:col-span-3 xl:col-span-5">
+                                            <a class="line-clamp-2 text-sm xs:text-base" href="{{item.file.get_absolute_url}}">
+                                                {{item.file.title}}
+                                            </a>
+                                        </div>
+
+                                        <!-- Price -->
+                                        <div class="text-primary xs:col-span-2 sm:col-span-3 lg:text-lg xl:col-span-5">
+                                            <span class="font-bold">{{item.file.get_price_by_discount|intcomma}}</span>
+                                            <span class="text-sm lg:text-base">تومان</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <!-- Empty Basket -->
+                        <div style='margin:0px auto; text-align:center;' id="empty-cart-message">
+                            <strong>سبد خرید شما خالی میباشد....</strong>
+                            <img style='margin:0px auto; text-align:center;' src="{{media_url}}images/others/empty.gif" alt="گیف خالی سبد خرید">
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Cart Price Detail -->
+                {% if count > 0 %}
+                <div class="col-span-12 md:col-span-4" id="cart-summary">
+                    <!-- Desktop -->
+                    <div class="hidden rounded-lg bg-muted p-4 md:block">
+                        <div class="mb-2 divide-y">
+                            <div class="flex items-center justify-between gap-x-2 py-6">
+                                <div class="text-sm text-text/90 lg:text-base">
+                                    قیمت کالا ها (<span id="desktop-cart-count">{{count}}</span>)
+                                </div>
+                                <div class="text-sm text-primary lg:text-base">
+                                    <span class="font-bold" id="desktop-total-price">{{total_price|intcomma}}</span>
+                                    <span class="text-xs lg:text-sm">تومان</span>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-x-2 py-6">
+                                <div class="text-sm text-text/90 lg:text-base">
+                                    مالیات
+                                </div>
+                                <div class="text-sm text-primary lg:text-base">
+                                    <span class="font-bold" id="desktop-tax">{{tax|intcomma}}</span>
+                                    <span class="text-xs lg:text-sm">تومان</span>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div class="flex items-center justify-between gap-x-2 py-6">
+                                <div class="text-sm text-text/90 lg:text-base">
+                                    مبلغ قابل پرداخت
+                                </div>
+                                <div class="text-sm text-primary lg:text-base">
+                                    <span class="font-bold" id="desktop-final-price">{{finaly_price|intcomma}}</span>
+                                    <span class="text-xs lg:text-sm">تومان</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <a href="{% url 'order:createOrder' %}" class="btn-primary py-3">
+                                ادامه فرایند خرید
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Mobile -->
+                    <div class="fixed inset-x-0 bottom-0 flex items-center gap-x-6 rounded-t-2xl bg-muted p-4 md:hidden">
+                        <a class="btn-primary flex-grow py-3" href=". ">
+                            ادامه فرایند خرید
+                        </a>
+                        <div class="flex flex-col items-center gap-y-1">
+                            <div class="text-sm text-text/60">مبلغ قابل پرداخت</div>
+                            <div class="text-text/90">
+                                <span class="font-bold" id="mobile-final-price">{{finaly_price|intcomma}}</span>
+                                <span class="text-sm">تومان</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+</div>
+
+<style>
+.cart-item {
+    opacity: 1;
+    transform: translateX(0);
+    max-height: 1000px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+}
+
+.cart-item.removing {
+    opacity: 0;
+    transform: translateX(-100%);
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin: 0;
+    border: none;
+}
+
+.remove-btn-loading {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.remove-btn-loading svg {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+#empty-cart-message {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease-in-out;
+}
+
+#empty-cart-message.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+</style>
+
+<script>
+// ===========================================
+// توابع مشترک
+// ===========================================
+
+// تابع برای دریافت CSRF token
+function getCsrfToken() {
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+    return cookieValue || '';
+}
+
+// تابع برای فرمت کردن اعداد با کاما
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// ===========================================
+// توابع مربوط به صفحه اصلی سبد خرید
+// ===========================================
+
+// تابع حذف از صفحه اصلی سبد خرید
+async function removeFromCartMainPage(productId) {
+    const itemElement = document.getElementById(`cart-item-${productId}`);
+    const removeButton = itemElement?.querySelector('button');
+
+    if (!itemElement) return;
+
+    try {
+        // دکمه حذف را غیرفعال کن و لودینگ نشان بده
+        if (removeButton) {
+            removeButton.classList.add('remove-btn-loading');
+        }
+
+        // انیمیشن حذف را بلافاصله شروع کن
+        itemElement.classList.add('removing');
+
+        // درخواست حذف به سرور
+        const response = await fetch(`/order/remove/${productId}/`, {
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": getCsrfToken(),
+                "Content-Type": "application/json",
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // به‌روزرسانی شمارنده header
+            document.getElementById("count_product").innerText = data.count;
+            document.getElementById("count_product2").innerText = data.count;
+
+            // به‌روزرسانی dropdown سبد خرید
+            updateCartItems(data.cart_items, data.total_price);
+            loadMobileCartItems();
+
+            // بعد از اتمام انیمیشن، آیتم را کاملاً حذف کن
+            setTimeout(() => {
+                itemElement.remove();
+                updateMainPageCartCount();
+                updateMainPagePrices(data);
+                checkMainPageEmptyCart();
+            }, 400);
+
+        } else {
+            // اگر خطایی رخ داد، انیمیشن را برگردان
+            itemElement.classList.remove('removing');
+            if (removeButton) {
+                removeButton.classList.remove('remove-btn-loading');
+            }
+            alert(data.message || 'خطا در حذف محصول!');
+        }
+    } catch (error) {
+        console.error("خطا در حذف از سبد خرید:", error);
+
+        itemElement.classList.remove('removing');
+        if (removeButton) {
+            removeButton.classList.remove('remove-btn-loading');
+        }
+        alert('خطا در ارتباط با سرور!');
+    }
+}
+
+// به‌روزرسانی تعداد در صفحه اصلی
+function updateMainPageCartCount() {
+    const remainingItems = document.querySelectorAll('.cart-item:not(.removing)').length;
+    const cartCountElement = document.getElementById('cart-count');
+    const desktopCartCount = document.getElementById('desktop-cart-count');
+
+    if (cartCountElement) {
+        cartCountElement.textContent = ` ( ${remainingItems} کالا ) `;
+    }
+    if (desktopCartCount) {
+        desktopCartCount.textContent = remainingItems;
+    }
+}
+
+// به‌روزرسانی قیمت‌های صفحه اصلی
+function updateMainPagePrices(data) {
+    if (!data.total_price) return;
+
+    const total = parseFloat(data.total_price);
+    const tax = total * 0.09;
+    const finalPrice = total + tax;
+
+    const desktopTotalPrice = document.getElementById('desktop-total-price');
+    const desktopTax = document.getElementById('desktop-tax');
+    const desktopFinalPrice = document.getElementById('desktop-final-price');
+    const mobileFinalPrice = document.getElementById('mobile-final-price');
+
+    if (desktopTotalPrice) desktopTotalPrice.textContent = numberWithCommas(Math.round(total));
+    if (desktopTax) desktopTax.textContent = numberWithCommas(Math.round(tax));
+    if (desktopFinalPrice) desktopFinalPrice.textContent = numberWithCommas(Math.round(finalPrice));
+    if (mobileFinalPrice) mobileFinalPrice.textContent = numberWithCommas(Math.round(finalPrice));
+}
+
+// بررسی سبد خالی در صفحه اصلی
+function checkMainPageEmptyCart() {
+    const remainingItems = document.querySelectorAll('.cart-item:not(.removing)').length;
+
+    if (remainingItems === 0) {
+        const cartSummary = document.getElementById('cart-summary');
+        if (cartSummary) {
+            cartSummary.style.display = 'none';
+        }
+
+        const emptyMessage = document.getElementById('empty-cart-message');
+        if (emptyMessage) {
+            emptyMessage.style.display = 'block';
+            emptyMessage.classList.add('show');
+        }
+
+        const cartContainer = document.getElementById('cart-items-container');
+        if (cartContainer) {
+            setTimeout(() => {
+                cartContainer.style.display = 'none';
+            }, 500);
+        }
+    }
+}
+
+// ===========================================
+// توابع مربوط به dropdown سبد خرید
+// ===========================================
+
+async function updateCartCount() {
+    try {
+        const response = await fetch("/order/count/", {
+            method: "GET",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        });
+        const data = await response.json();
+        document.getElementById("count_product").innerText = data.count;
+        document.getElementById("count_product2").innerText = data.count;
+    } catch (error) {
+        console.error("خطا در گرفتن تعداد سبد خرید:", error);
+    }
+}
+
+async function loadCartItems() {
+    try {
+        const response = await fetch("/order/get-card/");
+        const data = await response.json();
+
+        const cartItemsList = document.getElementById("cart-items-list");
+        const cartTotalElement = document.querySelector("#dropdownBasketDesktop [class*='text-text/90'] span.font-bold");
+        const itemCountElement = document.querySelector("#dropdownBasketDesktop .text-sm.text-text\\/90");
+
+        if (data.success && cartItemsList) {
+            cartItemsList.innerHTML = "";
+
+            if (data.cart_items.length === 0) {
+                cartItemsList.innerHTML = `
+                    <li class="text-center py-10 text-lg text-gray-500">
+                        سبد خرید شما خالی است
+                    </li>`;
+            } else {
+                data.cart_items.forEach(item => {
+                    const li = document.createElement("li");
+                    li.className = "item_";
+                    li.setAttribute("data-file-id", item.file_id);
+
+                    li.innerHTML = `
+                        <div class="flex gap-x-2 py-5">
+                            <div class="relative min-w-fit">
+                                <a href="${item.url}">
+                                    <img alt="${item.title}" class="h-[120px] w-[120px] object-cover rounded-md" loading="lazy" src="${item.image}" />
+                                </a>
+                                <button class="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-background" type="button" onclick="removeFromCart('${item.file_id}')">
+                                    <svg class="h-6 w-6 text-red-600 dark:text-red-500">
+                                        <use xlink:href="#close" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="w-full space-y-1.5">
+                                <a class="line-clamp-2 h-12" href="${item.url}">${item.title}</a>
+                                <div class="flex items-center justify-between gap-x-2">
+                                    <div class="text-primary">
+                                        <span class="text-lg font-bold">${Number(item.price).toLocaleString()}</span>
+                                        <span class="text-sm">تومان</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    cartItemsList.appendChild(li);
+                });
+            }
+
+            if (itemCountElement) {
+                itemCountElement.textContent = `${data.cart_count} مورد`;
+            }
+
+            if (cartTotalElement) {
+                cartTotalElement.textContent = Number(data.cart_total).toLocaleString();
+            }
+
+            document.getElementById("count_product").innerText = data.cart_count;
+            document.getElementById("count_product2").innerText = data.cart_count;
+        }
+    } catch (error) {
+        console.error("خطا در گرفتن سبد خرید:", error);
+    }
+}
+
+async function removeFromCart(fileId) {
+    const itemElement = document.querySelector(`.item_[data-file-id="${fileId}"]`);
+    const removeButton = itemElement?.querySelector('button');
+
+    if (!itemElement) return;
+
+    try {
+        // شروع انیمیشن
+        if (removeButton) {
+            removeButton.classList.add('remove-btn-loading');
+        }
+
+        itemElement.style.transition = "all 0.4s ease";
+        itemElement.style.opacity = "0";
+        itemElement.style.transform = "translateX(-100%)";
+        itemElement.style.maxHeight = "0";
+        itemElement.style.overflow = "hidden";
+
+        const response = await fetch(`/order/remove/${fileId}/`, {
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": getCsrfToken(),
+                "Content-Type": "application/json",
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById("count_product").innerText = data.count;
+            document.getElementById("count_product2").innerText = data.count;
+
+            setTimeout(() => {
+                itemElement.remove();
+                updateCartItems(data.cart_items, data.total_price);
+                loadMobileCartItems();
+            }, 400);
+        } else {
+            // برگرداندن حالت اولیه در صورت خطا
+            itemElement.style.opacity = "1";
+            itemElement.style.transform = "translateX(0)";
+            itemElement.style.maxHeight = "none";
+            if (removeButton) {
+                removeButton.classList.remove('remove-btn-loading');
+            }
+            alert(data.message || 'خطا در حذف محصول!');
+        }
+    } catch (error) {
+        console.error("خطا در حذف از سبد خرید:", error);
+        // برگرداندن حالت اولیه در صورت خطا
+        itemElement.style.opacity = "1";
+        itemElement.style.transform = "translateX(0)";
+        itemElement.style.maxHeight = "none";
+        if (removeButton) {
+            removeButton.classList.remove('remove-btn-loading');
+        }
+        alert('خطا در ارتباط با سرور!');
+    }
+}
+
+function updateCartItems(items, totalPrice) {
+    const cartItemsList = document.getElementById("cart-items-list");
+    const cartTotalElement = document.querySelector("#dropdownBasketDesktop [class*='text-text/90'] span.font-bold");
+    const itemCountElement = document.querySelector("#dropdownBasketDesktop .text-sm.text-text\\/90");
+
+    if (!cartItemsList) return;
+
+    if (items.length === 0) {
+        cartItemsList.innerHTML = `
+            <li class="text-center py-10 text-lg text-gray-500">
+                سبد خرید شما خالی است
+            </li>
+        `;
+
+        if (cartTotalElement) {
+            cartTotalElement.innerText = "0";
+        }
+
+        if (itemCountElement) {
+            itemCountElement.innerText = "0 مورد";
+        }
+        return;
+    }
+
+    let itemsHTML = '';
+    items.forEach(item => {
+        itemsHTML += `
+            <li class="item_" data-file-id="${item.file_id}">
+                <div class="flex gap-x-2 py-5">
+                    <div class="relative min-w-fit">
+                        <a href="${item.url}">
+                            <img alt="${item.title}" class="h-[120px] w-[120px] object-cover rounded-md" loading="lazy" src="${item.image}" />
+                        </a>
+                        <button class="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-background" type="button" onclick="removeFromCart('${item.file_id}')">
+                            <svg class="h-6 w-6 text-red-600 dark:text-red-500">
+                                <use xlink:href="#close" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="w-full space-y-1.5">
+                        <a class="line-clamp-2 h-12" href="${item.url}">${item.title}</a>
+                        <div class="flex items-center justify-between gap-x-2">
+                            <div class="text-primary">
+                                <span class="text-lg font-bold">${parseInt(item.price).toLocaleString()}</span>
+                                <span class="text-sm">تومان</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        `;
+    });
+
+    cartItemsList.innerHTML = itemsHTML;
+
+    if (cartTotalElement) {
+        cartTotalElement.innerText = parseInt(totalPrice).toLocaleString();
+    }
+
+    if (itemCountElement) {
+        itemCountElement.innerText = `${items.length} مورد`;
+    }
+}
+
+async function loadMobileCartItems() {
+    try {
+        const response = await fetch("/order/get-card/");
+        const data = await response.json();
+
+        const mobileCartList = document.getElementById("mobile_list_cart");
+        const mobileTotalElement = document.querySelector("#user-basket-drawer-navigation [class*='text-text/90'] .font-bold");
+
+        if (data.success && mobileCartList) {
+            mobileCartList.innerHTML = "";
+
+            if (data.cart_items.length === 0) {
+                mobileCartList.innerHTML = `
+                    <li class="text-center py-10 text-lg text-gray-500">
+                        سبد خرید شما خالی است
+                    </li>`;
+            } else {
+                data.cart_items.forEach(item => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+                        <div class="flex gap-x-2 py-5">
+                            <div class="relative min-w-fit">
+                                <a href="${item.url}">
+                                    <img alt="${item.title}" class="h-20 w-20 object-cover rounded-md" loading="lazy" src="${item.image}" />
+                                </a>
+                                <button class="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-background" type="button" onclick="removeFromCartMobile('${item.file_id}')">
+                                    <svg class="h-6 w-6 text-red-600 dark:text-red-500">
+                                        <use xlink:href="#close" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="w-full space-y-1.5">
+                                <a class="line-clamp-2 h-10 text-sm" href="${item.url}">${item.title}</a>
+                                <div class="flex items-center justify-between gap-x-2">
+                                    <div class="text-primary">
+                                        <span class="font-bold">${Number(item.price).toLocaleString()}</span>
+                                        <span class="text-xs">تومان</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    mobileCartList.appendChild(li);
+                });
+            }
+
+            if (mobileTotalElement) {
+                mobileTotalElement.textContent = Number(data.cart_total).toLocaleString();
+            }
+        }
+    } catch (error) {
+        console.error("خطا در گرفتن سبد خرید موبایل:", error);
+    }
+}
+
+async function removeFromCartMobile(fileId) {
+    const itemElement = document.querySelector(`[onclick="removeFromCartMobile('${fileId}')"]`)?.closest('li');
+    const removeButton = itemElement?.querySelector('button');
+
+    if (!itemElement) return;
+
+    try {
+        if (removeButton) {
+            removeButton.classList.add('remove-btn-loading');
+        }
+
+        itemElement.style.transition = "all 0.4s ease";
+        itemElement.style.opacity = "0";
+        itemElement.style.transform = "translateX(-100%)";
+        itemElement.style.maxHeight = "0";
+        itemElement.style.overflow = "hidden";
+
+        const response = await fetch(`/order/remove/${fileId}/`, {
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": getCsrfToken(),
+                "Content-Type": "application/json",
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById("count_product").innerText = data.count;
+            document.getElementById("count_product2").innerText = data.count;
+
+            updateCartItems(data.cart_items, data.total_price);
+
+            setTimeout(() => {
+                itemElement.remove();
+            }, 400);
+        } else {
+            itemElement.style.opacity = "1";
+            itemElement.style.transform = "translateX(0)";
+            itemElement.style.maxHeight = "none";
+            if (removeButton) {
+                removeButton.classList.remove('remove-btn-loading');
+            }
+            alert(data.message || 'خطا در حذف محصول!');
+        }
+    } catch (error) {
+        console.error("خطا در حذف از سبد خرید موبایل:", error);
+        itemElement.style.opacity = "1";
+        itemElement.style.transform = "translateX(0)";
+        itemElement.style.maxHeight = "none";
+        if (removeButton) {
+            removeButton.classList.remove('remove-btn-loading');
+        }
+        alert('خطا در ارتباط با سرور!');
+    }
+}
+
+async function addToCart(fileId) {
+    try {
+        const response = await fetch(`/order/add/${fileId}/`, {
+            method: "GET",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            document.getElementById("count_product").innerText = data.count;
+            document.getElementById("count_product2").innerText = data.count;
+
+            updateCartItems(data.cart_items, data.total_price);
+            loadMobileCartItems();
+        }
+    } catch (error) {
+        console.error("خطا در افزودن به سبد خرید:", error);
+    }
+}
+
+// وقتی صفحه لود شد
+document.addEventListener("DOMContentLoaded", function() {
+    updateCartCount();
+    loadCartItems();
+    loadMobileCartItems();
+});
+</script>
+{% endblock content %}

@@ -1,0 +1,16 @@
+
+<section class="mb-6">
+
+    {% for banner in banners %}
+
+    <div class="flex justify-center">
+      <a  rel="noopener noreferrer" target='_blank' href="">
+        <img
+          src="{{media_url}}{{banner.image_name}}"
+         alt="{{banner.alt_slide}}"
+          class="hidden lg:block"
+        />
+      </div>
+    </a>
+    {% endfor %}
+  </section>

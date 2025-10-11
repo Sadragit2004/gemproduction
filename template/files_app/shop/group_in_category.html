@@ -1,0 +1,47 @@
+<li class="relative" data-accordion-item>
+    <div
+      class="w-full text-right cursor-pointer"
+      data-accordion-button
+    >
+      <div
+        class="flex items-center justify-between gap-2 text-sm md:text-base"
+      >
+        <span> دسته بندی ها </span>
+        <div class="min-w-fit">
+          <svg
+            data-accordion-chevron
+            class="h-5 w-5 duration-300"
+          >
+            <use xlink:href="#chevron-left"></use>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div
+      class="relative max-h-0 overflow-hidden transition-all duration-300"
+      data-accordion-content
+    >
+      <div class="mt-4 max-h-60 overflow-y-auto pl-1">
+        <ul class="space-y-2 rounded-lg">
+
+         {% for group in groups %}
+
+
+         <li>
+            <a
+              class="flex items-center gap-x-2 rounded-lg px-4 py-2"
+              href="{% url 'file:filter_shop' slug=group.slug %}"
+            >
+              <span>{{group.title}}</span>
+              <svg class="h-5 w-5">
+                <use xlink:href="#chevron-left" />
+              </svg>
+            </a>
+          </li>
+
+         {% endfor %}
+
+        </ul>
+      </div>
+    </div>
+  </li>

@@ -1,0 +1,83 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fa-IR"  dir='rtl'>
+
+   <head>
+      <meta charset="UTF-8">
+      <meta name="enamad" content="9992550" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="apple-mobile-web-app-title" content="RANK0">
+      <meta name="application-name" content="RANK0">
+       <link rel="alternate" href="{{ request.build_absolute_uri }}" hreflang="fa-IR" />
+      <meta name="msapplication-TileColor" content="#358597">
+       <link rel="apple-touch-icon" sizes="512x512" href="/media/img/logo-new.png">
+
+<!-- آیکون‌های Favicon برای مرورگرها -->
+<link rel="icon" type="image/png" sizes="32x32" href="/media/img/logo-new.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/media/img/logo-new.png">
+
+<!-- آیکون پیش‌فرض -->
+<link rel="shortcut icon" href="/media/img/logo-new.png">
+      <meta name="theme-color" content="#ffffff">
+      {% if request.GET.utmsource or request.GET.utm_medium or request.GET.utm_campaign %}
+  <link rel="canonical" href="{{ request.build_absolute_uri }}" />
+{% else %}
+  <link rel="canonical" href="{{ request.build_absolute_uri }}" />
+{% endif %}
+
+    <meta property="og:locale" content="fa_IR" />
+    <meta property="og:type" content="website" />
+      {% if request.path == "/" %}
+
+
+
+
+       {% else %}
+
+
+          {% block meta1 %}
+          {% endblock meta1 %}
+
+      {% endif %}
+      {% if request.path == "/" %}
+
+
+      {% else %}
+          {% block json %}
+          {% endblock json %}
+      {% endif %}
+
+
+      <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.3/nouislider.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="{% static '/assets/css/fonts.css' %}">
+      <link href="{% static '/assets/css/dependencies/swiper.min.css' %}" rel="stylesheet" />
+      <link href="{% static '/assets/css/theme1.css' %}" rel="stylesheet" />
+      <link href="{% static '/assets/css/custom00.css' %}" rel="stylesheet" />
+      <link href="{% static '/assets/css/app.css' %}" rel="stylesheet" />
+      <link href="{% static '/assets/css/mystyle0101.css' %}" rel="stylesheet" />
+      <link href="{% static '/assets/css/course/list.css' %}" rel="stylesheet" />
+
+
+
+
+  </head>
+
+<body class="tt-magic-cursor">
+
+  {% include "course_app/partials/header.html" %}
+
+
+    {% block content %}
+
+    {% endblock content %}
+
+  {% include "course_app/partials/footer.html" %}
+
+  {% include "partials/scripts.html" %}
+  {% include "course_app/partials/scripts.html" %}
+
+
+</body>
+
+</html>

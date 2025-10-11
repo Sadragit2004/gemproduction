@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2">{{ title }}</h1>
+                <div class="d-flex gap-2">
+                    {% comment %} <a href="{% url 'new_courses' %}" class="btn btn-outline-primary btn-sm">جدیدترین</a>
+                    <a href="{% url 'popular_courses' %}" class="btn btn-outline-primary btn-sm">محبوب‌ترین</a>
+                    <a href="{% url 'top_rated_courses' %}" class="btn btn-outline-primary btn-sm">برترین‌ها</a> {% endcomment %}
+                </div>
+            </div>
+
+            <div class="row">
+                {% for course in courses %}
+                <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+                    {% include "course_app/course_card.html" with course_data=course %}
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center py-4">
+                        <i class="fas fa-info-circle fa-2x mb-3"></i>
+                        <h4>هیچ دوره‌ای یافت نشد</h4>
+                        <p class="mb-0">در حال حاضر دوره‌ای در این دسته‌بندی موجود نیست</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if courses.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if courses.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ courses.previous_page_number }}">قبلی</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in courses.paginator.page_range %}
+                    {% if courses.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if courses.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ courses.next_page_number }}">بعدی</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

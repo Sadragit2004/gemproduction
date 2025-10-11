@@ -1,0 +1,66 @@
+<header>
+    <div class="container">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                آموزش<span>آنلاین</span>
+            </div>
+
+            <nav class="desktop-nav">
+                <ul>
+                    <li><a href="/"><i class="fas fa-home"></i> صفحه اصلی</a></li>
+
+                    <li><a href="/call"><i class="fas fa-phone"></i> تماس با ما</a></li>
+                </ul>
+            </nav>
+
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+
+                {% if user.is_authenticated %}
+                <div class="auth-buttons">
+                    <a href="/panel/panel" class="btn btn-outline"><i class="fas fa-user"></i></a>
+                    <a href="/order/cart" class="btn btn-outline"><i class="fas fa-shopping-cart"></i></a>
+                </div>
+                {% else %}
+                <div class="auth-buttons">
+                    <a style='border:1px solid;' href='{% url "account:send_mobile" %}' class="btn btn-outline">ورود</a>
+                </div>
+                {% endif %}
+
+                <div class="hamburger-menu" id="hamburgerMenu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- منوی موبایل -->
+<div class="mobile-menu" id="mobileMenu">
+    <ul>
+        <li><a href="#"><i class="fas fa-home"></i> صفحه اصلی</a></li>
+        <li><a href="#"><i class="fas fa-book"></i> دوره‌ها</a></li>
+        <li><a href="#"><i class="fas fa-chalkboard-teacher"></i> اساتید</a></li>
+        <li><a href="#"><i class="fas fa-question-circle"></i> راهنما</a></li>
+        <li><a href="#"><i class="fas fa-phone"></i> تماس با ما</a></li>
+    </ul>
+
+    {% if user.is_authenticated %}
+    <div class="mobile-auth-buttons">
+        <a href="/panel/panel/" class="btn btn-outline"><i class="fas fa-user"></i></a>
+        <a href="/cart/" class="btn btn-outline"><i class="fas fa-shopping-cart"></i></a>
+    </div>
+    {% else %}
+    <div class="mobile-auth-buttons">
+        <button class="btn btn-outline">ورود</button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- overlay برای بستن منو -->
+<div class="overlay" id="overlay"></div>

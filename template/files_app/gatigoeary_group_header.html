@@ -1,0 +1,65 @@
+<div class="absolute top-full w-full max-w-[1000px]">
+    <div class="relative hidden rounded-b-lg bg-muted shadow-base" id="desktopMegamenu">
+        <div class="flex h-[450px] max-h-[450px] w-full overflow-hidden rounded-b-lg pt-0.5">
+            <!-- Right side (Main Categories) -->
+            <div class="main-scroll w-50 overflow-y-auto bg-background" dir="ltr">
+                <ul dir="rtl" id="mega-menu-parents">
+                    {% for group in groups %}
+                        <li>
+                            <a href="{% url 'file:filter_shop' group.slug %}" class="flex py-4 pr-4  hover:text-primary" href="#">
+                                {{ group.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Left side (Subcategories) -->
+            <div class="main-scroll h-[450px] max-h-[450px] w-full overflow-auto" dir="ltr">
+                <div class="flex flex-grow p-5" dir="rtl" id="mega-menu-childs">
+                    {% for group in groups %}
+                        <div class="hidden">
+                            <!-- Head: View all items in this category -->
+                            <div class="mb-4">
+                                <a href="{% url 'file:filter_shop' group.slug %}" class="flex items-center gap-x-1 py-2 text-sm text-primary" href="#">
+                                    <div>مشاهده همه</div>
+                                    <svg class="h-5 w-5">
+                                        <use xlink:href="#chevron-left"></use>
+                                    </svg>
+                                </a>
+                            </div>
+
+                            <!-- Subcategories -->
+                            <div class="flex flex-wrap gap-x-8 gap-y-16">
+                                {% for sub_group in group.groups.all %}
+                                    <div class="w-auto">
+                                        <a href="{% url 'file:filter_shop' sub_group.slug %}" class="flex items-center gap-x-2 hover:text-primary" href="#">
+                                            <span class="h-5 w-0.5 rounded-full bg-primary dark:bg-primary"></span>
+                                            <div>{{ sub_group.title }}</div>
+                                            <svg class="h-5 w-5">
+                                                <use xlink:href="#chevron-left"></use>
+                                            </svg>
+                                        </a>
+
+                                        {% if sub_group.groups.all %}
+                                            <ul class="mt-2 space-y-2">
+                                                {% for sub_sub_group in sub_group.groups.all %}
+                                                    <li>
+                                                        <a href="{% url 'file:filter_shop' sub_sub_group.slug %}" class="block py-2 text-sm text-text/90 hover:text-primary" href="#">
+                                                            {{ sub_sub_group.title }}
+                                                        </a>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

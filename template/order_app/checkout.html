@@ -1,0 +1,619 @@
+{% extends "main_template.html" %}
+{% load static %}
+{% load render_partial %}
+{% load humanize %}
+
+
+{% block content %}
+  <div class="flex min-h-screen flex-col">
+
+
+    <main class="flex-grow bg-background pb-14 pt-36 xs:pt-36">
+      <div class="container pb-14">
+        <div class="grid grid-cols-12 gap-2 lg:gap-6">
+          <!-- breadCrumb -->
+          <div class="col-span-12 rounded-lg bg-muted">
+            <ol class="grid grid-cols-3 overflow-hidden rounded-lg">
+              <li
+                class="flex flex-col items-center justify-center gap-2 p-4 text-xs text-primary opacity-50 sm:text-sm md:text-base"
+              >
+                <svg class="h-6 w-6 md:h-8 md:w-8">
+                  <use xlink:href="#check" />
+                </svg>
+                <p class="leading-none">سبد خرید</p>
+              </li>
+              <li
+                class="flex flex-col items-center justify-center gap-2 bg-primary/10 p-4 text-xs text-primary /10 sm:text-sm md:text-base"
+              >
+                <svg class="h-6 w-6 md:h-8 md:w-8">
+                  <use xlink:href="#delivery-truck" />
+                </svg>
+                <p class="leading-none">شیوه ارسال</p>
+              </li>
+              <li
+                class="flex flex-col items-center justify-center gap-2 p-4 text-xs text-primary opacity-50 sm:text-sm md:text-base"
+              >
+                <svg class="h-6 w-6 md:h-8 md:w-8">
+                  <use xlink:href="#credit" />
+                </svg>
+
+                <p class="leading-none">پرداخت</p>
+              </li>
+            </ol>
+          </div>
+          <!-- Content -->
+          <div class="col-span-12 md:col-span-8">
+            <div class="rounded-lg bg-muted p-4">
+              <!-- Address Section -->
+
+              <div class="mb-6">
+                <div class="flex items-center justify-between gap-x-2 pb-4">
+                  <h1
+                    class="flex items-center gap-x-4 text-sm xs:text-base md:text-lg"
+                  >
+                    آدرس تحویل سفارش
+                  </h1>
+                  <div style="background-color: hsl(var(--primary)); padding: 2px; border-radius: 8px; display: inline-block;">
+                    <button
+                      data-modal-target="address-add-modal"
+                      data-modal-toggle="address-add-modal"
+                      class="btn-primary-nobg px-3 py-2 text-sm"
+                    >
+                      <span>
+                        <svg style='color:#fff;' class="h-6 w-6">
+                          <use xlink:href="#address-add"></use>
+                        </svg>
+                      </span>
+                      <span style='color:#fff;' >تکمیل اطلاعات</span>
+                    </button>
+                  </div>
+
+
+                </div>
+
+                <fieldset class="space-y-2">
+                  <legend class="sr-only">Address</legend>
+
+                  <div>
+                    <input
+                     data-modal-target="address-add-modal"
+                    data-modal-toggle="address-add-modal"
+                      type="radio"
+                      name="address"
+                      value="address-1"
+                      id="address-1"
+                      class="peer hidden"
+                    />
+
+                    <label
+                      for="address-1"
+                      class="relative block cursor-pointer rounded-lg border p-4 shadow-base peer-checked:border-emerald-500 hover:border-border/50 peer-checked:dark:border-emerald-400 dark:hover:border-white/10"
+                    >
+                      <div
+                        class="mb-4 flex items-center justify-between gap-x-2 sm:mb-2"
+                      >
+                        <p
+                          class="line-clamp-2 h-10 text-sm text-text/90 xs:text-base sm:line-clamp-1 sm:h-6"
+                        >
+                          {{my_address}}
+                        </p>
+
+                        <div class="hidden md:block">
+                          <button
+                            id="dropdownMenuIconButton"
+                            data-dropdown-toggle="address-option-1"
+                            type="button"
+                            class="rounded-full p-1 text-text/90 hover:bg-background hover:"
+                          >
+                            <svg class="h-6 w-6">
+                              <use xlink:href="#vertical-dot" />
+                            </svg>
+                          </button>
+                          <!-- Dropdown menu -->
+                          <div
+                            class="z-10 !ml-5 hidden w-50 overflow-hidden rounded-lg border bg-muted"
+                            id="address-option-1"
+                          >
+                            <ul class="space-y-2 p-2">
+                              <li>
+                                <button
+                                  type="button"
+                                  data-modal-target="address-edit-modal-1"
+                                  data-modal-toggle="address-edit-modal-1"
+                                  class="flex w-full items-center justify-between rounded-lg px-4 py-3 text-sky-500 hover:bg-sky-500/10 dark:text-sky-400 dark:hover:bg-sky-400/10"
+                                >
+                                  <div class="flex items-center gap-x-2">
+                                    <svg class="h-6 w-6">
+                                      <use xlink:href="#address-edit"></use>
+                                    </svg>
+                                    <span> ویرایش </span>
+                                  </div>
+                                </button>
+                              </li>
+                              <li>
+                                <button
+                                  type="button"
+                                  data-modal-target="address-delete-modal-1"
+                                  data-modal-toggle="address-delete-modal-1"
+                                  class="flex w-full items-center justify-between rounded-lg px-4 py-3 text-red-500 hover:bg-warning/10 dark:text-red-400 dark:hover:bg-red-400/10"
+                                >
+                                  <div class="flex items-center gap-x-2">
+                                    <svg class="h-6 w-6">
+                                      <use xlink:href="#address-delete"></use>
+                                    </svg>
+                                    <span> حذف </span>
+                                  </div>
+                                </button>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="flex items-center justify-between gap-x-2">
+                        <p class="line-clamp-1 text-sm text-text/60">
+                          {{user.name}} {{user.family}}
+                        </p>
+                        <div class="flex items-center gap-x-2 md:hidden">
+                          <button
+                            data-modal-target="address-delete-modal-1"
+                            data-modal-toggle="address-delete-modal-1"
+                            class="btn-red-nobg px-3 py-1 text-sm xs:px-4 xs:py-2"
+                          >
+
+                          </button>
+
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </fieldset>
+              </div>
+              <!-- Delivery Section -->
+
+              <div>
+                <div class="flex items-center justify-between gap-x-2 pb-4">
+                  <h2
+                    class="flex items-center gap-x-4 text-sm xs:text-base md:text-lg"
+                  >
+                    شیوه پرداخت
+                  </h2>
+                </div>
+
+                <fieldset class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <legend class="sr-only">Delivery</legend>
+
+
+                  {% for pey in peyment_type  %}
+
+                  <div>
+                    <input
+                      type="radio"
+                      name="delivery"
+                      value="delivery-{{pey.id}}"
+                      id="delivery-{{pey.id}}"
+                      class="peer hidden"
+                    />
+
+                    <label
+                      for="delivery-{{pey.id}}"
+                      class="relative block h-[116px] cursor-pointer rounded-lg border p-4 shadow-base peer-checked:border-emerald-500 hover:border-border/50 peer-checked:dark:border-emerald-400 dark:hover:border-white/10"
+                    >
+                      <div
+                        class="mb-4 flex items-center justify-between gap-x-2 sm:mb-2"
+                      >
+                        <p
+                          class="line-clamp-1 text-sm text-text/90 xs:text-base"
+                        >
+                         {{pey.peymeny_title}}
+                        </p>
+                        <img
+                          src="{{media_url}}images/others/tipax.png"
+                          alt="عکس لوگو تیباکس"
+                          class="w-25"
+                        />
+                      </div>
+
+                      {% comment %} <div class="text-primary">
+                        <span class="text-sm">پرداخت در مقصد</span>
+                      </div> {% endcomment %}
+                    </label>
+                  </div>
+
+                  {% endfor %}
+
+
+
+                </fieldset>
+              </div>
+            </div>
+          </div>
+          <!-- Cart Price Detail -->
+          <div class="col-span-12 md:col-span-4">
+            <!-- Desktop -->
+            <div class="hidden rounded-lg bg-muted p-4 md:block">
+              <div class="mb-2 divide-y">
+                <!-- cart items price before discount - coupon -->
+                <div class="flex items-center justify-between gap-x-2 py-6">
+                  <div class="text-sm text-text/90 lg:text-base">
+                    قیمت کالا ها ({{count}})
+                  </div>
+
+                  <div class="text-sm text-primary lg:text-base">
+                    <span class="font-bold">{{total_price|intcomma}}</span>
+                    <span class="text-xs lg:text-sm">تومان</span>
+                  </div>
+                </div>
+                <!-- Discount -->
+                <div class="flex items-center justify-between gap-x-2 py-6">
+                  <div class="text-sm text-text/90 lg:text-base">مالیات</div>
+
+                  <div
+                    class="text-sm font-medium text-red-500 dark:text-red-400 lg:text-base"
+                  >
+
+                    {% if tax == 0 %}
+
+                    <span class="font-bold">رایگان</span>
+
+                    {% else %}
+                    <span class="font-bold">{{tax|intcomma}}</span>
+
+                    {% endif %}
+                    <span class="text-xs lg:text-sm">تومان</span>
+                  </div>
+                </div>
+
+
+                <!-- Order final price -->
+
+                <div class="flex items-center justify-between gap-x-2 py-6">
+                  <div class="text-sm text-text/90 lg:text-base">
+                    مبلغ قابل پرداخت
+                  </div>
+
+                  <div class="text-sm text-primary lg:text-base">
+                    <span class="font-bold">{{order_final_price|intcomma}}</span>
+                    <span class="text-xs lg:text-sm">تومان</span>
+                  </div>
+                </div>
+              </div>
+              <div>
+
+                <a href="{% url 'peyment:request' order_id=order_id %}" class="btn-primary py-3">
+                  پرداخت نهایی
+
+                </a>
+              </div>
+            </div>
+
+           <form method='post' action="{% url 'order:apply_copon' order_id=order_id %}">
+              {% csrf_token %}
+            <div style='background:#fff; border:#fff;' class="mb-4 flex items-center justify-between gap-x-2">
+              <div
+                class="flex w-full items-center justify-between gap-x-2 rounded-lg border pl-4"
+              >
+                <label
+                  for="coupon"
+                  class="relative block w-full rounded-lg shadow-base"
+                >
+                 {{form_copon.coupon_code}}
+
+                  <span
+                    class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/90 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm"
+                  >
+                    کد تخفیف
+                  </span>
+                </label>
+                <button type='submit' class="btn-primary-nobg py-2">اعمال</button>
+              </div>
+            </div>
+            </form>
+            <!-- Mobile -->
+            <div
+              class="fixed inset-x-0 bottom-0 flex items-center gap-x-6 rounded-t-2xl bg-muted p-4 md:hidden"
+            >
+              <a
+                class="btn-primary flex-grow py-3"
+               href="{% url 'peyment:request' order_id=order_id %}"
+              >
+
+                ادامه فرایند خرید</a
+              >
+              <div class="flex flex-col items-center gap-y-1">
+                <div class="text-sm text-text/60">مبلغ قابل پرداخت</div>
+                <div class="text-text/90">
+                  <span class="font-bold">{{order_final_price|intcomma}}</span>
+                  <span class="text-sm">تومان</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Address Delete modal -->
+    <div
+      id="address-delete-modal-1"
+      tabindex="-1"
+      aria-hidden="true"
+      class="main-scroll fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-y-auto overflow-x-hidden p-4 md:inset-0"
+    >
+      <div class="relative max-h-full w-full max-w-md">
+        <div
+          class="divide-y overflow-hidden rounded-lg bg-muted shadow ring-1 ring-gray-100 dark:ring-white/5"
+        >
+          <div class="px-4 py-5 sm:px-6">
+            <div class="flex items-center justify-between">
+              <h3 class="md:text-lg">حذف آدرس</h3>
+
+              <button
+                class=" "
+                data-modal-hide="address-delete-modal-1"
+                type="button"
+              >
+                <svg class="h-5 w-5">
+                  <use xlink:href="#close"></use>
+                </svg>
+
+                <span class="sr-only">Close Modal</span>
+              </button>
+            </div>
+          </div>
+          <div class="space-y-6 px-4 py-5 sm:p-6">
+            <p class="text-text/90">آیا از حذف این آدرس اطمینان دارید؟</p>
+            <div class="flex items-center justify-end gap-x-4">
+              <button
+                class="btn-secondary px-4 py-2 text-sm"
+                data-modal-hide="address-delete-modal-1"
+                type="button"
+              >
+                انصراف
+              </button>
+              <button class="btn-red px-4 py-2 text-sm" type="button">
+                حذف آدرس
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Address Add modal -->
+
+    <form id="myForm"  action="{% url 'order:CheckOrder' order_id=order_id %}" method='post'>
+
+      {% csrf_token %}
+    <div
+      id="address-add-modal"
+      tabindex="-1"
+      aria-hidden="true"
+      class="main-scroll fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-y-auto overflow-x-hidden p-4 md:inset-0"
+    >
+      <div class="relative max-h-full w-full max-w-2xl">
+        <div
+          class="divide-y overflow-hidden rounded-lg bg-muted shadow ring-1 ring-gray-100 dark:ring-white/5"
+        >
+          <div class="px-4 py-5 sm:px-6">
+            <div class="flex items-center justify-between">
+              <h3 class="md:text-lg">ثبت آدرس جدید</h3>
+
+              <button
+                class=" "
+                data-modal-hide="address-add-modal"
+                type="button"
+              >
+                <svg class="h-5 w-5">
+                  <use xlink:href="#close" />
+                </svg>
+
+                <span class="sr-only">Close menu</span>
+              </button>
+            </div>
+          </div>
+          <div class="space-y-6 px-4 py-5 sm:p-6">
+            <div class="grid grid-cols-2 gap-x-4 gap-y-5 sm:gap-6">
+              <!-- Receiver name -->
+              <div class="col-span-2 sm:col-span-1">
+                <label
+                  for="name"
+                  class="relative block rounded-lg border shadow-base"
+                >
+              {{form.name}}
+
+                  <span
+                    class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/60 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm"
+                  >
+                    نام گیرنده
+                  </span>
+                </label>
+              </div>
+              <!-- Receiver family -->
+              <div class="col-span-2 sm:col-span-1">
+                <label
+                  for="family"
+                  class="relative block rounded-lg border shadow-base"
+                >
+                 {{form.family}}
+
+                  <span
+                    class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/60 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm"
+                  >
+                    نام خانوادگی گیرنده
+                  </span>
+                </label>
+              </div>
+              <!-- Receiver Phone number -->
+
+              <div class="col-span-2">
+                <label
+                  for="address"
+                  class="relative block rounded-lg border shadow-base"
+                >
+
+                {{form.descript}}
+
+                  <span
+                    class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/60 transition-all peer-placeholder-shown:top-6 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm"
+                  >
+                     توضحیات سفارش (اختیاری)
+                  </span>
+                </label>
+              </div>
+
+
+
+
+              <!-- Receiver City -->
+
+
+
+            <div class="flex justify-end">
+              <button id='confirm_data'  type='submit' class="btn-primary w-full px-4 py-2 md:w-auto">
+                ثبت اطلاعات
+                <span>
+                  <svg class="h-5 w-5">
+                    <use xlink:href="#address-add" />
+                  </svg>
+                </span>
+               {% comment %} <input type="submit" value='ثبت تکمیل اطلاعات'> {% endcomment %}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</form>
+    <!-- Address Edit modal -->
+    <form action="{% url 'order:CheckOrder' order_id=order_id %}" method='post' id="myForm">
+
+    <div
+      id="address-edit-modal-1"
+      tabindex="-1"
+      aria-hidden="true"
+      class="main-scroll fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-y-auto overflow-x-hidden p-4 md:inset-0"
+    >
+      <div class="relative max-h-full w-full max-w-2xl">
+        <div
+          class="divide-y overflow-hidden rounded-lg bg-muted shadow ring-1 ring-gray-100 dark:ring-white/5"
+        >
+          <div class="px-4 py-5 sm:px-6">
+            <div class="flex items-center justify-between">
+              <h3 class="md:text-lg">ویرایش آدرس</h3>
+
+              <button
+                class=" "
+                data-modal-hide="address-edit-modal-1"
+                type="button"
+              >
+                <svg class="h-5 w-5">
+                  <use xlink:href="#close" />
+                </svg>
+
+                <span class="sr-only">Close menu</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="space-y-6 px-4 py-5 sm:p-6">
+            <div class="grid grid-cols-2 gap-x-4 gap-y-5 sm:gap-6">
+              <!-- Receiver name -->
+              <div class="col-span-2 sm:col-span-1">
+                <label
+                  for="name"
+                  class="relative block rounded-lg border shadow-base"
+                >
+                {{form.name}}
+                  <span
+                    class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/60 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm"
+                  >
+                    نام گیرنده
+                  </span>
+                </label>
+              </div>
+              <!-- Receiver family -->
+              <div class="col-span-2 sm:col-span-1">
+                <label
+                  for="family"
+                  class="relative block rounded-lg border shadow-base"
+                >
+
+                {{form.family}}
+
+                  <span
+                    class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/60 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm"
+                  >
+                    نام خانوادگی گیرنده
+                  </span>
+                </label>
+              </div>
+              <!-- Receiver Phone number -->
+              <div class="col-span-2 sm:col-span-1">
+                <label
+                  for="phoneNumber"
+                  class="relative block rounded-lg border shadow-base"
+                >
+                {{form.phone_number}}
+
+                  <span
+                    class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/60 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm"
+                  >
+                    شماره تماس گیرنده
+                  </span>
+                </label>
+              </div>
+              <!-- Receiver National Code -->
+
+              <div
+                class="col-span-2 flex w-full items-center gap-x-4 gap-y-5 sm:col-span-1 sm:gap-6"
+              >
+                <label
+                  for="buildingNumber"
+                  class="relative block w-full rounded-lg border shadow-base"
+                >
+                {{form.pluck}}
+
+                  <span
+                    class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/60 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm"
+                  >
+                    پلاک
+                  </span>
+                </label>
+                <label
+                  for="buildingUnit"
+                  class="relative block w-full rounded-lg border shadow-base"
+                >
+                {{form.email}}
+                  <span
+                    class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/60 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm"
+                  >
+                    ایمیل
+                  </span>
+                </label>
+              </div>
+            </div>
+            <div class="flex justify-end">
+              <button type='submit' class="btn-primary w-full px-4 py-2 md:w-auto">
+                <span>
+                  <svg class="h-5 w-5">
+                    <use xlink:href="#address-edit" />
+                  </svg>
+                </span>
+                <span> ویرایش آدرس </span>
+              </button>
+            </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!--<script defer src="{% static '/assets/scripts/city1.js' %}"></script>-->
+
+
+
+
+{% endblock content %}

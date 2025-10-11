@@ -1,0 +1,646 @@
+{% extends "main_template.html" %}
+
+{% block meta1 %}
+
+<meta name="description" content="{{meta_tag.description}}">
+
+ <!-- Keywords - با تمرکز بر کلیدواژه‌های خاص و مرتبط برای موتورهای جستجو -->
+ <meta name="keywords" content="{{meta_tag.keyword_list}}">
+
+ <!-- Canonical URL - جهت جلوگیری از محتوای تکراری -->
+ <link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+ <!-- Open Graph Meta Tags for Social Sharing (Facebook, LinkedIn, etc.) -->
+ <meta property="og:type" content="article" />
+ <meta property="og:title" content="{{meta_tag.og_title}}" />
+ <meta property="og:description" content="{{meta_tag.description}}" />
+ <meta property="og:image" content="{{ media_url }}{{ blog.image_name.url }}" />
+ <meta property="og:image:alt" content="تصویری از مقاله {{ blog.title }} در کتابوو" />
+ <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+ <meta property="og:site_name" content="کتابوو" />
+ <meta property="og:locale" content="fa_IR" />
+ <meta property="article:published_time" content="{{ blog.register_data|date:'Y-m-dTH:i:s' }}" />
+ <meta property="article:modified_time" content="{{ blog.update_data|date:'Y-m-dTH:i:s' }}" />
+ <meta property="article:author" content="{{ blog.Auther_blog.all.0.Author_name }}" />
+ <meta property="article:tag" content="{{ blog.subject }}" />
+
+ <!-- Twitter Card Meta Tags for Social Sharing -->
+ <meta name="twitter:card" content="summary_large_image" />
+ <meta name="twitter:title" content="{{meta_tag.og_title}}" />
+ <meta name="twitter:description" content="{{meta_tag.description}}" />
+ <meta name="twitter:image" content="{{ media_url }}{{ blog.image_name.url }}" />
+ <meta name="twitter:image:alt" content="مقاله {{ blog.title }} در کتابوو" />
+ <meta name="twitter:site" content="@ketaboo" />
+ <meta name="twitter:creator" content="@ketaboo" />
+
+
+{% endblock meta1 %}
+
+
+{% block title1 %}
+{{meta_tag.title_header}}
+{% endblock title1 %}
+
+{% block content %}
+
+
+
+<body>
+  {% include "blog_app/partial/json_ld.html" %}
+
+    <div class="flex min-h-screen flex-col">
+      <main class="flex-grow bg-background pb-14 pt-36 xs:pt-36">
+        <div class="container relative">
+          <div class="mb-6 hidden md:block">
+            <nav
+              aria-label="Breadcrumb"
+              class="w-fit rounded-lg bg-muted px-4 py-4 shadow-base"
+            >
+              <ol
+                class="flex flex-wrap items-center justify-center gap-x-2 gap-y-4"
+              >
+                <li class="flex items-center gap-x-2">
+                  <a
+                    href="{% url 'main:index' %}"
+                    class="text-sm text-text/90 hover: hover:"
+                  >
+                    کتابوو
+                  </a>
+                  <span class="text-text/90">
+                    <svg class="h-5 w-5">
+                      <use xlink:href="#chevron-left"></use>
+                    </svg>
+                  </span>
+                </li>
+                <li class="flex items-center gap-x-2">
+                  <a href="" class="text-sm text-text/90 hover: hover:">
+                    {{blog.grop_blog.group_name}}
+                  </a>
+                  <span class="text-text/90">
+                    <svg class="h-5 w-5">
+                      <use xlink:href="#chevron-left"></use>
+                    </svg>
+                  </span>
+                </li>
+
+                <li>
+                  <p class="text-sm text-text/90 hover: hover:">{{blog.name_blog}}</p>
+                </li>
+              </ol>
+            </nav>
+          </div>
+          <div class="mb-4 flex flex-wrap items-center gap-2 md:hidden">
+            <div
+              class="flex items-center gap-x-1 text-sm font-light text-primary sm:text-base md:text-base"
+            >
+              <a href="{% url 'main:index' %}"> کتابوو </a>
+              <svg class="h-5 w-5">
+                <use xlink:href="#chevron-left"></use>
+              </svg>
+            </div>
+            <div
+              class="flex items-center gap-x-1 text-sm font-light text-primary sm:text-base md:text-base"
+            >
+              <a href="{% url 'main:index' %}"> وبلاگ </a>
+              <svg class="h-5 w-5">
+                <use xlink:href="#chevron-left"></use>
+              </svg>
+            </div>
+            <div
+              class="line-clamp-1 text-sm font-light text-primary sm:text-base md:text-base"
+            >
+            {{blog.subject}}
+            </div>
+          </div>
+          <div class="grid grid-cols-12 grid-rows-[60px_min(500px,_1fr)] gap-4">
+            <div class="col-span-12 space-y-4 md:col-span-8 lg:col-span-9">
+              <div class="rounded-lg bg-muted p-3 shadow-base md:p-5">
+                <h1 class="mb-8 font-medium md:text-xl">
+                 {{blog.subject}}
+                </h1>
+
+                <div
+                  class="mb-8 flex flex-col items-center justify-between gap-4 xs:flex-row"
+                >
+                  <div class="flex items-center gap-x-2 text-sm text-text/90">
+                    <div class="flex items-center gap-x-2" aria-label="نویسنده مقاله">
+                      <svg class="h-5 w-5" role="img" aria-label="نویسنده">
+                        <use xlink:href="#user" />
+                      </svg>
+
+                      <address class="not-italic" itemscope itemtype="https://schema.org/Person">
+                        {% for aut in blog.Auther_blog.all %}
+                        <p class="font-medium" itemprop="name">{{ aut.Author_name }}</p>
+                        {% endfor %}
+                      </address>
+                    </div>
+
+                    <div class="h-3 w-px rounded-full bg-background"></div>
+                    <div>{{blog.get_jalali_register_date}}</div>
+                  </div>
+                  <div>
+                    <button
+                    id="dropdownMenuCopySocialShareLink"
+                    data-dropdown-toggle="copy-social-share-link"
+                    data-tooltip-target="share-on-social"
+                    type="button"
+                    class="btn-primary-nobg"
+                  >
+                    <svg class="h-5 w-5">
+                      <use xlink:href="#social-share" />
+                    </svg>
+                    اشتراک گذاری
+                  </button>
+                  <!-- Dropdown menu -->
+                  <div
+                    class="z-10 !ml-5 hidden w-50 overflow-hidden rounded-lg border bg-muted shadow-base"
+                    id="copy-social-share-link"
+                  >
+                    <ul class="space-y-2 p-2">
+                      <li>
+                        <button
+                          type="button"
+                          onclick="copyToClipboardSocialShareDesktop()"
+                          class="flex w-full items-center justify-between rounded-lg px-4 py-3 text-sky-500 hover:bg-sky-500/10 dark:text-sky-400 dark:hover:bg-sky-400/10"
+                        >
+                          <div class="flex items-center gap-x-2">
+                            <svg class="h-6 w-6">
+                              <use xlink:href="#copy"></use>
+                            </svg>
+                            <span id="copyToClipboardSocialShareText">کپی کردن لینک</span>
+                          </div>
+                        </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <article class="mb-8" itemscope itemtype="https://schema.org/Article">
+                  <img
+                    src="{{media_url}}{{blog.image_name}}"
+                    alt="Image related to {{ blog.title }} on Ketaboo blog"
+                    title="Image for article: {{ blog.title }}"
+                    class="w-full rounded-xl"
+                    loading="lazy"
+                    width="800"
+                    height="600"
+                    itemprop="image"
+                  />
+
+
+                  <meta itemprop="author" content="{{ blog.Auther_blog.first.Author_name }}">
+                  <meta itemprop="datePublished" content="{{ blog.publish_date }}">
+                  <meta itemprop="description" content="{{ blog.short_description }}">
+                </article>
+
+                <article itemscope itemtype="https://schema.org/BlogPosting">
+                  <header>
+                    <meta itemprop="datePublished" content="{{ blog.publish_date }}">
+                    <meta itemprop="author" content="{{ blog.Auther_blog.first.Author_name }}">
+                    <meta itemprop="description" content="{{ blog.short_description }}">
+                  </header>
+
+                  <div class="leading-loose text-text/90" itemprop="articleBody">
+                    <section>
+                      <p class="mb-6" itemprop="description">
+                        {{ blog.description }}
+                      </p>
+                    </section>
+
+                    <section>
+                      <p class="mb-6" itemprop="description">
+                        {% autoescape off %}
+                        {{ blog.description2 }}
+                        {% endautoescape %}
+                      </p>
+                    </section>
+                  </div>
+
+                  <footer>
+                    <p>Written by: <span itemprop="author">{{ blog.Auther_blog.first.Author_name }}</span></p>
+                    <p>Published on: <time itemprop="datePublished">{{ blog.publish_date }}</time></p>
+                  </footer>
+                </article>
+
+              </div>
+            </div>
+            <!-- Desktop Filter Section -->
+            <div class="col-span-4 row-span-2 hidden md:block lg:col-span-3">
+              <div class="sticky top-32 mb-4 overflow-hidden">
+                <!-- related Blogs -->
+                <div
+                class="mb-8 rounded-lg bg-muted px-2 py-3 shadow-base xl:px-4"
+                itemscope
+                itemtype="https://schema.org/ItemList"
+              >
+                <meta itemprop="name" content="مطالب مرتبط">
+
+                <p class="mb-4 text-center text-sm font-medium xl:text-base" itemprop="headline">
+                  مطالب مرتبط
+                </p>
+
+                <ul class="space-y-8">
+                  {% for item in related_articles %}
+                  <li itemprop="itemListElement" itemscope itemtype="https://schema.org/BlogPosting">
+                    <a href="{{ item.get_absolute_url }}" itemprop="url" title="مطالعه {{ item.subject }}">
+                      <div class="flex gap-x-2 xl:gap-x-4">
+                        <div class="min-w-fit">
+                          <img
+                            src="{{ media_url }}{{ item.image_name }}"
+                            alt="تصویر مرتبط با مقاله {{ item.subject }}"
+                            class="w-25 rounded-xl xl:w-32"
+                            loading="lazy"
+                            itemprop="image"
+                          />
+                        </div>
+                        <div class="flex flex-col gap-y-2">
+                          <p
+                            class="line-clamp-2 text-sm text-text/90 xl:text-base"
+                            itemprop="headline"
+                          >
+                            {{ item.subject }}
+                          </p>
+                          <p class="text-xs text-text/60 xl:text-sm" itemprop="datePublished">
+                            {{ item.time_since_posted }}
+                          </p>
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                  {% endfor %}
+                  <li>
+                    <a href="#" class="btn-primary py-2" title="مشاهده همه مطالب مرتبط">
+                      مشاهده همه ( {{ related_articles|length }} )
+                    </a>
+                  </li>
+                </ul>
+              </div>
+                  <!-- hot Blogs -->
+                    <div
+                        class="mb-8 rounded-lg bg-muted px-2 py-3 shadow-base xl:px-4"
+                        itemscope
+                        itemtype="https://schema.org/ItemList"
+                      >
+                        <meta itemprop="name" content="مطالب محبوب">
+
+                        <p class="mb-4 text-center text-sm font-medium xl:text-base" itemprop="headline">
+                          مطالب محبوب
+                        </p>
+
+                        <ul class="space-y-8">
+                          {% for pop in popular_blog %}
+                          <li itemprop="itemListElement" itemscope itemtype="https://schema.org/BlogPosting">
+                            <a href="{{ pop.get_absolute_url }}" itemprop="url" title="مطالعه {{ pop.subject }}">
+                              <div class="flex gap-x-2 xl:gap-x-4">
+                                <div class="min-w-fit">
+                                  <img
+                                    src="{{ media_url }}{{ pop.image_name }}"
+                                    alt="تصویر مربوط به مطلب {{ pop.subject }}"
+                                    class="w-25 rounded-xl xl:w-32"
+                                    loading="lazy"
+                                    itemprop="image"
+                                  />
+                                </div>
+                                <div class="flex flex-col gap-y-2">
+                                  <p
+                                    class="line-clamp-2 text-sm text-text/90 xl:text-base"
+                                    itemprop="headline"
+                                  >
+                                    {{ pop.subject }}
+                                  </p>
+                                  <p class="text-xs text-text/60 xl:text-sm" itemprop="datePublished">
+                                    {{ pop.get_jalali_register_date }}
+                                  </p>
+                                </div>
+                              </div>
+                            </a>
+                          </li>
+                          {% endfor %}
+                  </ul>
+                </div>
+                <!-- Categories Blogs -->
+                <div class="py-6 mb-8 rounded-lg bg-gray px-2 py-3 shadow-base xl:px-4">
+                  <p class="mb-4 text-center text-sm font-medium xl:text-base">دسته‌بندی ها</p>
+                  <ul class="space-y-4">
+                    {% for category in categories %}
+                      <li x-data="{ open: false }">
+                        <a href="#" @click.prevent="open = !open" class="group py-2">
+                          <div class="flex items-center justify-between">
+                            <p class="flex items-center gap-x-2 text-sm text-gray-700 transition-all duration-200 group-hover:text-gray-900 xl:text-base">
+                              <svg class="h-4 w-4 transform transition-transform" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                              </svg>
+                              {{ category.group_name }}
+                            </p>
+                            <div class="w-6 rounded-lg bg-primary py-px text-center text-sm font-medium text-white dark:bg-emerald-600">
+                              {{ category.group_of_blog.count }}
+                            </div>
+                          </div>
+                        </a>
+                        <div x-show="open" x-transition class="mt-2 pl-8 text-sm text-gray-600">
+                          {% if category.group_of_blog.all %}
+                            <ul class="space-y-2">
+                              {% for blog in category.group_of_blog.all %}
+                                <li>
+                                  <a href="{{ blog.get_absolute_url }}" class="hover:text-primary">
+                                    {{ blog.name_blog }}
+                                  </a>
+                                </li>
+                              {% endfor %}
+                            </ul>
+                          {% else %}
+                            <p>هیچ مقاله‌ای موجود نیست.</p>
+                          {% endif %}
+                        </div>
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="container rounded-lg bg-muted p-5">
+          <div class="mb-8">
+            <div class="mb-5 flex">
+              <div class="relative select-none pb-2 text-lg md:text-xl">
+                سوالات متداول
+                <span
+                  class="absolute bottom-0 right-0 h-0.5 w-full rounded-full bg-primary"
+                ></span>
+              </div>
+            </div>
+
+          </div>
+          <div class="mb-16 grid grid-cols-12 gap-y-8 md:gap-x-8">
+            <div class="col-span-12 md:col-span-4">
+              <div class="sticky top-32">
+                <div
+                  class="flex items-center justify-between rounded-lg bg-background px-2"
+                >
+
+
+                </div>
+
+            </form>
+              </div>
+            </div>
+            <div class="col-span-12 space-y-8 md:col-span-8">
+
+
+
+              <div>
+                <div class="mb-4 flex items-center gap-x-2">
+                  <span class="h-2 w-2 rounded-full bg-primary"></span>
+                  <p class="text-lg font-medium">عنوان اول</p>
+                </div>
+                <ul class="mr-2 space-y-4">
+
+                    {% for q in blog.blog_faq.all %}
+
+                    <li class="relative border-b bg-muted" data-accordion-item>
+                        <div
+                          class="w-full px-4 py-3 text-right md:px-6 md:py-5 cursor-pointer"
+                          data-accordion-button
+                        >
+                          <div
+                            class="flex items-center justify-between gap-2 text-sm md:text-base"
+                          >
+                            <span>
+                              {{q.qus}}
+                            </span>
+                            <div class="min-w-fit">
+                              <svg
+                                data-accordion-chevron
+                                class="h-5 w-5 duration-300"
+                              >
+                                <use xlink:href="#chevron-left"></use>
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          class="relative max-h-0 overflow-hidden transition-all duration-300"
+                          data-accordion-content
+                        >
+                          <div class="px-4 py-4 text-sm text-text/80 lg:text-base">
+                            {{q.answer}}
+                          </div>
+                        </div>
+                      </li>
+
+                    {% endfor %}
+
+                </ul>
+              </div>
+
+
+
+
+              {% comment %} <div>
+                <div class="mb-4 flex items-center gap-x-2">
+                  <span class="h-2 w-2 rounded-full bg-primary"></span>
+                  <p class="text-lg font-medium">عنوان دوم</p>
+                </div>
+                <ul class="mr-2 space-y-4">
+                  <li class="relative border-b bg-muted" data-accordion-item>
+                    <div
+                      class="w-full px-4 py-3 text-right md:px-6 md:py-5 cursor-pointer"
+                      data-accordion-button
+                    >
+                      <div
+                        class="flex items-center justify-between gap-2 text-sm md:text-base"
+                      >
+                        <span>
+                          چطور می‌توانم سفارشم را پیگیری کنم؟ چطور می‌توانم
+                          سفارشم را پیگیری کنم؟
+                        </span>
+                        <div class="min-w-fit">
+                          <svg
+                            data-accordion-chevron
+                            class="h-5 w-5 duration-300"
+                          >
+                            <use xlink:href="#chevron-left"></use>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="relative max-h-0 overflow-hidden transition-all duration-300"
+                      data-accordion-content
+                    >
+                      <div class="px-4 py-4 text-sm text-text/80 lg:text-base">
+                        نمیتونی
+                      </div>
+                    </div>
+                  </li>
+                  <li class="relative border-b bg-muted" data-accordion-item>
+                    <div
+                      class="w-full px-4 py-3 text-right md:px-6 md:py-5 cursor-pointer"
+                      data-accordion-button
+                    >
+                      <div
+                        class="flex items-center justify-between gap-2 text-sm md:text-base"
+                      >
+                        <span>
+                          چطور می‌توانم سفارشم را پیگیری کنم؟ چطور می‌توانم
+                          سفارشم را پیگیری کنم؟
+                        </span>
+                        <div class="min-w-fit">
+                          <svg
+                            data-accordion-chevron
+                            class="h-5 w-5 duration-300"
+                          >
+                            <use xlink:href="#chevron-left"></use>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="relative max-h-0 overflow-hidden transition-all duration-300"
+                      data-accordion-content
+                    >
+                      <div class="px-4 py-4 text-sm text-text/80 lg:text-base">
+                        نمیتونی
+                      </div>
+                    </div>
+                  </li>
+                  <li class="relative border-b bg-muted" data-accordion-item>
+                    <div
+                      class="w-full px-4 py-3 text-right md:px-6 md:py-5 cursor-pointer"
+                      data-accordion-button
+                    >
+                      <div
+                        class="flex items-center justify-between gap-2 text-sm md:text-base"
+                      >
+                        <span>
+                          چطور می‌توانم سفارشم را پیگیری کنم؟ چطور می‌توانم
+                          سفارشم را پیگیری کنم؟
+                        </span>
+                        <div class="min-w-fit">
+                          <svg
+                            data-accordion-chevron
+                            class="h-5 w-5 duration-300"
+                          >
+                            <use xlink:href="#chevron-left"></use>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="relative max-h-0 overflow-hidden transition-all duration-300"
+                      data-accordion-content
+                    >
+                      <div class="px-4 py-4 text-sm text-text/80 lg:text-base">
+                        نمیتونی
+                      </div>
+                    </div>
+                  </li>
+                  <li class="relative border-b bg-muted" data-accordion-item>
+                    <div
+                      class="w-full px-4 py-3 text-right md:px-6 md:py-5 cursor-pointer"
+                      data-accordion-button
+                    >
+                      <div
+                        class="flex items-center justify-between gap-2 text-sm md:text-base"
+                      >
+                        <span>
+                          چطور می‌توانم سفارشم را پیگیری کنم؟ چطور می‌توانم
+                          سفارشم را پیگیری کنم؟
+                        </span>
+                        <div class="min-w-fit">
+                          <svg
+                            data-accordion-chevron
+                            class="h-5 w-5 duration-300"
+                          >
+                            <use xlink:href="#chevron-left"></use>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      class="relative max-h-0 overflow-hidden transition-all duration-300"
+                      data-accordion-content
+                    >
+                      <div class="px-4 py-4 text-sm text-text/80 lg:text-base">
+                        نمیتونی
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </div> {% endcomment %}
+            </div>
+          </div>
+          <!-- Footer -->
+
+        </div>
+      </main>
+
+
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+  </div>
+    </div>
+
+
+    <script>
+      window.onscroll = function() {
+        scrollProgress();
+    };
+
+    function scrollProgress() {
+        var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        var scrolled = (winScroll / height) * 100;
+        document.getElementById("progressBar").style.width = scrolled + "%";
+    }
+
+
+
+
+      const copyToClipboardSocialShareDesktop = () => {
+        const linkToCopy = window.location.href; // URL فعلی صفحه
+        if (linkToCopy) {
+          navigator.clipboard
+            .writeText(linkToCopy)
+            .then(function () {
+              const copyToClipboardSocialShareText = document.getElementById(
+                "copyToClipboardSocialShareText"
+              );
+              copyToClipboardSocialShareText.innerText = "کپی شد !";
+
+              // بازگرداندن متن پس از 5 ثانیه
+              setTimeout(function () {
+                copyToClipboardSocialShareText.innerText = "کپی کردن لینک";
+              }, 5000);
+            })
+            .catch(function (err) {
+              console.error("مشکلی در عملیات پیش آمد", err);
+            });
+        }
+      };
+
+      const copyToClipboardSocialShareMobile = () => {
+        const linkToCopy = window.location.href; // URL فعلی صفحه
+        if (linkToCopy) {
+          navigator.clipboard
+            .writeText(linkToCopy)
+            .then(function () {
+              const copyToClipboardSocialShareNotifyMobile = document.getElementById(
+                "notify-copied-social-share-link-mobile"
+              );
+              copyToClipboardSocialShareNotifyMobile.classList.remove("hidden");
+
+              // مخفی کردن اعلان پس از 5 ثانیه
+              setTimeout(function () {
+                copyToClipboardSocialShareNotifyMobile.classList.add("hidden");
+              }, 5000);
+            })
+            .catch(function (err) {
+              console.error("مشکلی در عملیات پیش آمد", err);
+            });
+        }
+      };
+    </script>
+
+{% endblock content %}

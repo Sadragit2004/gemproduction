@@ -1,0 +1,2004 @@
+{% extends "main_template.html" %}
+{% load humanize %}
+{% load render_partial %}
+
+{% block title1 %}
+{{meta_tags.title_header}}
+{% endblock title1 %}
+
+
+{% block meta1 %}
+
+  <title>قیمت {{file.title}}</title>
+  <meta name="description" content="{{file.short_description}}">
+  <meta name="robots" content="index, follow">
+  <meta property="og:type" content="product">
+  <meta property="og:title" content="قیمت {{file.title}}">
+  <meta property="og:description" content="{{file.short_description}}">
+  <meta property="og:image" content="{{ media_url }}{{ file.image }}">
+  <meta property="og:url" content="{{file.get_absolute_url}}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{file.title}}">
+  <meta name="twitter:description" content="{{file.short_description}}">
+  <meta name="twitter:image" content="{{ media_url }}{{ file.image }}">
+  <meta property="product:price:amount" content="{{ file.get_price_by_discount }}">
+  <meta property="product:price:currency" content="IRR">
+
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ file.title }}",
+ "image": ["{{ file.image.url }}"]
+  "description": "{{ file.short_description }}",
+  "sku": "{{ file.id }}",
+  "mpn": "{{ file.id }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "جم ویژن ایران"
+  },
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.build_absolute_uri}}",
+    "priceCurrency": "IRR",
+    "price": "{{ file.get_price_by_discount }}",
+    "availability": "https://schema.org/InStock",
+    "itemCondition": "https://schema.org/NewCondition"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{% with likes=file.comment_product.all|length %}{{likes}}{% endwith %}",
+    "reviewCount": "{{ file.comment_product.count }}"
+  },
+  "review": [
+    {% for comment in file.comment_product.all %}
+    {
+      "@type": "Review",
+      "author": {
+        "@type": "Person",
+        "name": "{{ comment.user.name }} {{ comment.user.family }}"
+      },
+      "datePublished": "{{ comment.register_date|date:'Y-m-d' }}",
+      "reviewBody": "{{ comment.text|truncatechars:200 }}",
+      "reviewRating": {
+        "@type": "Rating",
+        "ratingValue": "5",
+        "bestRating": "5",
+        "worstRating": "1"
+      }
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+
+{% endblock meta1 %}
+
+
+{% block content %}
+
+
+
+    <div class="flex min-h-screen flex-col">
+
+      <main class="flex-grow bg-background pb-14 pt-36 xs:pt-36">
+        <div class="container">
+          <!-- Desktop product Detail -->
+          <div class="hidden lg:block">
+            <!-- Breadcrumb -->
+            <div class="mb-6">
+              <nav
+                aria-label="Breadcrumb"
+                class="w-fit rounded-lg bg-muted px-4 py-4 shadow-base"
+              >
+                <ol
+                  class="flex flex-wrap items-center justify-center gap-x-2 gap-y-4"
+                >
+                  <li class="flex items-center gap-x-2">
+                    <a
+                      href="{% url 'main:index' %}"
+                      class="text-sm text-text/90 hover: hover:"
+                    >
+                    صفحه اصلی سایت
+                    </a>
+                    <span class="text-text/90">
+                      <svg class="h-5 w-5">
+                        <use xlink:href="#chevron-left" />
+                      </svg>
+                    </span>
+                  </li>
+                  <li class="flex items-center gap-x-2">
+
+                    {% for g in file.group.all %}
+
+                    <a href="{% url 'file:filter_shop' slug=g.slug %}"><span>{{g.title}}</span></a>
+
+                    {% endfor %}
+
+                    </a>
+                    <span class="text-text/90">
+                      <svg class="h-5 w-5">
+                        <use xlink:href="#chevron-left" />
+                      </svg>
+                    </span>
+                  </li>
+
+                  <li>
+                    <a href="#" class="text-sm text-text/90 hover: hover:">
+                      {{file.title}}
+
+                    </a>
+                  </li>
+                </ol>
+              </nav>
+            </div>
+            <!-- product Detail Section -->
+            <div class="mb-6 rounded-lg bg-muted p-6 shadow-base">
+              <div class="mb-6 grid flex-grow grid-cols-12 gap-4">
+                <div class="col-span-4">
+                  <div class="min-w-fit space-y-2">
+                    <!-- product other actions -->
+                    <div class="py-2">
+                      <div class="flex items-center gap-x-4">
+                        <!-- add to favorite -->
+
+                        <div>
+                         <button
+                onclick='toggleFavorite({{ file.id }})'
+                data-tooltip-target="add-to-favorite"
+                type="button"
+                class="favorite-btn p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
+                id="favorite-btn-{{ file.id }}"
+              >
+                <!-- قلب پر (طراحی مدرن) -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 heart-full"
+                     viewBox="0 0 24 24" fill="currentColor" style="{% if is_favorited %}display:block;{% else %}display:none;{% endif %}">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+
+                <!-- قلب خالی (طراحی مدرن) -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 heart-empty"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="{% if is_favorited %}display:none;{% else %}display:block;{% endif %}">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+              </button>
+
+
+                          <div
+                            id="add-to-favorite"
+                            role="tooltip"
+                            class="tooltip invisible absolute z-10 inline-block rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 dark:bg-zinc-800"
+                          >
+                            افزودن به علاقه‌مندی ها
+                          </div>
+                        </div>
+                        <!-- add to compare -->
+
+                        <div>
+                          <button
+                            data-tooltip-target="add-to-compare"
+                            type="button"
+                          >
+                            <svg class="h-6 w-6">
+                              <use xlink:href="#compare" />
+                            </svg>
+                          </button>
+                          <div
+                            id="add-to-compare"
+                            role="tooltip"
+                            class="tooltip invisible absolute z-10 inline-block rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 dark:bg-zinc-800"
+                          >
+                            افزودن به لیست مقایسه
+                          </div>
+                        </div>
+
+                        <!-- share on social -->
+                        <div>
+                          <button
+                            id="dropdownMenuCopySocialShareLink"
+                            data-dropdown-toggle="copy-social-share-link"
+                            data-tooltip-target="share-on-social"
+                            type="button"
+                          >
+                            <svg class="h-6 w-6">
+                              <use xlink:href="#social-share" />
+                            </svg>
+                          </button>
+                          <div
+                            id="share-on-social"
+                            role="tooltip"
+                            class="tooltip invisible absolute z-10 inline-block rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white opacity-0 shadow-sm transition-opacity duration-300 dark:bg-zinc-800"
+                          >
+                            اشتراک گذاری
+                          </div>
+                          <!-- Dropdown menu -->
+                          <div
+                            class="z-10 !ml-5 hidden w-50 overflow-hidden rounded-lg border bg-muted shadow-base"
+                            id="copy-social-share-link"
+                          >
+                            <ul class="space-y-2 p-2">
+                              <li>
+                                <button
+                                type="button"
+                                onclick="copyToClipboardSocialShareDesktop(this)"
+                                class="flex w-full items-center justify-between rounded-lg px-4 py-3 text-sky-500 hover:bg-sky-500/10 dark:text-sky-400 dark:hover:bg-sky-400/10"
+                              >
+                                <div class="flex items-center gap-x-2">
+                                  <svg class="h-6 w-6">
+                                    <use xlink:href="#copy"></use>
+                                  </svg>
+                                  <span id="copyToClipboardSocialShareText">
+                                    کپی کردن لینک
+                                  </span>
+                                </div>
+                              </button>
+
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Main image -->
+                    <div>
+                      <img
+                        src="{{media_url}}{{file.image}}"
+                        alt="{{file.title}} - image"
+                        class="mx-auto"
+                        loading="lazy"
+                        title="{{file.title}} - subject"
+                      />
+                    </div>
+                    <!-- Gallery -->
+                    <div class="flex items-center justify-center gap-x-2">
+                      <!-- image -->
+                     {% for img in file.gallery.all %}
+                     <button
+                     type="button"
+                     data-modal-target="product-gallery-modal"
+                     data-modal-toggle="product-gallery-modal"
+                     class="cursor-pointer rounded-lg border p-1"
+                   >
+                     <img
+                       src="{{media_url}}{{img.image}}"
+                       alt="Gallery image of {{ file.title }}"
+                       class="h-16 w-16 xl:h-20 xl:w-20"
+                       title="{{file.title}} - subject"
+                       loading="lazy"
+                     />
+                   </button>
+                     {% endfor %}
+
+
+                    </div>
+                  </div>
+                </div>
+                <div class="col-span-8 flex min-h-full flex-col">
+                  <div class="mb-2 flex items-center gap-x-1 text-primary">
+                  {% comment %} {% for group in file.product_group.all %}
+                  <a href="{% url 'product:shoping' slug=group.slug %}"> {{group.group_name}} </a> |
+                  {% endfor %} {% endcomment %}
+                    <svg class="h-5 w-5">
+                      <use xlink:href="#chevron-left" />
+                    </svg>
+                  </div>
+                  <!-- Main Title ( persian ) -->
+                  <h1 class="mb-4 text-lg font-semibold">
+                    {{file.title}}
+                  </h1>
+
+                  <div class="grid flex-grow grid-cols-2 gap-x-4">
+                    <!-- right side -->
+                    <div class="col-span-1">
+                      <!-- Title ( english) -->
+                      <div class="mb-4 flex items-center gap-x-2">
+
+                        <span
+                          class="h-px flex-grow bg-background dark:bg-muted/10"
+                        ></span>
+                      </div>
+                      <!-- comments & SKU -->
+                      <div
+                        class="mb-4 flex items-center gap-x-4 text-sm font-light text-primary"
+                      >
+                        <div>
+                          <a href="#"> کد کالا {{file.id}}# </a>
+                        </div>
+                        <span
+                          class="h-4 w-px rounded-full bg-background dark:bg-muted/10"
+                        ></span>
+                        <div>
+                          <a href="#"> {{file.comment_product.all|length}} دیدگاه </a>
+                        </div>
+                      </div>
+                      <!-- users suggestion -->
+                      <div class="mb-4 flex gap-x-2">
+                        <svg class="h-4 w-4 text-primary">
+                          <use xlink:href="#like" />
+                        </svg>
+                        <p class="text-sm font-light text-text/60">
+                          {{file.like_percentage}}% از خریداران، خرید این کالا را پیشنهاد کرده‌اند
+                        </p>
+                      </div>
+
+                      <!-- Property -->
+                      <div>
+                        <p class="mb-6 font-medium">ویژگی های محصول</p>
+
+                        <ul id="features-list" class="space-y-4 overflow-hidden max-h-[160px] transition-all duration-300">
+                          {% for fea in file.features_value.all|slice:":4" %}
+
+                              <li class="flex gap-x-2">
+                                <div class="min-w-fit text-text/60">{{fea.feature}} :</div>
+                                <div class="text-text/90">{{fea.value}}</div>
+                              </li>
+
+                          {% endfor %}
+                        </ul>
+
+
+                      </div>
+
+                    </div>
+
+                    <!-- left side -->
+                    <div class="col-span-1 flex flex-col">
+                      <div class="flex-grow">
+                        <!-- variant -->
+                        <div class="mb-6 space-y-6">
+                          <!-- Color -->
+                          {% comment %} <div>
+                            <div class="mb-4">انتخاب مترجم</div>
+                            <fieldset class="flex flex-wrap items-center gap-1">
+                              <legend class="sr-only">Color</legend>
+
+                              {% for color in file.features_value.all %}
+
+                              {% if color.feature.id == 4 %}
+
+                              <div>
+                                <input
+                                  checked
+                                  type="radio"
+                                  name="color-desktop"
+                                  value="{{ color.id }}"
+                                  id="color-desktop-{{ color.id }}"
+                                  class="peer hidden"
+                                />
+
+                                <label
+                                  for="color-desktop-{{color.id}}"
+                                  class="relative block cursor-pointer rounded-full border-2 p-2 shadow-base peer-checked:border-emerald-500 hover:border-border/50 peer-checked:dark:border-emerald-400 dark:hover:border-white/10"
+                                >
+                                  <div class="flex items-center gap-x-2">
+                                    <div
+                                      class="h-6 w-6 rounded-full border-2 shadow-base dark:border-white/30"
+                                      style="background-color: {{color.english}}"
+                                    ></div>
+                                    <p class="text-text/90">{{color.value}}</p>
+                                  </div>
+                                </label>
+                              </div>
+                            {% endif %}
+                              {% endfor %}
+
+                            </fieldset>
+                          </div> {% endcomment %}
+                          <!-- Size -->
+                          <div>
+                            {% comment %} <div class="mb-4">انتخاب سایز</div> {% endcomment %}
+                            <fieldset class="flex flex-wrap items-center gap-2">
+                              <legend class="sr-only">Size</legend>
+
+                              {% for size in file.features_value.all %}
+                              {% if size.feature.id == 1000 %}
+                              <div>
+                                <input
+                                  type="radio"
+                                  name="size-desktop"
+                                  value="{{ size.id }}"
+                                  id="size-desktop-{{ size.id }}"
+                                  class="peer hidden"
+                                />
+                                <label
+                                  for="size-desktop-{{ size.id }}"
+                                  class="relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 p-1 shadow-base peer-checked:border-emerald-500 hover:border-border/50 peer-checked:dark:border-emerald-400 dark:hover:border-white/10"
+                                >
+                                  <p class="text-sm font-bold text-text/90 md:text-base">
+                                    {{ size.value }}
+                                  </p>
+                                </label>
+                              </div>
+                              {% endif %}
+                              {% endfor %}
+
+                            </fieldset>
+                          </div>
+                        </div>
+                      </div>
+                      <div>
+                        <!-- verified text -->
+                        <div
+                          class="mb-6 flex items-center gap-x-2 rounded-lg bg-primary/10 p-4 text-sm text-primary /5"
+                        >
+                          <svg class="h-6 w-6">
+                            <use xlink:href="#verified" />
+                          </svg>
+                          تضمین سلامت فیزیکی و اصالت کالا
+                        </div>
+                        <!-- price -->
+                    <div class="mb-6 flex items-center justify-between">
+  <!-- Quantity Selector -->
+  <div class="flex items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 py-2 shadow-sm dark:border-gray-600 dark:bg-gray-800">
+    <button type="button" class="qty-btn text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary" data-action="decrement">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M20 12H4"></path>
+      </svg>
+    </button>
+
+    <input
+      type="text"
+      value="1"
+      class="qty-input w-12 text-center text-lg font-semibold text-gray-800 outline-none dark:bg-gray-700 dark:text-white"
+      readonly
+    />
+
+    <button type="button" class="qty-btn text-gray-600 hover:text-primary dark:text-gray-300 dark:hover:text-primary" data-action="increment">
+      <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M12 4v16m8-8H4"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Price -->
+  <div class="flex items-center gap-x-1 text-primary">
+    {% if file.price > file.get_price_by_discount %}
+    <div class="flex items-center gap-x-2">
+      <div>
+        <del class="text-sm text-text/60 decoration-warning md:text-base">
+          {{ file.price | intcomma }}
+        </del>
+      </div>
+      <div class="flex w-10 items-center justify-center rounded-full bg-warning py-0.5 text-sm font-bold text-white dark:bg-red-600">
+        {{ file.get_discount_percentage }}%
+      </div>
+    </div>
+    {% endif %}
+
+    <span class="text-xl font-bold">
+      {% if file.price > file.get_price_by_discount %}
+        {{ file.get_price_by_discount | intcomma }}
+      {% else %}
+        {{ file.price | intcomma }}
+      {% endif %}
+    </span>
+
+    <span>تومان</span>
+  </div>
+</div>
+
+<!-- Script -->
+<script>
+  document.querySelectorAll(".qty-btn").forEach(btn => {
+    btn.addEventListener("click", function() {
+      const input = this.parentElement.querySelector(".qty-input");
+      let value = parseInt(input.value) || 1;
+
+      if (this.dataset.action === "increment") {
+        value++;
+      } else if (this.dataset.action === "decrement" && value > 1) {
+        value--;
+      }
+
+      input.value = value;
+    });
+  });
+</script>
+
+                        <!-- add to cart -->
+                        <div class="mb-6">
+                          <button onclick="addToCart({{ file.id }}); showSuccessModal('cartSuccessModal', 'cartSuccessSound');" class="btn-primary w-full py-3">
+                            افزودن به سبد خرید
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="flex justify-between gap-4">
+                <div
+                  class="flex w-full items-center gap-x-2 rounded-lg border px-2 py-4 text-sm text-text/60"
+                >
+                  <svg class="h-6 w-6">
+                    <use xlink:href="#refund" />
+                  </svg>
+                  هفت روز ضمانت بازگشت کالا
+                </div>
+
+                <div
+                  class="flex w-full items-center gap-x-2 rounded-lg border px-2 py-4 text-sm text-text/60"
+                >
+                  <svg class="h-6 w-6">
+                    <use xlink:href="#verified" />
+                  </svg>
+                  تضمین اصالت کالا
+                </div>
+                <div
+                  class="flex w-full items-center gap-x-2 rounded-lg border px-2 py-4 text-sm text-text/60"
+                >
+                  <svg class="h-6 w-6">
+                    <use xlink:href="#support" />
+                  </svg>
+                  هفت روز هفته
+                </div>
+                <div
+                  class="flex w-full items-center gap-x-2 rounded-lg border px-2 py-4 text-sm text-text/60"
+                >
+                  <svg class="h-6 w-6">
+                    <use xlink:href="#fast-delivery" />
+                  </svg>
+                  تحویل اکسپرس در , تبریز
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Mobile product Detail-->
+          <div class="lg:hidden">
+            <!-- breadcrumb -->
+            <div class="mb-4 flex flex-wrap items-center gap-2">
+              <div
+                class="flex items-center gap-x-1 text-sm font-light text-primary sm:text-base md:text-base"
+              >
+                <a href="{% url 'main:index' %}">   </a>
+                <svg class="h-5 w-5">
+                  <use xlink:href="#chevron-left" />
+                </svg>
+              </div>
+              <div
+                class="flex items-center gap-x-1 text-sm font-light text-primary sm:text-base md:text-base"
+              >
+                <a href=""> {{file.brand}} </a>
+                <svg class="h-5 w-5">
+                  <use xlink:href="#chevron-left" />
+                </svg>
+              </div>
+              <div
+                class="line-clamp-1 text-sm font-light text-primary sm:text-base md:text-base"
+              >
+                <a href="#">{{file.title}}</a>
+              </div>
+            </div>
+            <!-- product Detail Section -->
+            <div class="mb-6 rounded-lg bg-muted p-4 shadow-base">
+              <!-- product Gallery -->
+              <div class="relative mb-4">
+                <div class="swiper product-image-mobile-swiper">
+                  <div class="swiper-wrapper">
+
+                    <img
+                        src="{{media_url}}{{file.image}}"
+                        alt="{{file.title}} - image"
+                        class="mx-auto"
+                        loading="lazy"
+                        title="{{file.title}} - subject"
+                      />
+
+                      {% for i in file.gallery.all %}
+                      <div class="swiper-slide">
+                        <img
+                          src="{{media_url}}{{i.image}}"
+                          alt="Gallery image of {{ file.title }}"
+                          class="mx-auto"
+                          loading="lazy"
+                          title="{{file.title}} - subject"
+                        />
+                      </div>
+                    {% endfor %}
+
+
+                  </div>
+                  <div class="swiper-pagination text-left"></div>
+                </div>
+                <div class="absolute left-0 top-0 z-10">
+                  <div class="flex items-center gap-x-4">
+                    <!-- add to favorite -->
+                    <div>
+                       <button
+                onclick='toggleFavorite({{ file.id }})'
+                data-tooltip-target="add-to-favorite"
+                type="button"
+                class="favorite-btn p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
+                id="favorite-btn-{{ file.id }}"
+              >
+                <!-- قلب پر (طراحی مدرن) -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500 heart-full"
+                     viewBox="0 0 24 24" fill="currentColor" style="{% if is_favorited %}display:block;{% else %}display:none;{% endif %}">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+
+                <!-- قلب خالی (طراحی مدرن) -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 heart-empty"
+                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="{% if is_favorited %}display:none;{% else %}display:block;{% endif %}">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+              </button>
+
+
+
+                    </div>
+                    <!-- add to compare -->
+                    <div>
+                      <button>
+                        <svg class="h-6 w-6">
+                          <use xlink:href="#compare" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <!-- share on social -->
+                    <div class="relative">
+                      <button
+                        type="button"
+                        onclick="copyToClipboardSocialShareMobile(this)"
+                        data-link="https://www.google.com"
+                      >
+                        <svg class="h-6 w-6">
+                          <use xlink:href="#social-share" />
+                        </svg>
+                      </button>
+                      <div
+                        id="notify-copied-social-share-link-mobile"
+                        class="absolute left-0 top-full z-10 hidden w-24 rounded-lg bg-zinc-900 px-3 py-2 text-center text-sm font-medium text-white shadow-sm transition-opacity duration-300 dark:bg-zinc-800"
+                      >
+                        کپی شد !
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- breadcrumb -->
+              <div class="mb-4 flex flex-wrap items-center gap-2">
+                <div
+                  class="flex items-center gap-x-1 text-sm font-light text-primary md:text-base"
+                >
+                  {% comment %} <a href="{% url 'page:book_page' slug=file.brand.slug %}">{{file.brand}}</a> {% endcomment %}
+                  <svg class="h-5 w-5">
+                    <use xlink:href="#chevron-left" />
+                  </svg>
+                </div>
+                <div
+                  class="line-clamp-1 text-sm font-light text-primary md:text-base"
+                >
+                  {% comment %} <a href="#"> کتونی ورزشی نایک </a> {% endcomment %}
+                </div>
+              </div>
+              <!-- title -->
+              <div class="mb-4 font-semibold md:text-lg">
+               {{file.product_name}}
+              </div>
+              <!-- comments & SKU -->
+              <div
+                class="flex gap-x-4 text-sm font-light text-primary md:text-base"
+              >
+                <div>
+                  <a href="#"> کد کالا {{file.id}}# </a>
+                </div>
+                <div>
+                  <a href="#">                           <a href="#"> {{file.comment_product.all|length}} دیدگاه </a>
+ دیدگاه </a>
+                </div>
+              </div>
+              <div class="my-4 h-px w-full bg-background"></div>
+              <!-- variant -->
+              <div class="mb-6 space-y-4">
+                <!-- Color -->
+                <div class="text-sm md:text-base">انتخاب مترجم</div>
+                 <fieldset class="flex flex-wrap items-center gap-1">
+                  <legend class="sr-only">Color</legend>
+                  {% for color in file.features_value.all %}
+
+                  {% if color.feature.id == 4 %}
+
+                  <div>
+                    <input
+                      checked
+                      type="radio"
+                      name="color-desktop2"
+                      value="{{ color.id }}"
+                      id="color-desktop2-{{color.id}}"
+                      class="peer hidden"
+                    />
+
+                    <label
+                      for="color-desktop2-{{color.id}}"
+                      class="relative block cursor-pointer rounded-full border-2 p-2 shadow-base peer-checked:border-emerald-500 hover:border-border/50 peer-checked:dark:border-emerald-400 dark:hover:border-white/10"
+                    >
+                      <div class="flex items-center gap-x-2">
+                        <div
+                          class="h-6 w-6 rounded-full border-2 shadow-base dark:border-white/30"
+                          style="background-color: {{color.english}}"
+                        ></div>
+                        <p class="text-text/90">{{color.value}}</p>
+                      </div>
+                    </label>
+                  </div>
+                {% endif %}
+                  {% endfor %}
+                </fieldset>
+                <!-- Size -->
+
+                {% comment %} <div class="mb-4 text-sm md:text-base">انتخاب سایز</div> {% endcomment %}
+                {% comment %} <fieldset class="mb-4 flex flex-wrap items-center gap-2">
+                  <legend class="sr-only">Size</legend>
+
+                  {% for size in file.features_value.all %}
+
+                              {% if size.feature.id == 1 %}
+
+                              <div>
+                                <input
+                                  checked
+                                  type="radio"
+                                  name="size-desktop2"
+                                  value="{{size.id}}"
+                                  id="size-desktop2-{{size.id}}"
+                                  class="peer hidden"
+                                />
+
+                                <label
+                                  for="size-desktop2-{{size.id}}"
+                                  class="relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 p-1 shadow-base peer-checked:border-emerald-500 hover:border-border/50 peer-checked:dark:border-emerald-400 dark:hover:border-white/10"
+                                >
+                                  <p
+                                    class="text-sm font-bold text-text/90 md:text-base"
+                                  >
+                                    {{size.value}}
+                                  </p>
+                                </label>
+                              </div>
+                              {% endif %}
+                              {% endfor %}
+
+                </fieldset> {% endcomment %}
+
+                <!-- Quantity -->
+                <div class="mb-4 text-sm md:text-base">انتخاب تعداد</div>
+                <div
+                  class="flex h-12 w-40 items-center justify-between rounded-lg border px-4 py-1"
+                >
+                  <button type="button" data-action="increment">
+                    <svg class="h-7 w-7 text-primary">
+                      <use xlink:href="#plus" />
+                    </svg>
+                  </button>
+                  <input
+                    value="1"
+                    disabled
+                    id='counter2'
+                    type="number"
+                    class="flex h-6 w-6 w-full select-none items-center justify-center bg-transparent text-center outline-none"
+                  />
+                  <button type="button" data-action="decrement">
+                    <svg class="h-7 w-7 text-red-600 dark:text-red-500">
+                      <use xlink:href="#minus" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div
+                  class="flex items-center gap-x-2 rounded-lg border px-4 py-3 text-sm text-text/60"
+                >
+                  <svg class="h-5 w-5">
+                    <use xlink:href="#refund" />
+                  </svg>
+                  هفت روز ضمانت بازگشت کالا
+                </div>
+
+                <div
+                  class="flex items-center gap-x-2 rounded-lg border px-4 py-3 text-sm text-text/60"
+                >
+                  <svg class="h-6 w-6">
+                    <use xlink:href="#verified" />
+                  </svg>
+                  تضمین اصالت کالا
+                </div>
+                <div
+                  class="flex items-center gap-x-2 rounded-lg border px-4 py-3 text-sm text-text/60"
+                >
+                  <svg class="h-6 w-6">
+                    <use xlink:href="#support" />
+                  </svg>
+                  هفت روز هفته
+                </div>
+                <div
+                  class="flex items-center gap-x-2 rounded-lg border px-4 py-3 text-sm text-text/60"
+                >
+                  <svg class="h-6 w-6">
+                    <use xlink:href="#fast-delivery" />
+                  </svg>
+                  تحویل اکسپرس در تبریز,
+                </div>
+              </div>
+            </div>
+            <!-- Property -->
+            <div class="mb-6 rounded-lg bg-muted p-4 shadow-base lg:hidden">
+              <p class="mb-6">ویژگی های محصول</p>
+
+              <ul class="space-y-4">
+
+                {% for fea in file.features_value.all|slice:":4" %}
+
+              {% if fea.feature.id != 4 %}
+
+
+              <li class="flex gap-x-2">
+                <div class="min-w-fit text-sm text-text/60">{{fea.feature}} :</div>
+                <div class="text-sm text-text/90">{{fea.value}}</div>
+              </li>
+
+              {% endif %}
+
+                {% endfor %}
+
+              </ul>
+            </div>
+
+            <!-- Add to Cart -->
+            <div class="fixed inset-x-0 bottom-0 z-10 bg-muted p-5">
+              <div class="flex items-center justify-between gap-x-6">
+                <!-- Button -->
+                <div class="flex grow">
+                  <button
+
+                  onclick="addToCart({{ file.id }}); showSuccessModal('cartSuccessModal', 'cartSuccessSound');"
+                  class="btn-primary w-full px-4 py-3 text-sm">
+                    افزودن به سبد خرید
+                  </button>
+                </div>
+                <!-- Price -->
+                <div class="space-y-1">
+                  <!-- Old Price -->
+
+                  {% if file.price > file.get_price_by_discount %}
+
+                  <div class="flex items-center gap-x-2">
+                    <div>
+                      <del
+                        class="text-sm text-text/60 decoration-warning md:text-base"
+                      >
+                    {{file.price}}
+                      </del>
+                    </div>
+                    <div
+                      class="flex w-10 items-center justify-center rounded-full bg-warning py-0.5 text-sm font-bold text-white dark:bg-red-600"
+                    >
+                    {{file.get_discount_percentage}}%
+                    </div>
+                  </div>
+
+                  {% endif %}
+
+
+                  <!-- New Price -->
+                  <div class="text-primary">
+
+                    {% if file.price > file.get_price_by_discount %}
+                    <span class="font-semibold">{{file.get_price_by_discount|intcomma}}</span>
+
+                    {% else %}
+                    {{file.price|intcomma}}
+
+                    {% endif %}
+
+
+                    <span class="text-sm font-light">تومان</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+      {% render_partial 'file:related_product' slug=file.slug %}
+          <!-- description / specs / commment  -->
+          <div class="rounded-lg bg-muted p-4 shadow-base">
+            <div class="mb-6">
+              <ul
+                class="-mb-px flex justify-between gap-x-2 border-b text-center text-sm font-medium xs:justify-start xs:gap-x-4 xs:text-base"
+              >
+                <li>
+                  <a
+                    href="#description"
+                    class="inline-block rounded-t-lg border-b-2 border-transparent px-2 pb-2 hover: text-text/90 dark:hover:text-zinc-300"
+                  >
+                    معرفی
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#specs"
+                    class="inline-block rounded-t-lg border-b-2 border-transparent px-2 pb-2 hover: text-text/90 dark:hover:text-zinc-300"
+                  >
+                    مشخصات
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#comments"
+                    class="relative inline-block rounded-t-lg border-b-2 border-transparent px-2 pb-2 hover: text-text/90 dark:hover:text-zinc-300"
+                  >
+                    دیدگاه ها
+                    <span
+                      class="absolute -left-5 -top-4 flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs text-white dark:bg-emerald-600 xs:text-sm"
+                    >
+                    {{file.comment_product.all|length}}
+                    </span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div class="space-y-16 divide-y">
+              <div class="py-6" id="description">
+                <div class="relative mb-16 w-fit text-xl font-medium">
+
+                  {% comment %} <span
+                    class="absolute right-0 top-10 h-[3px] w-full rounded-full bg-primary"
+                  >
+                  </span> {% endcomment %}
+                </div>
+                <div
+                class="mb-6 md:max-h-[500px] md:overflow-hidden md:mb-10"
+                id="descriptionContainer"
+              >
+                <div
+                  class="space-y-4 text-sm leading-loose text-text/90 lg:text-base"
+                >
+                  <p>
+                    {% autoescape off %}
+                    {{file.description}}
+                    {% endautoescape %}
+                  </p>
+
+                  <div class="flex justify-center">
+                    <img
+                        src="{{media_url}}{{file.image}}"
+                        alt="{{file.product_name}} - image"
+                        class="mx-auto"
+                        loading="lazy"
+                        title="{{file.product_name}} - subject"
+                      />
+                  </div>
+                </div>
+              </div>
+
+                <div class="flex justify-center">
+                  <button
+                    class="btn-secondary-nobg hidden md:flex"
+                    id="toggleDescriptionButton"
+                  >
+                    مشاهده بیشتر
+                    <svg class="h-5 w-5">
+                      <use xlink:href="#chevron-left" />
+                    </svg>
+                  </button>
+                  <button
+                    id="descriptionButtonMobile"
+                    aria-controls="mobile-description-drawer-navigation"
+                    data-drawer-show="mobile-description-drawer-navigation"
+                    data-drawer-placement="bottom"
+                    data-drawer-target="mobile-description-drawer-navigation"
+                    type="button"
+                    class="btn-secondary-nobg md:hidden"
+                  >
+                    مشاهده بیشتر
+                    <svg class="h-5 w-5">
+                      <use xlink:href="#chevron-left" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="py-6" id="specs">
+                <div class="relative mb-16 w-fit text-xl font-medium">
+                  مشخصات
+
+                  <span
+                    class="absolute right-0 top-10 h-[3px] w-full rounded-full bg-primary"
+                  >
+                  </span>
+                </div>
+                <div
+                  class="mb-6 max-h-[500px] overflow-hidden md:mb-10"
+                  id="specsContainer"
+                >
+                  <ul class="space-y-6 text-sm">
+
+
+                    {% for fea in file.features_value.all %}
+
+                  {% if fea.feature.id != 4  %}
+
+                  <li class="grid grid-cols-3 gap-x-2 lg:grid-cols-5">
+                    <div class="col-span-1 text-text/60">{{fea.feature}}</div>
+                    <div
+                      class="col-span-2 border-b pb-4 text-text/90 lg:col-span-4"
+                    >
+                      <ul class="space-y-4">
+                        <li>{{fea.value}}</li>
+                      </ul>
+                    </div>
+                  </li>
+
+                  {% endif %}
+                    {% endfor %}
+
+
+                  </ul>
+                </div>
+                <div class="flex justify-center">
+                  <button
+                    class="btn-secondary-nobg hidden md:flex"
+                    id="toggleSpecsButton"
+                  >
+                    مشاهده بیشتر
+                    <svg class="h-5 w-5">
+                      <use xlink:href="#chevron-left" />
+                    </svg>
+                  </button>
+                  <button
+                    id="specsButtonMobile"
+                    class="btn-secondary-nobg md:hidden"
+                    aria-controls="mobile-spec-drawer-navigation"
+                    data-drawer-show="mobile-spec-drawer-navigation"
+                    data-drawer-placement="bottom"
+                    data-drawer-target="mobile-spec-drawer-navigation"
+                    type="button"
+                  >
+                    مشاهده بیشتر
+                    <svg class="h-5 w-5">
+                      <use xlink:href="#chevron-left" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="py-6" id="comments">
+                <div class="relative mb-16 w-fit text-xl font-medium">
+                  دیدگاه ها
+                  <span
+                    class="absolute right-0 top-10 h-[3px] w-full rounded-full bg-primary"
+                  >
+                  </span>
+                </div>
+
+
+                <div class="md:hidden">
+                        <div class="swiper product-comments-swiper">
+                          <div class="swiper-wrapper">
+                            <!-- Comment -->
+{% for comment in file.comment_product.all %}
+    {% if comment.comment_parent == None %}
+    <div class="swiper-slide">
+        <div class="flex h-64 flex-col rounded-lg border px-4 py-6">
+            {% if comment.is_suggest %}
+                <span class="text-green-500 flex items-center mt-2 relative" style="font-weight: 900; margin-bottom: 30px;">
+                    <svg class="h-5 w-5 absolute left-0" style="opacity: 0.2;">
+                        <use xlink:href="#like" />
+                    </svg>
+                    <span class="ml-6">پیشنهاد می‌کنم</span>
+                </span>
+            {% else %}
+                <span class="text-red-500 flex items-center mt-2 relative" style="font-weight: 900; margin-bottom: 30px;">
+                    <svg class="h-5 w-5 absolute left-0" style="opacity: 0.2;">
+                        <use xlink:href="#dislike" />
+                    </svg>
+                    <span class="ml-6">پیشنهاد نمی‌کنم</span>
+                </span>
+            {% endif %}
+
+            <div class="flex-grow space-y-2">
+                <span style='color:gray;' class="text-sm leading-relaxed">
+                    {{ comment.user }}
+                </span>
+                <p class="line-clamp-4 text-sm leading-relaxed text-text/90">
+                    {{ comment.text }}
+                </p>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-x-4">
+                    <button class="relative text-primary">
+                        <svg class="h-6 w-6"><use xlink:href="#like" /></svg>
+                        <span class="absolute -right-2 top-6 text-sm">...</span>
+                    </button>
+                    <button class="relative text-red-500 dark:text-red-400">
+                        <svg class="h-6 w-6"><use xlink:href="#dislike" /></svg>
+                        <span class="absolute -right-2 top-6 text-sm">...</span>
+                    </button>
+                </div>
+                <div class="flex items-center gap-x-2">
+                    <div class="text-xs text-text/60">
+                         {{ comment.register_date|date:"Y/m/d" }}
+                    </div>
+                    <span class="h-3 w-px rounded-full bg-background dark:bg-muted/10"></span>
+                    <div class="text-xs text-text/60">خریدار</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endfor %}
+                            <!-- Load More -->
+                            <div class="swiper-slide">
+                              <div
+                                class="flex h-64 items-center justify-center"
+                              >
+                                <div
+                                  aria-controls="mobile-comments-drawer-navigation"
+                                  data-drawer-show="mobile-comments-drawer-navigation"
+                                  data-drawer-placement="bottom"
+                                  data-drawer-target="mobile-comments-drawer-navigation"
+                                  type="button"
+                                  class="flex flex-col items-center justify-center gap-y-4 text-primary"
+                                >
+                                  <div
+                                    class="rounded-full border border-emerald-500 p-2 dark:border-emerald-400"
+                                  >
+                                    <svg class="h-6 w-6">
+                                      <use xlink:href="#chevron-left" />
+                                    </svg>
+                                  </div>
+                                  <div>مشاهده بیشتر</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                <div>
+                  <div class="container mx-auto p-4">
+    <div class="grid grid-cols-12 gap-y-8 md:gap-8">
+        <!-- Submit New Comment -->
+        <div class="col-span-12 md:col-span-4 lg:col-span-3">
+            <div class="grid grid-cols-2 gap-4 md:sticky md:top-32">
+                <div class="text-lg">ثبت دیدگاه</div>
+
+                <div class="col-span-2">
+                    <!-- Suggestion -->
+                    <div id='text-comment' class="mb-4 text-sm text-gray-600">
+                        این محصول را به دیگران پیشنهاد
+                    </div>
+                    <fieldset class="flex items-center gap-4">
+                        <legend class="sr-only">Suggestion</legend>
+
+                        <div class="w-full">
+                            <input
+                                type="radio"
+                                name="suggest"
+                                value="suggest-like"
+                                id="suggest-like"
+                                class="peer hidden"
+                                checked
+                            />
+                            <label
+                                for="suggest-like"
+                                class="relative block cursor-pointer rounded-lg border-2 p-2 shadow peer-checked:border-emerald-500 hover:border-gray-300"
+                            >
+                                <div class="flex items-center gap-x-2 text-emerald-600">
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
+                                    </svg>
+                                    <p class="text-sm xs:text-base">می‌کنم</p>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="w-full">
+                            <input
+                                type="radio"
+                                name="suggest"
+                                value="suggest-dislike"
+                                id="suggest-dislike"
+                                class="peer hidden"
+                            />
+                            <label
+                                for="suggest-dislike"
+                                class="relative block cursor-pointer rounded-lg border-2 p-2 shadow peer-checked:border-red-500 hover:border-gray-300"
+                            >
+                                <div class="flex items-center gap-x-2 text-red-500">
+                                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z"/>
+                                    </svg>
+                                    <p class="text-sm xs:text-base">نمی‌کنم</p>
+                                </div>
+                            </label>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="col-span-2">
+                    <label
+                        for="comment"
+                        class="relative block rounded-lg border-2 shadow"
+                    >
+                        <textarea
+                            type="text"
+                            id="comment"
+                            rows="3"
+                            class="peer w-full rounded-lg border-none bg-transparent px-4 py-3 placeholder-transparent focus:outline-none focus:ring-0"
+                            placeholder="متن"
+                        ></textarea>
+
+                        <span
+                            class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-white px-2 py-0.5 text-sm text-gray-700 transition-all peer-placeholder-shown:top-6 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm"
+                        >
+                            متن دیدگاه
+                        </span>
+                    </label>
+                </div>
+
+                <div class="col-span-2 flex justify-end">
+    {% csrf_token %}  <button
+        style='background-color:green;'
+        onclick='Save_comment({{ file.id }})'
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold w-full px-4 py-2 md:w-auto rounded-lg transition-colors">
+        ارسال دیدگاه
+    </button>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+                    </div>
+                    <!-- Comments -->
+                    <div
+                    class="order-first col-span-12 mb-10 max-h-[500px] overflow-hidden md:order-last md:col-span-8 lg:col-span-9"
+                    id="commentsContainer"
+
+                  >
+                    <!-- Desktop Comments -->
+     <!-- Desktop Comments -->
+<div class="hidden md:block">
+  <!-- بخش کامنت‌ها با قابلیت اسکرول -->
+  <div id="commentsContainer"
+       class="max-h-[500px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800 rounded-lg">
+    <ul class="space-y-6 comments">
+      {% for comment in file.comment_product.all %}
+        {% if comment.comment_parent == None %}
+        <li>
+          <div class="rounded-lg border p-6 bg-white dark:bg-gray-800 shadow-sm">
+            <!-- نام و دکمه پاسخ -->
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-base font-semibold text-text">
+                {{ comment.user.name }} {{ comment.user.family }}
+              </span>
+              <button
+                type="button"
+                class="btn-secondary-nobg text-sm"
+                onclick="setParentId({{ comment.id }})"
+                data-parent-id="{{ comment.id }}">
+
+
+              </button>
+            </div>
+
+            <!-- پیشنهاد یا عدم پیشنهاد -->
+            <div class="flex items-center gap-3 mb-4">
+              {% if comment.is_suggest %}
+                <svg class="h-5 w-5 text-green-500"><use xlink:href="#like" /></svg>
+                <span class="text-green-600 font-bold">پیشنهاد می‌کنم</span>
+              {% else %}
+                <svg class="h-5 w-5 text-red-500"><use xlink:href="#dislike" /></svg>
+                <span class="text-red-600 font-bold">پیشنهاد نمی‌کنم</span>
+              {% endif %}
+            </div>
+
+            <!-- متن کامنت -->
+            <p class="text-sm leading-relaxed text-text/90 mb-4">
+              {{ comment.text }}
+            </p>
+
+            <!-- پاسخ‌ها -->
+            {% if comment.parent_comment.all %}
+            <ul class="space-y-3 mt-4">
+              {% for reply in comment.parent_comment.all %}
+              <li class="rounded-lg bg-gray-100 dark:bg-gray-700 p-3">
+                <p class="text-sm text-text/90">{{ reply.text }}</p>
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+        </li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+
+      <!-- product Gallery modal -->
+      <div
+        id="product-gallery-modal"
+        tabindex="-1"
+        aria-hidden="true"
+        class="main-scroll fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-y-auto overflow-x-hidden p-4 md:inset-0"
+      >
+        <div class="relative max-h-full w-full max-w-7xl">
+          <div
+            class="divide-y overflow-hidden rounded-lg bg-muted shadow ring-1 ring-gray-100 dark:ring-white/5"
+          >
+            <div class="px-4 py-5 sm:px-6">
+              <div class="flex items-center justify-between">
+                <div class="line-clamp-1 md:text-lg">
+                 {{file.title}}
+                </div>
+                <button
+                  class=" "
+                  data-modal-hide="product-gallery-modal"
+                  type="button"
+                >
+                  <svg class="h-5 w-5">
+                    <use xlink:href="#close" />
+                  </svg>
+
+                  <span class="sr-only">Close menu</span>
+                </button>
+              </div>
+            </div>
+            <div>
+              <div class="flex flex-col gap-4">
+                <div class="border-b p-6">
+                  <div class="swiper product-image-desktop-swiper">
+                    <div class="swiper-wrapper">
+
+                      {% for img in file.gallery.all %}
+
+
+                      <div class="swiper-slide">
+                        <img
+                          src="{{media_url}}{{img.image}}"
+                          alt="{{file.product_name}} - gallery"
+                          class="mx-auto min-h-[500px] min-w-[500px]"
+                          loading="lazy"
+                          title="{{file.title}} - subject"
+                        />
+                      </div>
+
+
+                      {% endfor %}
+
+                    </div>
+                    <div class="swiper-pagination"></div>
+                    <div class="swiper-button-next hidden md:flex"></div>
+                    <div class="swiper-button-prev hidden md:flex"></div>
+                  </div>
+                </div>
+                <div class="p-6">
+                  <div class="swiper product-image-desktop-2-swiper">
+                    <div class="swiper-wrapper justify-center">
+
+                     {% for img in file.gallery.all %}
+                     <div class="swiper-slide rounded-lg border">
+                      <img
+                        src="{{media_url}}{{img.image}}"
+                        alt="{{file.title}}-gallery"
+                        class="mx-auto h-25 w-25"
+                        loading="lazy"
+                        title="{{file.title}} - subject"
+                      />
+                    </div>
+                     {% endfor %}
+
+
+                    </div>
+                    <div class="swiper-button-next hidden md:flex"></div>
+                    <div class="swiper-button-prev hidden md:flex"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Mobile Comments modal -->
+      <div
+        aria-labelledby="mobile-comments-drawer-navigation-label"
+        class="fixed bottom-0 left-0 right-0 z-40 h-full w-full translate-y-full bg-muted transition-transform duration-300"
+        id="mobile-comments-drawer-navigation"
+        tabindex="-1"
+      >
+        <div
+          class="flex items-center justify-between gap-x-4 border-b p-4 pb-5"
+        >
+          <div class="text-lg text-text/90">دیدگاه ها</div>
+          <button
+            aria-controls="mobile-comments-drawer-navigation"
+            class="inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-text/90 hover:bg-zinc-100 hover:text-gray-900 dark:hover:bg-black dark:hover:text-white"
+            data-drawer-hide="mobile-comments-drawer-navigation"
+            type="button"
+          >
+            <svg class="h-5 w-5">
+              <use xlink:href="#close" />
+            </svg>
+
+            <span class="sr-only">Close menu</span>
+          </button>
+        </div>
+
+        <div class="h-full overflow-y-auto p-4 pb-32">
+          <ul class="space-y-6">
+
+
+            {% for comment in file.comment_product.all %}
+            {% if comment.comment_parent == None %}
+
+            <li>
+              <div class="flex h-64 flex-col rounded-lg border px-4 py-6">
+                <!-- head -->
+                <div class="flex items-center justify-between mb-4">
+                  {% for like_unlike in comment.comment_request.all %}
+                                          {% if like_unlike.like %}
+                                              <span style='color:green; font-weight:900; margin-bottom: 30px;' class="text-green-500 flex items-center mt-2"> <br><br>
+                                                  پیشنهاد می‌کنم
+                                                  <svg class="h-5 w-5">
+                                                    <use xlink:href="#like" />
+                                                </svg>
+                                              </span>
+                                          {% elif like_unlike.unlike %}
+                                              <span style='font-weight:900; margin-bottom: 30px;' class="text-red-500 flex items-center mt-2"> <br><br>ii
+                                                  پیشنهاد نمی‌کنم
+                                                  <svg class="h-5 w-5">
+                                                    <use xlink:href="#dislike" />
+                                                </svg>
+                                              </span>
+                                          {% endif %}
+                                      {% endfor %}
+                  <button
+                    data-modal-target="submit-answers-to-comments-drawer-navigation"
+                    data-modal-toggle="submit-answers-to-comments-drawer-navigation"
+                    type="button"
+                    class="btn-secondary-nobg"
+                    onclick='show_replies({{comment.id}}); setParentId({{comment.id}}) '
+                  >
+
+
+                  </button>
+                </div>
+                <!-- Comment -->
+                <div class="flex-grow space-y-2">
+                  <span class="text-sm leading-relaxed">
+                   {{comment.user.name}} {{comment.user.family}}
+                  </span>
+                  <p class="line-clamp-4 text-sm leading-relaxed text-text/90">
+                    {{comment.text}}
+                  </p>
+                </div>
+                <!-- Footer -->
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-x-4">
+                    <button class="relative text-primary">
+                      <svg class="h-6 w-6">
+                        <use xlink:href="#like" />
+                      </svg>
+                      <span class="absolute -right-2 top-6 text-sm"> 32 </span>
+                    </button>
+                    <button class="relative text-red-500 dark:text-red-400">
+                      <svg class="h-6 w-6">
+                        <use xlink:href="#dislike" />
+                      </svg>
+                      <span class="absolute -right-2 top-6 text-sm"> 76 </span>
+                    </button>
+                  </div>
+                  <div class="flex items-center gap-x-2">
+                    <div class="text-xs text-text/60">{{comment.get_jalali_register_date}}</div>
+                    <span
+                      class="h-3 w-px rounded-full bg-background dark:bg-muted/10"
+                    ></span>
+                    <div class="text-xs text-text/60">خریدار</div>
+                  </div>
+                </div>
+              </div>
+            </li>
+
+            {% endif %}
+
+            {% endfor %}
+
+          </ul>
+        </div>
+      </div>
+      <!-- Mobile Spec modal -->
+      <div
+        aria-labelledby="mobile-spec-drawer-navigation-label"
+        class="fixed bottom-0 left-0 right-0 z-40 h-full w-full translate-y-full bg-muted transition-transform duration-300"
+        id="mobile-spec-drawer-navigation"
+        tabindex="-1"
+      >
+        <div
+          class="flex items-center justify-between gap-x-4 border-b p-4 pb-5"
+        >
+           <div class="text-lg text-text/90">مشخصات</div>
+          <button
+            aria-controls="mobile-spec-drawer-navigation"
+            class="inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-text/90 hover:bg-zinc-100 hover:text-gray-900 dark:hover:bg-black dark:hover:text-white"
+            data-drawer-hide="mobile-spec-drawer-navigation"
+            type="button"
+          >
+            <svg class="h-5 w-5">
+              <use xlink:href="#close" />
+            </svg>
+
+            <span class="sr-only">Close menu</span>
+          </button>
+        </div>
+
+        {% comment %} <div class="h-full overflow-y-auto p-4 pb-32">
+          <ul class="space-y-6 text-sm">
+            <li class="grid grid-cols-3 gap-x-2 lg:grid-cols-5">
+              <div class="col-span-1 text-text/60">جنس</div>
+              <div class="col-span-2 border-b pb-4 text-text/90 lg:col-span-4">
+                <ul class="space-y-4">
+                  <li>پارچه</li>
+                </ul>
+              </div>
+            </li>
+            <li class="grid grid-cols-3 gap-x-2 lg:grid-cols-5">
+              <div class="col-span-1 text-text/60">جنس زیره</div>
+              <div class="col-span-2 border-b pb-4 text-text/90 lg:col-span-4">
+                <ul class="space-y-4">
+                  <li>لاستیک</li>
+                </ul>
+              </div>
+            </li>
+            <li class="grid grid-cols-3 gap-x-2 lg:grid-cols-5">
+              <div class="col-span-1 text-text/60">نحوه بسته شدن کفش</div>
+              <div class="col-span-2 border-b pb-4 text-text/90 lg:col-span-4">
+                <ul class="space-y-4">
+                  <li>بندی</li>
+                </ul>
+              </div>
+            </li>
+            <li class="grid grid-cols-3 gap-x-2 lg:grid-cols-5">
+              <div class="col-span-1 text-text/60">ویژگی‌های زیره</div>
+              <div class="col-span-2 pb-4 text-text/90 lg:col-span-4">
+                <ul class="space-y-4">
+                  <li>انعطاف پذیر</li>
+                  <li>دارای بالشتک هوا</li>
+                  <li>قابلیت ارتجاعی</li>
+                  <li>قابلیت گردش هوا</li>
+                  <li>کاهش فشار وارده</li>
+                  <li>مقاوم در برابر سایش</li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </div> {% endcomment %}
+      </div>
+      <!-- Mobile Description modal -->
+      <div
+        aria-labelledby="mobile-description-drawer-navigation-label"
+        class="fixed bottom-0 left-0 right-0 z-40 h-full w-full translate-y-full bg-muted transition-transform duration-300"
+        id="mobile-description-drawer-navigation"
+        tabindex="-1"
+      >
+        <div
+          class="flex items-center justify-between gap-x-4 border-b p-4 pb-5"
+        >
+          <div class="text-lg text-text/90">معرفی</div>
+          <button
+            aria-controls="mobile-description-drawer-navigation"
+            class="inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-text/90 hover:bg-zinc-100 hover:text-gray-900 dark:hover:bg-black dark:hover:text-white"
+            data-drawer-hide="mobile-description-drawer-navigation"
+            type="button"
+          >
+            <svg class="h-5 w-5">
+              <use xlink:href="#close" />
+            </svg>
+
+            <span class="sr-only">Close menu</span>
+          </button>
+        </div>
+
+
+      </div>
+
+      <!-- Submit answer to Comments modal -->
+
+      <div
+      id="submit-answers-to-comments-drawer-navigation"
+      tabindex="-1"
+      aria-hidden="true"
+      class="main-scroll fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-y-auto overflow-x-hidden p-4 md:inset-0"
+      >
+        <div class="relative max-h-full w-full max-w-2xl">
+          <div
+            class="divide-y overflow-hidden rounded-lg bg-muted shadow ring-1 ring-gray-100 dark:ring-white/5"
+          >
+            <div class="px-4 py-5 sm:px-6">
+              <div class="flex items-center justify-between">
+            <div class="md:text-lg">ثبت پاسخ</div>
+
+
+                <button
+                  class=" "
+                  data-modal-hide="submit-answers-to-comments-drawer-navigation"
+                  type="button"
+
+                >
+                  <svg class="h-5 w-5">
+                    <use xlink:href="#close" />
+                  </svg>
+
+                  <span class="sr-only">Close menu</span>
+                </button>
+              </div>
+            </div>
+            <div class="space-y-6 px-4 py-5 sm:p-6">
+              <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                  <label
+                    for="title"
+                    class="relative block rounded-lg border shadow-base"
+                  >
+                    <input
+                      type="text"
+                      id="title"
+                      class="peer w-full rounded-lg border-none bg-transparent px-4 py-3 placeholder-transparent focus:outline-none focus:ring-0"
+                      placeholder="عنوان دیدگاه"
+                    />
+
+                    <span
+                      class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/90 transition-all peer-placeholder-shown:top-1/2 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm"
+                    >
+                      عنوان دیدگاه
+                    </span>
+                  </label>
+                </div>
+                <div class="col-span-2">
+                  <label
+                    for="comment"
+                    class="relative block rounded-lg border shadow-base"
+                  >
+                    <textarea
+                      type="text"
+                      id="comment2"
+                      rows="3"
+                      class="main-scroll peer w-full rounded-lg border-none bg-transparent px-4 py-3 placeholder-transparent focus:outline-none focus:ring-0"
+                      placeholder="متن دیدگاه"
+                    ></textarea>
+
+
+                    <form id="reply-form">
+                      <input type="hidden" id="parent-id-field" name="parent_id" value="">
+                      <!-- سایر فیلدها و دکمه‌ها -->
+                  </form>
+
+
+                    <span
+                      class="pointer-events-none absolute start-2.5 top-0 -translate-y-1/2 bg-muted px-2 py-0.5 text-sm text-text/90 transition-all peer-placeholder-shown:top-6 peer-placeholder-shown:text-base peer-focus:top-0 peer-focus:text-sm"
+                    >
+                      متن دیدگاه
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div class="flex justify-end">
+                <button
+                onclick=""
+                class="btn-primary w-full px-4 py-2 md:w-auto">
+                  ثبت پاسخ
+                </button>
+              </div>
+              <div class="md:hidden space-y-6">
+                <div class=" ">دیگر پاسخ ها</div>
+                <div class="swiper product-comments-swiper">
+                  <div class="swiper-wrapper">
+                    <!-- Comment -->
+                    <!-- Comment -->
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+<!-- در بخش head یا قبل از بستن body -->
+<script>
+// گرفتن CSRF Token از کوکی‌ها
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+
+async function toggleFavorite(fileId) {
+  const btn = document.getElementById(`favorite-btn-${fileId}`);
+  if (!btn) return;
+
+  const heartFull = btn.querySelector(".heart-full");
+  const heartEmpty = btn.querySelector(".heart-empty");
+  const tooltip = document.getElementById("add-to-favorite");
+
+  // انیمیشن کلیک
+  btn.classList.add("scale-90");
+  setTimeout(() => btn.classList.remove("scale-90"), 150);
+
+  try {
+    const response = await fetch(`/order/toggle-favorite/${fileId}/`, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest"
+      },
+      credentials: "same-origin"
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      if (data.status === "added") {
+        // تغییر به قلب پر (قرمز)
+        heartFull.style.display = "block";
+        heartEmpty.style.display = "none";
+
+        heartFull.classList.add("text-red-500");
+        heartEmpty.classList.remove("text-gray-400");
+
+        if (tooltip) tooltip.innerHTML = "حذف از علاقه‌مندی‌ها";
+
+        // انیمیشن پرش
+        btn.classList.add("animate-bounce");
+        setTimeout(() => btn.classList.remove("animate-bounce"), 1000);
+
+      } else if (data.status === "removed") {
+        // تغییر به قلب خالی (سیاه/خاکستری)
+        heartFull.style.display = "none";
+        heartEmpty.style.display = "block";
+
+        heartFull.classList.remove("text-red-500");
+        heartEmpty.classList.remove("text-red-500");
+        heartEmpty.classList.add("text-gray-400"); // یا text-black اگر بخوای سیاه شه
+
+        if (tooltip) tooltip.innerHTML = "افزودن به علاقه‌مندی‌ها";
+      }
+    } else {
+      alert(data.message || "خطایی رخ داد");
+    }
+
+  } catch (error) {
+    console.error("Error:", error);
+    alert("خطایی در ارتباط با سرور رخ داد");
+  }
+}
+
+
+// برای اینکه از هرجایی بشه صدا زد
+window.toggleFavorite = toggleFavorite;
+</script>
+
+
+<script>
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    function Save_comment(fileId) {
+        // ۱. گرفتن مقادیر از فرم
+        const commentText = document.getElementById('comment').value;
+        const suggestionRadio = document.querySelector('input[name="suggest"]:checked');
+        const isSuggest = (suggestionRadio.value === 'suggest-like'); // true اگر "می‌کنم" انتخاب شده باشد
+
+        // ۲. اعتبارسنجی اولیه
+        if (!commentText.trim()) {
+            alert('لطفاً متن دیدگاه خود را وارد کنید.');
+            return;
+        }
+
+        // ۳. ساختن بدنه درخواست (Payload)
+        const data = {
+            file_id: fileId,
+            text: commentText,
+            is_suggest: isSuggest,
+        };
+
+        // ۴. ارسال درخواست AJAX به سرور
+        fetch("{% url 'file:save_comment' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken  // توکن امنیتی جنگو
+            },
+            body: JSON.stringify(data) // تبدیل داده به فرمت JSON
+        })
+        .then(response => response.json()) // تبدیل پاسخ سرور به JSON
+        .then(result => {
+            // ۵. نمایش پیام به کاربر
+
+            showSuccessModal("commentSuccessModal", "cartSuccessSound");
+            if (result.status === 'success') {
+                document.getElementById('comment').value = ''; // خالی کردن فیلد متن
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('خطایی در ارتباط با سرور رخ داد.');
+        });
+    }
+
+
+
+</script>
+    <script>
+
+
+      document.addEventListener('DOMContentLoaded', function() {
+    let user = document.getElementById('user1');
+    let product = document.getElementById('product1');
+    let value1 = user.innerHTML;
+    let value2 = file.innerHTML;
+
+    confirm_seen(value1, value2);
+  });
+
+
+
+    // Variable to store the parent comment ID
+    /// متغیر برای ذخیره ID دیدگاه والد
+
+
+
+    function show_replies(rep_id){
+      $.ajax({
+
+        type:'GET',
+        url:'/comment/replies/',
+        data : {
+          reply_id : rep_id
+        },
+
+        success: function(res) {
+        }
+
+      });
+
+
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      check_favorite_status({{ user.id }}, {{ file.id }});
+  });
+
+
+
+      //
+      const copyToClipboardSocialShareDesktop = (button) => {
+        const linkToCopy = window.location.href; // گرفتن آدرس صفحه فعلی
+        if (linkToCopy) {
+          navigator.clipboard
+            .writeText(linkToCopy)
+            .then(function () {
+              const copyToClipboardSocialShareText = document.getElementById(
+                "copyToClipboardSocialShareText"
+              );
+              copyToClipboardSocialShareText.innerText = "کپی شد !";
+
+              // بازگرداندن متن به حالت اولیه پس از 5 ثانیه
+              setTimeout(function () {
+                copyToClipboardSocialShareText.innerText = "کپی کردن لینک";
+              }, 5000);
+            })
+            .catch(function (err) {
+              console.error("مشکلی در عملیات پیش آمد", err);
+            });
+        }
+      };
+
+      const copyToClipboardSocialShareMobile = (button) => {
+        const linkToCopy =  window.location.href;
+        console.log(linkToCopy);
+        if (linkToCopy) {
+          navigator.clipboard
+            .writeText(linkToCopy)
+            .then(function () {
+              const copyToClipboardSocialShareNotifyMobile =
+                document.getElementById(
+                  "notify-copied-social-share-link-mobile",
+                );
+              copyToClipboardSocialShareNotifyMobile.classList.remove("hidden");
+
+              // Revert the text after 5 seconds
+              setTimeout(function () {
+                copyToClipboardSocialShareNotifyMobile.classList.add("hidden");
+              }, 5000);
+            })
+            .catch(function (err) {
+              console.error("مشکلی در عملیات پیش آمد", err);
+            });
+        }
+      };
+
+      // Define a function to handle the toggling of content and buttons
+      function toggleContent(container, button) {
+        if (container.offsetHeight !== 500) {
+          button.remove();
+        }
+
+        button.addEventListener("click", () => {
+          if (container.classList.contains("max-h-[500px]")) {
+            container.classList.remove("max-h-[500px]");
+            button.innerHTML =
+              'بستن <svg class="w-5 h-5"><use xlink:href="#chevron-left"/></svg>';
+          } else {
+            container.classList.add("max-h-[500px]");
+            button.innerHTML =
+              'مشاهده بیشتر <svg class="w-5 h-5"><use xlink:href="#chevron-left"/></svg>';
+          }
+        });
+      }
+
+      // Find and toggle the description content
+      const descriptionContainer = document.getElementById(
+        "descriptionContainer",
+      );
+      const toggleDescriptionButton = document.getElementById(
+        "toggleDescriptionButton",
+      );
+      const descriptionButtonMobile = document.getElementById(
+        "descriptionButtonMobile",
+      );
+      if (descriptionContainer.offsetHeight !== 500) {
+        descriptionButtonMobile.remove();
+      }
+      toggleContent(descriptionContainer, toggleDescriptionButton);
+
+      // Find and toggle the specs content
+      const specsContainer = document.getElementById("specsContainer");
+      const toggleSpecsButton = document.getElementById("toggleSpecsButton");
+      const specsButtonMobile = document.getElementById("specsButtonMobile");
+      if (specsContainer.offsetHeight !== 500) {
+        specsButtonMobile.remove();
+      }
+      toggleContent(specsContainer, toggleSpecsButton);
+
+      // Find and toggle the comments content
+      const commentsContainer = document.getElementById("commentsContainer");
+      const toggleCommentsButton = document.getElementById(
+        "toggleCommentsButton",
+      );
+
+      toggleContent(commentsContainer, toggleCommentsButton);
+
+// تابع برای تغییر وضعیت علاقه‌مندی
+    </script>
+
+
+
+{% endblock content %}

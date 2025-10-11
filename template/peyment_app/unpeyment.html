@@ -1,0 +1,76 @@
+{% extends "main_template.html" %}
+
+
+
+
+
+{% block content %}
+<main class="flex-grow bg-background pb-14 pt-36 xs:pt-36">
+    <div class="container">
+      <div class="mx-auto max-w-[500px] rounded-lg bg-muted p-5">
+        <!-- Head -->
+        <div class="flex flex-col items-center justify-center gap-y-4">
+          <div>
+            <svg class="h-20 w-20 text-red-500 dark:text-red-400">
+              <use xlink:href="#close" />
+            </svg>
+          </div>
+          <h1
+            class="mb-8 text-center text-base text-red-500 dark:text-red-400 md:text-lg lg:text-xl"
+          >
+            پرداخت سفارش  ناموفق بود!
+          </h1>
+        </div>
+
+        <div class="mb-10 space-y-6">
+          <div class="flex gap-x-2">
+            <div>
+              <svg class="h-6 w-6 text-red-500 dark:text-red-400">
+                <use xlink:href="#warning" />
+              </svg>
+            </div>
+            <p class="text-sm leading-loose text-text/90 md:text-base">
+              سفارش شما تا
+              <span class="text-red-500 dark:text-red-400">35</span> دقیقه
+              دیگر حذف خواهد شد. برای تکمیل نهایی سفارش، نسبت به پرداخت
+              اقدام نمایید
+            </p>
+          </div>
+
+          <div class="flex gap-x-2">
+            <div>
+              <svg class="h-6 w-6 text-red-500 dark:text-red-400">
+                <use xlink:href="#warning" />
+              </svg>
+            </div>
+            <p class="text-sm leading-loose text-text/90 md:text-base">
+              چنانچه مبلغی از حساب شما کسر شده است، تا ۲۴ ساعت آینده به حساب
+              شما باز خواهد گشت.
+            </p>
+          </div>
+        </div>
+        <div class="mb-6 flex items-center justify-center text-sm">
+          <div class="flex flex-col items-center gap-y-2 md:gap-y-4">
+            <p class="font-medium md:text-lg">جرئیات پرداخت</p>
+            <div class="flex items-center gap-x-4">
+              {% comment %} <p class="text-text/90">
+                شماره پیگیری : <span class="tracking-wider">24431531</span>
+              </p> {% endcomment %}
+              {% comment %} <p class="text-text/90">
+                تاریخ : <span> 10 / مهر / ۱۴۰۲</span>
+              </p> {% endcomment %}
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-x-4">
+          <div class="w-full">
+            <a href="{% url 'dp:order_info' %}" class="btn-primary py-3"> پیگیری سفارش </a>
+          </div>
+          <div class="w-full">
+            <a href="#" class="btn-secondary py-3"> برگشت </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+{% endblock content %}

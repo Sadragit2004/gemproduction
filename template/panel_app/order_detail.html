@@ -1,0 +1,333 @@
+{% extends "dp_template.html" %}
+{% load humanize %}
+{% block content %}
+
+<div class="sr-only"></div>
+<div class="flex min-h-screen flex-col">
+  <main class="flex-grow bg-background pb-14 pt-36 xs:pt-36">
+    <div class="container">
+      <div class="grid grid-cols-12 gap-4">
+        <!-- sidebar -->
+        {% include "panel_app/partials/side_bar.html" %}
+
+        <!-- content -->
+        <div class="col-span-12 lg:col-span-9">
+          <div class="rounded-lg bg-muted p-5 shadow-base">
+            <div class="mb-16 flex flex-col items-center justify-between gap-y-8 xs:flex-row">
+              <!-- Title -->
+              <h1 class="relative w-fit text-xl font-medium">
+                جزئیات سفارش {{order.id}}#
+                <span class="absolute right-0 top-10 h-[3px] w-full rounded-full bg-primary"></span>
+              </h1>
+
+              <span id="jalali-date">{{ order.get_jalali_createAt }}</span>
+
+              {% if order.status == 'pending' %}
+              <a href="{% url 'order:CheckOrder' order_id=order.id %}" class="btn-secondary w-full px-4 py-2 xs:w-fit">
+                پرداخت
+                <svg class="h-5 w-5">
+                  <use xlink:href="#chevron-left" />
+                </svg>
+              </a>
+
+              {% else %}
+              <a href="" class="btn-secondary w-full px-4 py-2 xs:w-fit">
+                برگشت
+                <svg class="h-5 w-5">
+                  <use xlink:href="#chevron-left" />
+                </svg>
+              </a>
+              {% endif %}
+            </div>
+
+            <div class="mb-8">
+              <div class="rounded-lg border shadow-base">
+                <div class="p-4">
+                  <!-- head -->
+                  <div class="flex items-center justify-between pb-6">
+                    <div class="flex items-center gap-x-2 text-primary">
+                      <svg class="h-6 w-6">
+                        <use xlink:href="#outline-check"></use>
+                      </svg>
+                      <p class="font-medium md:text-lg">{{ order.get_status_display }}</p>
+                    </div>
+                  </div>
+
+                  <!-- content -->
+                  <div class="flex flex-col gap-6 pb-6 xl:flex-row xl:justify-between xl:gap-16">
+                    <div class="flex flex-col gap-4 md:flex-row">
+                      <div class="flex items-center justify-between gap-x-2 md:justify-start">
+                        <div class="text-sm text-text/60 md:text-base">کد پیگیری سفارش</div>
+                        <div class="text-sm text-text/90 md:text-base">{{ order.orderCode }}</div>
+                      </div>
+                      <div class="flex items-center justify-between gap-x-2 md:justify-start">
+                        <div class="text-sm text-text/60 md:text-base">مبلغ کل</div>
+                        <div class="text-primary">
+                          <span class="font-bold md:text-lg">{{ order.get_order_total_price|intcomma }}</span>
+                          <span class="text-sm md:text-base">ریال</span>
+                        </div>
+                      </div>
+                      <div class="flex items-center justify-between gap-x-2 md:justify-start">
+                        <div class="text-sm text-text/60 md:text-base">تاریخ</div>
+                        <div class="text-sm text-text/90 md:text-base">{{ order.get_jalali_createAt }}</div>
+                      </div>
+                    </div>
+                    <div class="flex flex-grow flex-col gap-y-4">
+                      <!-- order status -->
+                      {% with status_info=order.status_info %}
+                      <div class="flex items-center gap-x-2 text-yellow-500 dark:text-yellow-400">
+                        {{ status_info.svg_stutus|safe }}
+                        <p class="text-sm font-medium md:text-base">{{ status_info.title_status }}</p>
+                      </div>
+                      <!-- order step -->
+                      <div class="relative h-2 w-full rounded-full bg-background dark:bg-zinc-800">
+                        <span class="absolute inset-y-0 right-0 rounded-full bg-yellow-500 dark:bg-yellow-400"
+                              style="width: {{ status_info.percent_develop }}%"></span>
+                      </div>
+                      <!-- order date -->
+                      <div class="flex items-center justify-between text-sm text-yellow-500 dark:text-yellow-400 md:text-base">
+                        <span>{{ order.get_jalali_createAt }}</span>
+                      </div>
+                      {% endwith %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-8">
+              <div class="rounded-lg border p-4 shadow-base">
+                <div class="mb-6 flex flex-col gap-4 md:flex-row flex-wrap">
+                  <div class="flex justify-between gap-x-2 lg:justify-start">
+                    <div class="text-sm text-text/60 md:text-base">مبلغ مرسوله</div>
+                    <div class="text-primary">
+                      <span class="font-bold md:text-lg">{{ order.get_order_total_price|intcomma }}</span>
+                      <span class="text-sm md:text-base">ریال</span>
+                    </div>
+                  </div>
+                  <div class="flex justify-between gap-x-2 lg:justify-start">
+                    <div class="text-sm text-text/60 md:text-base">تخفیف کالا ها</div>
+                    <div class="text-red-500 dark:text-red-400">
+                      <span class="font-bold md:text-lg">{{ order.get_discounted_amount|intcomma }}</span>
+                      <span class="text-sm md:text-base">ریال</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {% if address %}
+            <div class="mb-8">
+              <h2 class="mb-8 flex items-center gap-x-4 text-lg text-text/90">
+                <span class="h-2 w-2 rounded-full bg-primary"></span>
+                آدرس تحویل سفارش
+              </h2>
+              <div class="block rounded-lg border p-4 shadow-base hover:border-border/50 dark:hover:border-white/10">
+                <div class="mb-4 flex items-center justify-between gap-x-2 sm:mb-2">
+                  <p class="line-clamp-2 h-10 text-sm text-text/90 xs:text-base sm:line-clamp-1 sm:h-6">
+                    {{ address.address }}
+                  </p>
+                </div>
+                <div class="flex items-center justify-between gap-x-2">
+                  <p class="line-clamp-1 text-sm text-text/60">
+                    {{ request.user.name }} {{ request.user.family }}
+                  </p>
+                  <div>
+                    <button data-modal-target="address-change-modal" data-modal-toggle="address-change-modal"
+                            class="btn-primary-nobg text-sm xs:px-4 xs:py-2 md:text-base">
+                      <svg class="h-5 w-5">
+                        <use xlink:href="#address-edit" />
+                      </svg>
+                      تغییر آدرس تحویل
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="mb-8">
+              <h2 class="mb-8 flex items-center gap-x-4 text-lg text-text/90">
+                <span class="h-2 w-2 rounded-full bg-primary"></span>
+                اقلام سفارش
+                <span class="text-sm text-text/60"> ( {{ order.orders_details.all|length }} کالا ) </span>
+              </h2>
+
+              <!-- بخش اقلام سفارش -->
+              <ul class="divide-y">
+                {% for detail in order.orders_details.all %}
+                <li>
+                  <div class="py-4 sm:py-6">
+                    <div class="grid grid-cols-12 gap-4 items-center">
+                      <!-- Image -->
+                      <div class="col-span-3 sm:col-span-2 flex justify-center">
+                        <a href="{{ detail.files.get_absolute_url }}">
+                          <img alt="{{ detail.files.title }} - image"
+                               class="w-20 h-20 object-cover rounded-lg sm:w-24 sm:h-24"
+                               src="{{ detail.files.image.url }}" />
+                        </a>
+                      </div>
+
+                      <!-- File info -->
+                      <div class="col-span-6 sm:col-span-6 flex flex-col justify-center">
+                        <h3 class="text-sm sm:text-base font-medium text-text/90">
+                          {{ detail.files.title }}
+                        </h3>
+                        <div class="flex items-center gap-2 mt-1">
+                          <span class="text-primary">
+                            <span class="font-bold">{{ detail.price|intcomma }}</span>
+                            <span class="text-xs sm:text-sm">تومان</span>
+                          </span>
+                          <span class="text-xs text-text/60">•</span>
+                          <span class="text-xs text-text/60">{{ detail.files.get_file_type_display }}</span>
+                        </div>
+                      </div>
+
+                      <!-- Download button / Status -->
+                      <div class="col-span-3 sm:col-span-4 flex flex-col items-center sm:items-end gap-2">
+                        {% if order.is_paid %}
+                          <div class="w-full max-w-xs">
+                            <div class="flex items-center gap-3">
+                             <!-- دکمه دانلود -->
+                               <button type="button"
+                                    class="download-btn"
+                                   >
+                              <span class="icon">
+                                <svg height="24" width="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M0 0h24v24H0z" fill="none"></path><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z" fill="currentColor"></path></svg>
+                              </span>
+                              <span class="download-link-container">{{ detail.files.downloadLink }}</span>
+                              <span class="text">دانلود</span>
+                            </button>
+
+                            </div>
+                          </div>
+                        {% else %}
+                          <span class="text-sm text-gray-500">پرداخت نشده</span>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Mobile Profile Menu Drawer -->
+  {% include "panel_app/partials/side_bar_mobile.html" %}
+
+  <!-- Address Change modal -->
+  <div id="address-change-modal" tabindex="-1" aria-hidden="true"
+       class="main-scroll fixed left-0 right-0 top-0 z-50 hidden h-[calc(100%-1rem)] max-h-full w-full overflow-y-auto overflow-x-hidden p-4 md:inset-0">
+    <div class="relative max-h-full w-full max-w-2xl">
+      <div class="divide-y overflow-hidden rounded-lg bg-muted shadow ring-1 ring-gray-100 dark:ring-white/5">
+        <div class="px-4 py-5 sm:px-6">
+          <div class="flex items-center justify-between">
+            <h3 class="md:text-lg">تغییر آدرس تحویل</h3>
+            <button class="" data-modal-hide="address-change-modal" type="button">
+              <svg class="h-5 w-5">
+                <use xlink:href="#close" />
+              </svg>
+              <span class="sr-only">Close menu</span>
+            </button>
+          </div>
+        </div>
+        <div class="space-y-6 px-4 py-5 sm:p-6">
+          <fieldset class="space-y-6">
+            <legend class="sr-only">Address</legend>
+            <form action="" method='post'>
+              {% csrf_token %}
+              <div>
+                <label for="new-address" class="block text-sm font-medium text-gray-700">آدرس جدید خود را وارد کنید</label>
+                {{ form.text }}
+              </div>
+              <div class="flex justify-end mt-4">
+                <button type='submit' class="btn-primary w-full px-4 py-2 md:w-auto">
+                  <span>ثبت آدرس جدید</span>
+                </button>
+              </div>
+            </form>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const downloadButtons = document.querySelectorAll('.download-btn');
+
+    downloadButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+
+            // --- تغییر اصلی اینجاست ---
+            // تگ span مخفی که حاوی لینک است را پیدا کن
+            const linkSpan = this.querySelector('.download-link-container');
+
+            // محتوای متنی آن (لینک) را بخوان و فاصله‌های اضافی را حذف کن
+            const downloadUrl = linkSpan ? linkSpan.textContent.trim() : null;
+
+            if (!downloadUrl) {
+                console.error('Download URL not found inside the hidden span!');
+                return;
+            }
+
+            // بقیه کد برای ایجاد لینک و کلیک روی آن بدون تغییر باقی می‌ماند
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.setAttribute('download', '');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+    });
+});
+
+
+// جلوگیری از راست کلیک
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    alert("امکان راست کلیک غیرفعال است!");
+});
+
+// جلوگیری از کلیدهای رایج DevTools
+document.addEventListener('keydown', function(e) {
+    // F12
+    if (e.key === "F12") {
+        e.preventDefault();
+
+    }
+    // Ctrl+Shift+I یا Ctrl+Shift+J یا Ctrl+U یا Ctrl+S
+    if ((e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J")) ||
+        (e.ctrlKey && (e.key === "U" || e.key === "S"))) {
+        e.preventDefault();
+       
+    }
+});
+</script>
+
+<style>
+/* استایل اضافی برای progress bar */
+.bg-blue-600 {
+  background-color: #2563eb;
+}
+.bg-red-600 {
+  background-color: #dc2626;
+}
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.download-link-container {
+  display: none;
+}
+</style>
+
+{% endblock content %}
