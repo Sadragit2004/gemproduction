@@ -5,7 +5,7 @@
   background-image: url('{{media_url}}hand/logo.png');
   background-repeat: no-repeat;
   background-position: left 8px center;
-  background-size: 60px;
+  background-size: 114px;
   padding-left: 36px;
 }
 
@@ -100,7 +100,7 @@
           <!-- logo -->
           <div>
             <a href="{% url 'main:index' %}">
-              <img style='width: 220px;' src="{{media_url}}hand/logo.png" alt="لوگو سایت">
+              <img style='width: 300px;' src="{{media_url}}hand/logo.png" alt="لوگو سایت">
             </a>
           </div>
 
@@ -295,7 +295,8 @@
             {% if user.is_authenticated %}
             <div style='margin-left:40px;'>
               <a href="{% url 'main:index' %}">
-                <img style='width: 100px;' alt="لوگو" class="h-6 w-full rounded-lg xs:h-10" src="{{media_url}}hand/logo.png" />
+                <img style='width: 140px;
+  height: 30px;' alt="لوگو" class="h-6 w-full rounded-lg xs:h-10" src="{{media_url}}hand/logo.png" />
               </a>
             </div>
             {% endif %}
