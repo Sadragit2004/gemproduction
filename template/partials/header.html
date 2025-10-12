@@ -2,7 +2,7 @@
 {% load humanize %}
 <style>
 .input-with-icon {
-  background-image: url('{{media_url}}images/logoo.png');
+  background-image: url('{{media_url}}hand/logo.png');
   background-repeat: no-repeat;
   background-position: left 8px center;
   background-size: 60px;
@@ -100,7 +100,7 @@
           <!-- logo -->
           <div>
             <a href="{% url 'main:index' %}">
-              <img style='width: 220px;' src="/media/images/others/gem.png" alt="لوگو سایت">
+              <img style='width: 220px;' src="{{media_url}}hand/logo.png" alt="لوگو سایت">
             </a>
           </div>
 
@@ -295,7 +295,7 @@
             {% if user.is_authenticated %}
             <div style='margin-left:40px;'>
               <a href="{% url 'main:index' %}">
-                <img style='width: 100px;' alt="لوگو" class="h-6 w-full rounded-lg xs:h-10" src="/media/images/others/gem.png" />
+                <img style='width: 100px;' alt="لوگو" class="h-6 w-full rounded-lg xs:h-10" src="{{media_url}}hand/logo.png" />
               </a>
             </div>
             {% endif %}
@@ -370,7 +370,7 @@
     <!-- Logo -->
     <div>
       <a href="{% url 'main:index' %}">
-        <img alt="لوگو در حالت موبایل" class="h-10 w-full rounded-lg" src="/media/images/others/gem.png" />
+        <img alt="لوگو در حالت موبایل" class="h-10 w-full rounded-lg" src="{{media_url}}hand/logo.png" />
       </a>
 
     </div>
