@@ -22,11 +22,7 @@
 <!-- آیکون پیش‌فرض -->
 <link rel="shortcut icon" href="/media/hand/logo-header.png">
       <meta name="theme-color" content="#ffffff">
-      {% if request.GET.utmsource or request.GET.utm_medium or request.GET.utm_campaign %}
-  <link rel="canonical" href="{{ request.build_absolute_uri }}" />
-{% else %}
-  <link rel="canonical" href="{{ request.build_absolute_uri }}" />
-{% endif %}
+     
 
     <meta property="og:locale" content="fa_IR" />
     <meta property="og:type" content="website" />
