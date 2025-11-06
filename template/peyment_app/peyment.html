@@ -34,7 +34,7 @@
         </div>
         <div class="flex gap-x-4">
           <div class="w-full">
-            <a href="{% url 'dp:order_info' %}" class="btn-primary py-3">  مشاهده سفارش </a>
+            <a href="{% url 'panel:order-detail' order_id=order_id %}" class="btn-primary py-3">  مشاهده سفارش </a>
           </div>
           <div class="w-full">
             <a href="{% url 'main:index' %}" class="btn-secondary py-3">  صفحه اصلی </a>
