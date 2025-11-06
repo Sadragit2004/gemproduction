@@ -195,9 +195,31 @@ class Zarin_pal_view_verfiy(LoginRequiredMixin, View):
 # -----------------------------
 # نمایش پیام‌ها
 # -----------------------------
+from django.shortcuts import render, get_object_or_404
+from apps.order.models import Order
+
 def show_verfiy_message(request, message):
-    order = Order.objects.all()
-    return render(request, 'peyment_app/peyment.html', {'message': message, 'orders': order})
+    # دریافت اطلاعات پرداخت از session
+    session_data = request.session.get('peyment_session', {})
+
+    # گرفتن شناسه سفارش از session
+    order_id = session_data.get('order_id')
+
+    # اگر به هر دلیل order_id در session نبود، برگرد به صفحه اصلی
+    if not order_id:
+        return redirect('main:index')
+
+    # گرفتن سفارش مربوطه
+    order = get_object_or_404(Order, id=order_id)
+
+    # ارسال داده‌ها به قالب
+    context = {
+        'message': message,
+        'order_id': order.id,   # 👈 برای لینک استفاده میشه
+        'order': order
+    }
+
+    return render(request, 'peyment_app/peyment.html', context)
 
 
 def show_verfiy_unmessage(request, message):
