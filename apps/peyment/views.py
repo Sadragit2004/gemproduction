@@ -21,8 +21,8 @@ ZP_API_REQUEST = "https://api.zarinpal.com/pg/v4/payment/request.json"
 ZP_API_VERIFY = "https://api.zarinpal.com/pg/v4/payment/verify.json"
 ZP_API_STARTPAY = "https://www.zarinpal.com/pg/StartPay/{authority}"
 
-pay = ZarinPal(merchant='41cb2cdd-3a44-4fb4-a0b3-db471b673078', call_back_url="https://rank0.ir/peyment/verify/")
-merchant='41cb2cdd-3a44-4fb4-a0b3-db471b673078'
+pay = ZarinPal(merchant='f4f735fc-f559-4f0b-a34e-c0438e9a1918', call_back_url="https://gemvisioniran.com/peyment/verify/")
+merchant='f4f735fc-f559-4f0b-a34e-c0438e9a1918'
 
 def send_request(request,order_id):
     # email and mobile is optimal
