@@ -16,7 +16,7 @@ class Peyment(models.Model):
     description = models.TextField(verbose_name='توضیحات پرداخت')
     isFinaly = models.BooleanField(default=False,verbose_name='وضعیت پرداخت')
     statusCode = models.IntegerField(verbose_name='کد وضعیت پرداخت',null=True,blank=True)
-    ref_id = models.CharField(max_length=50, verbose_name='کد پیگیری پرداخت', null=True, blank=True)
+    refId = models.CharField(max_length=50,verbose_name='کد پیگیری پرداخت',null=True,blank=True)
 
 
     def get_jalali_register_date(self):

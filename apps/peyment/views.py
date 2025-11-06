@@ -164,7 +164,7 @@ class Zarin_pal_view_verfiy(LoginRequiredMixin, View):
 
                     peyment.isFinaly = True
                     peyment.statusCode = t_status
-                    peyment.ref_id = str(ref_id) if ref_id else None
+                    peyment.refId = str(ref_id) if ref_id else None
                     peyment.save()
 
                     return redirect('peyment:show_sucess', f'کد رهگیری شما : {ref_id}')
