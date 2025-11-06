@@ -1,46 +1,41 @@
 {% extends "main_template.html" %}
 
 {% block content %}
-
 <main class="flex-grow bg-background pb-14 pt-36 xs:pt-36">
-    <div class="container">
-      <div class="mx-auto max-w-[500px] rounded-lg bg-muted p-5">
-        <!-- Head -->
-        <div class="flex flex-col items-center justify-center gap-y-4">
-          <div>
-            <svg class="h-20 w-20 text-primary">
-              <use xlink:href="#check" />
-            </svg>
-          </div>
-          <h1
-            class="mb-8 text-center text-base text-primary md:text-lg lg:text-xl"
-          >
-            پرداخت سفارش 203040 موفق بود!
-          </h1>
+  <div class="container">
+    <div class="mx-auto max-w-[500px] rounded-lg bg-muted p-5">
+      <!-- Head -->
+      <div class="flex flex-col items-center justify-center gap-y-4">
+        <div>
+          <svg class="h-20 w-20 text-primary">
+            <use xlink:href="#check" />
+          </svg>
         </div>
+        <h1 class="mb-8 text-center text-base text-primary md:text-lg lg:text-xl">
+          {{ message }}
+        </h1>
+      </div>
 
-        <div class="mb-6 flex items-center justify-center text-sm">
-          <div class="flex flex-col items-center gap-y-2 md:gap-y-4">
-            <p class="font-medium md:text-lg">جرئیات پرداخت</p>
-            <div class="flex items-center gap-x-4">
-              <p class="text-text/90">
-                <span class="tracking-wider">{{message}}</span>
-              </p>
-              <p class="text-text/90">
-                {% comment %} تاریخ : <span> 10 / مهر / ۱۴۰۲</span> {% endcomment %}
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="flex gap-x-4">
-          <div class="w-full">
-            <a href="{% url 'panel:order-detail' order_id=order_id %}" class="btn-primary py-3">  مشاهده سفارش </a>
-          </div>
-          <div class="w-full">
-            <a href="{% url 'main:index' %}" class="btn-secondary py-3">  صفحه اصلی </a>
+      <div class="mb-6 flex items-center justify-center text-sm">
+        <div class="flex flex-col items-center gap-y-2 md:gap-y-4">
+          <p class="font-medium md:text-lg">جزئیات پرداخت</p>
+          <div class="flex items-center gap-x-4">
+            <p class="text-text/90">
+              <span class="tracking-wider">شماره سفارش: {{ order.id }}</span>
+            </p>
           </div>
         </div>
       </div>
+
+      <div class="flex gap-x-4">
+        <div class="w-full">
+          <a href="{% url 'panel:order-detail' order_id=order.id %}" class="btn-primary py-3">مشاهده سفارش</a>
+        </div>
+        <div class="w-full">
+          <a href="{% url 'main:index' %}" class="btn-secondary py-3">صفحه اصلی</a>
+        </div>
+      </div>
     </div>
-  </main>
-{% endblock content %}
+  </div>
+</main>
+{% endblock %}
