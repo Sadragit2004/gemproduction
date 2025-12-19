@@ -19,7 +19,7 @@
       </svg>
       <span class="sr-only">Close menu</span>
     </button>
-    <a href="">
+    <a href="{% url 'order:cart' %}">
       <div style='font-size: 15px;' class="text-lg text-text/90">
         مشاهده سبد خرید
       </div>
@@ -43,7 +43,7 @@
         <span class="text-sm">تومان</span>
       </div>
     </div>
-    <a class="btn-primary w-32 py-3 text-sm" href="">
+    <a class="btn-primary w-32 py-3 text-sm" href="{% url 'order:createOrder' %}">
       مشاهده سبد خرید
     </a>
   </div>

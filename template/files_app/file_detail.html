@@ -1709,89 +1709,90 @@
     </div>
 
 <!-- در بخش head یا قبل از بستن body -->
-<script>
+  <script>
 // گرفتن CSRF Token از کوکی‌ها
-function getCookie(name) {
-  let cookieValue = null;
-  if (document.cookie && document.cookie !== "") {
-    const cookies = document.cookie.split(";");
-    for (let i = 0; i < cookies.length; i++) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === (name + "=")) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + "=")) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
       }
     }
+    return cookieValue;
   }
-  return cookieValue;
-}
 
 
-async function toggleFavorite(fileId) {
-  const btn = document.getElementById(`favorite-btn-${fileId}`);
-  if (!btn) return;
+    async function toggleFavorite(fileId) {
+      const btn = document.getElementById(`favorite-btn-${fileId}`);
+      if (!btn) return;
 
-  const heartFull = btn.querySelector(".heart-full");
-  const heartEmpty = btn.querySelector(".heart-empty");
-  const tooltip = document.getElementById("add-to-favorite");
+      const heartFull = btn.querySelector(".heart-full");
+      const heartEmpty = btn.querySelector(".heart-empty");
+      const tooltip = document.getElementById("add-to-favorite");
 
-  // انیمیشن کلیک
-  btn.classList.add("scale-90");
-  setTimeout(() => btn.classList.remove("scale-90"), 150);
+      // انیمیشن کلیک
+      btn.classList.add("scale-90");
+      setTimeout(() => btn.classList.remove("scale-90"), 150);
 
-  try {
-    const response = await fetch(`/order/toggle-favorite/${fileId}/`, {
-      method: "POST",
-      headers: {
-        "X-CSRFToken": getCookie("csrftoken"),
-        "Content-Type": "application/json",
-        "X-Requested-With": "XMLHttpRequest"
-      },
-      credentials: "same-origin"
-    });
+      try {
+        const response = await fetch(`/order/toggle-favorite/${fileId}/`, {
+          method: "POST",
+          headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "Content-Type": "application/json",
+            "X-Requested-With": "XMLHttpRequest"
+          },
+          credentials: "same-origin"
+        });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    if (response.ok) {
-      if (data.status === "added") {
-        // تغییر به قلب پر (قرمز)
-        heartFull.style.display = "block";
-        heartEmpty.style.display = "none";
+        if (response.ok) {
+          if (data.status === "added") {
+            // تغییر به قلب پر (قرمز)
+            heartFull.style.display = "block";
+            heartEmpty.style.display = "none";
 
-        heartFull.classList.add("text-red-500");
-        heartEmpty.classList.remove("text-gray-400");
+            heartFull.classList.add("text-red-500");
+            heartEmpty.classList.remove("text-gray-400");
 
-        if (tooltip) tooltip.innerHTML = "حذف از علاقه‌مندی‌ها";
+            if (tooltip) tooltip.innerHTML = "حذف از علاقه‌مندی‌ها";
 
-        // انیمیشن پرش
-        btn.classList.add("animate-bounce");
-        setTimeout(() => btn.classList.remove("animate-bounce"), 1000);
+            // انیمیشن پرش
+            btn.classList.add("animate-bounce");
+            setTimeout(() => btn.classList.remove("animate-bounce"), 1000);
 
-      } else if (data.status === "removed") {
-        // تغییر به قلب خالی (سیاه/خاکستری)
-        heartFull.style.display = "none";
-        heartEmpty.style.display = "block";
+          } else if (data.status === "removed") {
+            // تغییر به قلب خالی (سیاه/خاکستری)
+            heartFull.style.display = "none";
+            heartEmpty.style.display = "block";
 
-        heartFull.classList.remove("text-red-500");
-        heartEmpty.classList.remove("text-red-500");
-        heartEmpty.classList.add("text-gray-400"); // یا text-black اگر بخوای سیاه شه
+            heartFull.classList.remove("text-red-500");
+            heartEmpty.classList.remove("text-red-500");
+            heartEmpty.classList.add("text-gray-400"); // یا text-black اگر بخوای سیاه شه
 
-        if (tooltip) tooltip.innerHTML = "افزودن به علاقه‌مندی‌ها";
+            if (tooltip) tooltip.innerHTML = "افزودن به علاقه‌مندی‌ها";
+          }
+        } else {
+          alert(data.message || "خطایی رخ داد");
+        }
+
+      } catch (error) {
+        console.error("Error:", error);
+        alert("خطایی در ارتباط با سرور رخ داد");
       }
-    } else {
-      alert(data.message || "خطایی رخ داد");
     }
 
-  } catch (error) {
-    console.error("Error:", error);
-    alert("خطایی در ارتباط با سرور رخ داد");
-  }
-}
 
-
-// برای اینکه از هرجایی بشه صدا زد
-window.toggleFavorite = toggleFavorite;
-</script>
+    // برای اینکه از هرجایی بشه صدا زد
+      window.toggleFavorite = toggleFavorite;
+  </script>
 
 
 <script>
@@ -1857,6 +1858,7 @@ window.toggleFavorite = toggleFavorite;
 
 
 </script>
+
     <script>
 
 
